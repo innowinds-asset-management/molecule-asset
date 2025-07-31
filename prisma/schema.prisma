@@ -1,0 +1,151 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AssetType {
+  id            String         @id @default(cuid())
+  assetName     String
+  code          String         @unique
+  description   String?
+  isActive      Boolean        @default(true)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  industryId    String
+  assets        Asset[]
+  assetSubTypes AssetSubType[]
+
+  @@map("assetType")
+}
+
+model AssetSubType {
+  id          String    @id @default(cuid())
+  assetTypeId String
+  name        String
+  code        String    @unique
+  description String?
+  isActive    Boolean   @default(true)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  assets      Asset[]
+  assetType   AssetType @relation(fields: [assetTypeId], references: [id])
+
+  @@index([assetTypeId], map: "assetSubType_assetTypeId_fkey")
+  @@map("assetSubType")
+}
+
+model Asset {
+  id                  String         @id @default(cuid())
+  assetTypeId         String
+  assetSubTypeId      String
+  assetName           String
+  warrantyPeriod      Int?
+  warrantyStartDate   DateTime?
+  warrantyEndDate     DateTime?
+  installationDate    DateTime?
+  brand               String?
+  model               String?
+  subModel            String?
+  isActive            Boolean        @default(true)
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  consumerId          String
+  partNo              String?
+  supplierCode        String?
+  warrantyId          String?
+  consumerSerialNo    String?
+  goodsReceivedId     String?
+  goodsReceivedItemId String?
+  poLineItemId        String?
+  supplierId          String?
+  supplierSerialNo    String?
+  assetSubType        AssetSubType   @relation(fields: [assetSubTypeId], references: [id])
+  assetType           AssetType      @relation(fields: [assetTypeId], references: [id])
+  installation        Installation[]
+
+  @@index([assetSubTypeId], map: "asset_assetSubTypeId_fkey")
+  @@index([assetTypeId], map: "asset_assetTypeId_fkey")
+  @@map("asset")
+}
+
+model Installation {
+  id             String  @id @default(cuid())
+  assetId        String
+  building       String?
+  departmentName String?
+  floorNumber    String?
+  roomNumber     String?
+  asset          Asset   @relation(fields: [assetId], references: [id])
+
+  @@index([assetId], map: "installation_assetId_fkey")
+  @@map("installation")
+}
+
+enum POStatus {
+  Draft
+  Issued
+  Approved
+}
+
+model PO {
+  id           String       @id @default(cuid())
+  consumerId   String
+  supplierId   String
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt
+  status       POStatus    @default(Draft)
+  grn          GRN[]
+  poLineItem   POLineItem[]
+
+  @@map("po")
+}
+
+model POLineItem {
+  id                 String             @id @default(cuid())
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  grnId              String?
+  partNo             String
+  poId               String
+  price              Float
+  quantity           Float
+  grnItem            GRNItem[]
+  po                 PO                 @relation(fields: [poId], references: [id])
+
+  @@index([poId], map: "purchaseItem_poId_fkey")
+  @@map("poLineItem")
+}
+
+model GRN {
+  id        String    @id @default(cuid())
+  poId      String
+  dateTime  DateTime
+  challan   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  po        PO        @relation(fields: [poId], references: [id])
+  grnItem   GRNItem[]
+
+  @@index([poId], map: "grn_poId_fkey")
+  @@map("grn")
+}
+
+model GRNItem {
+  id           String     @id @default(cuid())
+  grnId        String
+  poLineItemId String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  grn          GRN        @relation(fields: [grnId], references: [id])
+  poLineItem   POLineItem @relation(fields: [poLineItemId], references: [id])
+
+  @@index([grnId], map: "grnItem_grnId_fkey")
+  @@index([poLineItemId], map: "grnItem_poLineItemId_fkey")
+  @@map("grnItem")
+}
+
+

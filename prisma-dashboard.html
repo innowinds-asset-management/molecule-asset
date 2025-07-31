@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asset Management - Prisma Models Dashboard</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 40px;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header p {
+            font-size: 1.2em;
+            opacity: 0.9;
+        }
+        .models-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .model-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .model-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+        .model-card h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+        .model-card p {
+            color: #666;
+            margin-bottom: 15px;
+            line-height: 1.5;
+        }
+        .model-link {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            transition: background 0.3s ease;
+        }
+        .model-link:hover {
+            background: #5a6fd8;
+        }
+        .stats {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .stats h2 {
+            color: #333;
+            margin-bottom: 15px;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+        }
+        .stat-item {
+            text-align: center;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            color: #667eea;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Asset Management System</h1>
+            <p>Database Models Dashboard</p>
+        </div>
+
+        <div class="stats">
+            <h2>System Overview</h2>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number">8</div>
+                    <div class="stat-label">Total Models</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Core Categories</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">4</div>
+                    <div class="stat-label">Purchase Models</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number">2</div>
+                    <div class="stat-label">Asset Models</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="models-grid">
+            <div class="model-card">
+                <h3>AssetType</h3>
+                <p>Defines categories of assets with industry classification. Contains asset types like Equipment, Furniture, Electronics.</p>
+                <a href="http://localhost:5555/AssetType" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>AssetSubType</h3>
+                <p>Subcategories within asset types. Examples: Computers, Printers under Equipment category.</p>
+                <a href="http://localhost:5555/AssetSubType" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>Asset</h3>
+                <p>Individual asset records with detailed information including serial numbers, warranty, and supplier details.</p>
+                <a href="http://localhost:5555/Asset" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>Installation</h3>
+                <p>Location and installation details for assets including building, department, floor, and room information.</p>
+                <a href="http://localhost:5555/Installation" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>PO</h3>
+                <p>Purchase orders with supplier information. Contains supplier details and generates GRN records.</p>
+                <a href="http://localhost:5555/PO" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>POLineItem</h3>
+                <p>Individual line items within purchase orders. Contains part numbers, prices, quantities, and status.</p>
+                <a href="http://localhost:5555/POLineItem" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>GRN</h3>
+                <p>Goods Received Notifications. Tracks when goods are received with challan information.</p>
+                <a href="http://localhost:5555/GRN" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+
+            <div class="model-card">
+                <h3>GRNItem</h3>
+                <p>Individual items in received goods notifications. Links back to specific purchase order line items.</p>
+                <a href="http://localhost:5555/GRNItem" class="model-link" target="_blank">View in Prisma Studio</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

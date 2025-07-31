@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  # MySQL Database
+  mysql:
+    image: mysql:8.0
+    container_name: consumer-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: consumer_db
+      MYSQL_USER: root
+      MYSQL_PASSWORD: root
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      timeout: 20s
+      retries: 10
+
+  # Consumer Service
+  consumer-service:
+    build: .
+    container_name: consumer-service
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=development
+      - DATABASE_URL=mysql://root:root@mysql:3306/consumer_db
+      - PORT=3000
+      - JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+      - API_PREFIX=/api/v1
+    depends_on:
+      mysql:
+        condition: service_healthy
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Prisma Studio (Optional)
+  prisma-studio:
+    build: .
+    container_name: consumer-prisma-studio
+    ports:
+      - "5555:5555"
+    environment:
+      - DATABASE_URL=mysql://root:root@mysql:3306/consumer_db
+    command: npx prisma studio --hostname 0.0.0.0 --port 5555
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data: 
