@@ -58,8 +58,8 @@ model Asset {
   supplierCode        String?
   warrantyId          String?
   consumerSerialNo    String?
-  goodsReceivedId     String?
-  goodsReceivedItemId String?
+  grnId               String?
+  grnItemId           String?
   poLineItemId        String?
   supplierId          String?
   supplierSerialNo    String?
