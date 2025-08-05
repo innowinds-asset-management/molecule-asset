@@ -1,7 +1,7 @@
 //fetch all assets
 
 import { Request, Response } from 'express';
-import { getAllAssets, getAssetById, createAsset, updateAsset, deleteAsset } from '../services/asset.service';
+import { getAllAssets, getAssetById, createAsset, updateAsset, deleteAsset, createAssetComplete } from '../services/asset.service';
 
 export const getAllAssetsController = async (_req: Request, res: Response) => {
   const assets = await getAllAssets();
@@ -44,4 +44,11 @@ export const deleteAssetController = async (req: Request, res: Response) => {
   }
   const deletedAsset = await deleteAsset(id);
   return res.json(deletedAsset);
+};
+
+//create asset complete
+export const createAssetCompleteController = async (req: Request, res: Response) => {
+  const data = req.body;
+  const result = await createAssetComplete(data);
+  return res.json(result);
 };

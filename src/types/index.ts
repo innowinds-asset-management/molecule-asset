@@ -47,35 +47,67 @@ export type Asset = {
   supplierCode?: string | null;
   warrantyId?: string | null;
   consumerSerialNo?: string | null;
-  goodsReceivedId?: string | null;
-  goodsReceivedItemId?: string | null;
+  grnId?: string | null;
+  grnItemId?: string | null;
   poLineItemId?: string | null;
   supplierId?: string | null;
   supplierSerialNo?: string | null;
   // Optionally, you can add these if you want nested types:
   // assetSubType?: AssetSubType;
   // assetType?: AssetType;
-  // installation?: Installation[];
+  // locations?: Location[];
+  // installations?: Installation[];
 };
 
 
-export type Installation = {
+export type Department = {
+  deptId: string;
+  deptName: string;
+  consumerId: string;
+  createdAt: Date;
+  updatedAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // locations?: Location[];
+  // installations?: Installation[];
+};
+
+export type Location = {
   id: string;
   assetId: string;
+  departmentId: string;
   building?: string | null;
-  departmentName?: string | null;
   floorNumber?: string | null;
   roomNumber?: string | null;
-  // Optionally, you can add this if you want nested types:
+  isCurrentLocation: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  // Optionally, you can add these if you want nested types:
   // asset?: Asset;
+  // department?: Department;
+  // installations?: Installation[];
+};
+
+export type Installation = {  
+  id: string;
+  assetId: string;
+  locationId: string;
+  departmentId: string;
+  installationDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // asset?: Asset;
+  // location?: Location;
+  // department?: Department;
 };
 
 export type PO = {
   id: string;
+  consumerId: string;
   supplierId: string;
-  supplierName: string;
   createdAt: Date;
   updatedAt: Date;
+  status: 'Draft' | 'Issued' | 'Approved';
   // Optionally, you can add these if you want nested types:
   // grn?: GRN[];
   // poLineItem?: POLineItem[];
@@ -83,7 +115,6 @@ export type PO = {
 
 export type POLineItem = {
   id: string;
-  purchaseItemStatus: 'RECEIVED' | 'APPROVED' | 'REJECTED';
   createdAt: Date;
   updatedAt: Date;
   grnId?: string | null;
@@ -100,6 +131,8 @@ export type POLineItem = {
 export type GRN = {
   id: string;
   poId: string;
+  dateTime: Date;
+  challan?: string | null;
   createdAt: Date;
   updatedAt: Date;
   // Optionally, you can add these if you want nested types:
@@ -113,4 +146,36 @@ export type GRNItem = {
   poLineItemId: string;
   createdAt: Date;
   updatedAt: Date;
+};
+
+
+export type CreateAssetCompleteData = {
+      assetTypeId: string;
+      assetSubTypeId: string;
+      assetName: string;
+      warrantyPeriod?: number | null;
+      warrantyStartDate?: Date | null;
+      warrantyEndDate?: Date | null;
+      installationDate?: Date | null;
+      brand?: string | null;
+      model?: string | null;
+      subModel?: string | null;
+      isActive?: boolean;
+      consumerId: string;
+      partNo?: string | null;
+      supplierCode?: string | null;
+      warrantyId?: string | null;
+      consumerSerialNo?: string | null;
+      grnId?: string | null;
+      grnItemId?: string | null;
+      poLineItemId?: string | null;
+      supplierId?: string | null;
+      supplierSerialNo?: string | null;
+      departmentId?: string;
+      building?: string;
+      floorNumber?: string;
+      roomNumber?: string;
+      isCurrentLocation?: boolean;
+      createdAt?: Date;
+      updatedAt?: Date;
 };

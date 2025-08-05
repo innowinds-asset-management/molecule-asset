@@ -58,6 +58,7 @@ model Asset {
   supplierCode        String?
   warrantyId          String?
   consumerSerialNo    String?
+  departmentId        String?
   grnId               String?
   grnItemId           String?
   poLineItemId        String?
@@ -65,25 +66,74 @@ model Asset {
   supplierSerialNo    String?
   assetSubType        AssetSubType   @relation(fields: [assetSubTypeId], references: [id])
   assetType           AssetType      @relation(fields: [assetTypeId], references: [id])
-  installation        Installation[]
+  
+  // Relations
+  locations           Location[]     
+  installations       Installation[] 
 
   @@index([assetSubTypeId], map: "asset_assetSubTypeId_fkey")
   @@index([assetTypeId], map: "asset_assetTypeId_fkey")
   @@map("asset")
 }
 
+// New Department Model
+model Department {
+  deptId         String         @id @default(cuid())
+  deptName       String
+  consumerId     String
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  
+  // Relations
+  locations      Location[]
+  installations  Installation[]
+
+  @@index([consumerId], map: "department_consumerId_idx")
+  @@map("department")
+}
+
+
+model Location {
+  id                  String       @id @default(cuid())
+  assetId             String
+  departmentId        String
+  building            String?  
+  floorNumber         String?
+  roomNumber          String?
+  isCurrentLocation   Boolean @default(true)
+  createdAt           DateTime     @default(now())
+  updatedAt           DateTime     @updatedAt
+  
+  // Relations
+  asset          Asset        @relation(fields: [assetId], references: [id])
+  department     Department   @relation(fields: [departmentId], references: [deptId])
+  installations  Installation[] // One location can have multiple installations
+
+  @@index([assetId], map: "location_assetId_fkey")
+  @@index([departmentId], map: "location_departmentId_fkey")
+  @@map("location")
+}
+
 model Installation {
-  id             String  @id @default(cuid())
-  assetId        String
-  building       String?
-  departmentName String?
-  floorNumber    String?
-  roomNumber     String?
-  asset          Asset   @relation(fields: [assetId], references: [id])
+  id               String     @id @default(cuid())
+  assetId          String
+  locationId       String
+  departmentId     String
+  installationDate DateTime
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  
+  // Relations
+  asset            Asset      @relation(fields: [assetId], references: [id])
+  location         Location   @relation(fields: [locationId], references: [id])
+  department       Department @relation(fields: [departmentId], references: [deptId])
 
   @@index([assetId], map: "installation_assetId_fkey")
+  @@index([locationId], map: "installation_locationId_fkey")
+  @@index([departmentId], map: "installation_departmentId_fkey")
   @@map("installation")
 }
+
 
 enum POStatus {
   Draft

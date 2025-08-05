@@ -380,51 +380,132 @@ async function main() {
 
   console.log('✅ Created Assets')
 
+  // Create Departments first
+  const departments = await Promise.all([
+    prisma.department.create({
+      data: {
+        deptName: 'IT Department',
+        consumerId: 'consumer_1',
+      },
+    }),
+    prisma.department.create({
+      data: {
+        deptName: 'Administration',
+        consumerId: 'consumer_1',
+      },
+    }),
+    prisma.department.create({
+      data: {
+        deptName: 'Human Resources',
+        consumerId: 'consumer_1',
+      },
+    }),
+    prisma.department.create({
+      data: {
+        deptName: 'Sales Department',
+        consumerId: 'consumer_1',
+      },
+    }),
+  ])
+
+  console.log('✅ Created Departments')
+
+  // Create Locations
+  const locations = await Promise.all([
+    prisma.location.create({
+      data: {
+        assetId: assets[0].id,
+        departmentId: departments[0].deptId, // IT Department
+        building: 'Building A',
+        floorNumber: '2',
+        roomNumber: '201',
+        isCurrentLocation: true,
+      },
+    }),
+    prisma.location.create({
+      data: {
+        assetId: assets[1].id,
+        departmentId: departments[1].deptId, // Administration
+        building: 'Building B',
+        floorNumber: '1',
+        roomNumber: '105',
+        isCurrentLocation: true,
+      },
+    }),
+    prisma.location.create({
+      data: {
+        assetId: assets[2].id,
+        departmentId: departments[2].deptId, // Human Resources
+        building: 'Building A',
+        floorNumber: '3',
+        roomNumber: '301',
+        isCurrentLocation: true,
+      },
+    }),
+    prisma.location.create({
+      data: {
+        assetId: assets[3].id,
+        departmentId: departments[0].deptId, // IT Department
+        building: 'Data Center',
+        floorNumber: '1',
+        roomNumber: 'DC-01',
+        isCurrentLocation: true,
+      },
+    }),
+    prisma.location.create({
+      data: {
+        assetId: assets[4].id,
+        departmentId: departments[3].deptId, // Sales Department
+        building: 'Building C',
+        floorNumber: '1',
+        roomNumber: '101',
+        isCurrentLocation: true,
+      },
+    }),
+  ])
+
+  console.log('✅ Created Locations')
+
   // Create Installations
   const installations = await Promise.all([
     prisma.installation.create({
       data: {
         assetId: assets[0].id,
-        building: 'Building A',
-        departmentName: 'IT Department',
-        floorNumber: '2',
-        roomNumber: '201',
+        locationId: locations[0].id,
+        departmentId: departments[0].deptId,
+        installationDate: new Date('2024-01-15'),
       },
     }),
     prisma.installation.create({
       data: {
         assetId: assets[1].id,
-        building: 'Building B',
-        departmentName: 'Administration',
-        floorNumber: '1',
-        roomNumber: '105',
+        locationId: locations[1].id,
+        departmentId: departments[1].deptId,
+        installationDate: new Date('2024-01-20'),
       },
     }),
     prisma.installation.create({
       data: {
         assetId: assets[2].id,
-        building: 'Building A',
-        departmentName: 'Human Resources',
-        floorNumber: '3',
-        roomNumber: '301',
+        locationId: locations[2].id,
+        departmentId: departments[2].deptId,
+        installationDate: new Date('2024-02-01'),
       },
     }),
     prisma.installation.create({
       data: {
         assetId: assets[3].id,
-        building: 'Data Center',
-        departmentName: 'IT Department',
-        floorNumber: '1',
-        roomNumber: 'DC-01',
+        locationId: locations[3].id,
+        departmentId: departments[0].deptId,
+        installationDate: new Date('2024-02-10'),
       },
     }),
     prisma.installation.create({
       data: {
         assetId: assets[4].id,
-        building: 'Building C',
-        departmentName: 'Sales Department',
-        floorNumber: '1',
-        roomNumber: '101',
+        locationId: locations[4].id,
+        departmentId: departments[3].deptId,
+        installationDate: new Date('2024-02-15'),
       },
     }),
   ])
@@ -454,6 +535,8 @@ async function main() {
   console.log(`   • AssetTypes: ${assetTypes.length}`)
   console.log(`   • AssetSubTypes: ${assetSubTypes.length}`)
   console.log(`   • Assets: ${assets.length}`)
+  console.log(`   • Departments: ${departments.length}`)
+  console.log(`   • Locations: ${locations.length}`)
   console.log(`   • Installations: ${installations.length}`)
   console.log(`   • Purchase Orders: ${pos.length}`)
   console.log(`   • PO Line Items: ${poLineItems.length}`)

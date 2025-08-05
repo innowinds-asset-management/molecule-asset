@@ -470,6 +470,559 @@ const options = {
               description: 'JWT authentication token'
             }
           }
+        },
+        Department: {
+          type: 'object',
+          properties: {
+            deptId: {
+              type: 'string',
+              description: 'Unique identifier for the department'
+            },
+            deptName: {
+              type: 'string',
+              description: 'Department name'
+            },
+            consumerId: {
+              type: 'string',
+              description: 'ID of the consumer this department belongs to'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Department creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Department last update timestamp'
+            }
+          },
+          required: ['deptId', 'deptName', 'consumerId', 'createdAt', 'updatedAt']
+        },
+        CreateDepartmentDto: {
+          type: 'object',
+          properties: {
+            deptName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 100,
+              description: 'Department name'
+            },
+            consumerId: {
+              type: 'string',
+              description: 'ID of the consumer this department belongs to'
+            }
+          },
+          required: ['deptName', 'consumerId']
+        },
+        Location: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique identifier for the location'
+            },
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset this location belongs to'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'ID of the department this location belongs to'
+            },
+            building: {
+              type: 'string',
+              nullable: true,
+              description: 'Building name or identifier'
+            },
+            floorNumber: {
+              type: 'string',
+              nullable: true,
+              description: 'Floor number'
+            },
+            roomNumber: {
+              type: 'string',
+              nullable: true,
+              description: 'Room number'
+            },
+            isCurrentLocation: {
+              type: 'boolean',
+              description: 'Whether this is the current location of the asset',
+              default: true
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Location creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Location last update timestamp'
+            }
+          },
+          required: ['id', 'assetId', 'departmentId', 'isCurrentLocation', 'createdAt', 'updatedAt']
+        },
+        CreateLocationDto: {
+          type: 'object',
+          properties: {
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset this location belongs to'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'ID of the department this location belongs to'
+            },
+            building: {
+              type: 'string',
+              description: 'Building name or identifier'
+            },
+            floorNumber: {
+              type: 'string',
+              description: 'Floor number'
+            },
+            roomNumber: {
+              type: 'string',
+              description: 'Room number'
+            },
+            isCurrentLocation: {
+              type: 'boolean',
+              description: 'Whether this is the current location of the asset',
+              default: true
+            }
+          },
+          required: ['assetId', 'departmentId']
+        },
+        Asset: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique identifier for the asset'
+            },
+            assetTypeId: {
+              type: 'string',
+              description: 'ID of the asset type'
+            },
+            assetSubTypeId: {
+              type: 'string',
+              description: 'ID of the asset subtype'
+            },
+            assetName: {
+              type: 'string',
+              description: 'Name of the asset'
+            },
+            warrantyPeriod: {
+              type: 'integer',
+              nullable: true,
+              description: 'Warranty period in months'
+            },
+            warrantyStartDate: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Warranty start date'
+            },
+            warrantyEndDate: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Warranty end date'
+            },
+            installationDate: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Asset installation date'
+            },
+            brand: {
+              type: 'string',
+              nullable: true,
+              description: 'Asset brand'
+            },
+            model: {
+              type: 'string',
+              nullable: true,
+              description: 'Asset model'
+            },
+            subModel: {
+              type: 'string',
+              nullable: true,
+              description: 'Asset sub-model'
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Whether the asset is active',
+              default: true
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Asset creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Asset last update timestamp'
+            },
+            consumerId: {
+              type: 'string',
+              description: 'ID of the consumer this asset belongs to'
+            },
+            partNo: {
+              type: 'string',
+              nullable: true,
+              description: 'Part number'
+            },
+            supplierCode: {
+              type: 'string',
+              nullable: true,
+              description: 'Supplier code'
+            },
+            warrantyId: {
+              type: 'string',
+              nullable: true,
+              description: 'Warranty ID'
+            },
+            consumerSerialNo: {
+              type: 'string',
+              nullable: true,
+              description: 'Consumer serial number'
+            },
+            grnId: {
+              type: 'string',
+              nullable: true,
+              description: 'Goods Received Note ID'
+            },
+            grnItemId: {
+              type: 'string',
+              nullable: true,
+              description: 'Goods Received Note Item ID'
+            },
+            poLineItemId: {
+              type: 'string',
+              nullable: true,
+              description: 'Purchase Order Line Item ID'
+            },
+            supplierId: {
+              type: 'string',
+              nullable: true,
+              description: 'Supplier ID'
+            },
+            supplierSerialNo: {
+              type: 'string',
+              nullable: true,
+              description: 'Supplier serial number'
+            }
+          },
+          required: ['id', 'assetTypeId', 'assetSubTypeId', 'assetName', 'isActive', 'createdAt', 'updatedAt', 'consumerId']
+        },
+        CreateAssetDto: {
+          type: 'object',
+          properties: {
+            assetTypeId: {
+              type: 'string',
+              description: 'ID of the asset type'
+            },
+            assetSubTypeId: {
+              type: 'string',
+              description: 'ID of the asset subtype'
+            },
+            assetName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 200,
+              description: 'Name of the asset'
+            },
+            warrantyPeriod: {
+              type: 'integer',
+              description: 'Warranty period in months'
+            },
+            warrantyStartDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty start date'
+            },
+            warrantyEndDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty end date'
+            },
+            installationDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Asset installation date'
+            },
+            brand: {
+              type: 'string',
+              description: 'Asset brand'
+            },
+            model: {
+              type: 'string',
+              description: 'Asset model'
+            },
+            subModel: {
+              type: 'string',
+              description: 'Asset sub-model'
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Whether the asset is active',
+              default: true
+            },
+            consumerId: {
+              type: 'string',
+              description: 'ID of the consumer this asset belongs to'
+            },
+            partNo: {
+              type: 'string',
+              description: 'Part number'
+            },
+            supplierCode: {
+              type: 'string',
+              description: 'Supplier code'
+            },
+            warrantyId: {
+              type: 'string',
+              description: 'Warranty ID'
+            },
+            consumerSerialNo: {
+              type: 'string',
+              description: 'Consumer serial number'
+            },
+            grnId: {
+              type: 'string',
+              description: 'Goods Received Note ID'
+            },
+            grnItemId: {
+              type: 'string',
+              description: 'Goods Received Note Item ID'
+            },
+            poLineItemId: {
+              type: 'string',
+              description: 'Purchase Order Line Item ID'
+            },
+            supplierId: {
+              type: 'string',
+              description: 'Supplier ID'
+            },
+            supplierSerialNo: {
+              type: 'string',
+              description: 'Supplier serial number'
+            }
+          },
+          required: ['assetTypeId', 'assetSubTypeId', 'assetName', 'consumerId']
+        },
+        UpdateAssetDto: {
+          type: 'object',
+          properties: {
+            assetTypeId: {
+              type: 'string',
+              description: 'ID of the asset type'
+            },
+            assetSubTypeId: {
+              type: 'string',
+              description: 'ID of the asset subtype'
+            },
+            assetName: {
+              type: 'string',
+              minLength: 1,
+              maxLength: 200,
+              description: 'Name of the asset'
+            },
+            warrantyPeriod: {
+              type: 'integer',
+              description: 'Warranty period in months'
+            },
+            warrantyStartDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty start date'
+            },
+            warrantyEndDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty end date'
+            },
+            installationDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Asset installation date'
+            },
+            brand: {
+              type: 'string',
+              description: 'Asset brand'
+            },
+            model: {
+              type: 'string',
+              description: 'Asset model'
+            },
+            subModel: {
+              type: 'string',
+              description: 'Asset sub-model'
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Whether the asset is active'
+            },
+            consumerId: {
+              type: 'string',
+              description: 'ID of the consumer this asset belongs to'
+            },
+            partNo: {
+              type: 'string',
+              description: 'Part number'
+            },
+            supplierCode: {
+              type: 'string',
+              description: 'Supplier code'
+            },
+            warrantyId: {
+              type: 'string',
+              description: 'Warranty ID'
+            },
+            consumerSerialNo: {
+              type: 'string',
+              description: 'Consumer serial number'
+            },
+            grnId: {
+              type: 'string',
+              description: 'Goods Received Note ID'
+            },
+            grnItemId: {
+              type: 'string',
+              description: 'Goods Received Note Item ID'
+            },
+            poLineItemId: {
+              type: 'string',
+              description: 'Purchase Order Line Item ID'
+            },
+            supplierId: {
+              type: 'string',
+              description: 'Supplier ID'
+            },
+            supplierSerialNo: {
+              type: 'string',
+              description: 'Supplier serial number'
+            }
+          }
+        },
+        CreateAssetCompleteDto: {
+          type: 'array',
+          items: {
+            $ref: '#/components/schemas/CreateAssetDto'
+          },
+          description: 'Array of assets to create with locations and installations'
+        },
+        AssetComplete: {
+          type: 'object',
+          properties: {
+            assets: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Asset'
+              },
+              description: 'Array of created assets'
+            },
+            locations: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Location'
+              },
+              description: 'Array of created locations'
+            },
+            installations: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/Installation'
+              },
+              description: 'Array of created installations'
+            }
+          },
+          description: 'Complete asset creation result with related locations and installations'
+        },
+        Installation: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique identifier for the installation'
+            },
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset being installed'
+            },
+            locationId: {
+              type: 'string',
+              description: 'ID of the location where the asset is installed'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'ID of the department responsible for the installation'
+            },
+            installationDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Date and time of the installation'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Installation record creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Installation record last update timestamp'
+            }
+          },
+          required: ['id', 'assetId', 'locationId', 'departmentId', 'installationDate', 'createdAt', 'updatedAt']
+        },
+        CreateInstallationDto: {
+          type: 'object',
+          properties: {
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset being installed'
+            },
+            locationId: {
+              type: 'string',
+              description: 'ID of the location where the asset is installed'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'ID of the department responsible for the installation'
+            },
+            installationDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Date and time of the installation'
+            }
+          },
+          required: ['assetId', 'locationId', 'departmentId', 'installationDate']
+        },
+        UpdateInstallationDto: {
+          type: 'object',
+          properties: {
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset being installed'
+            },
+            locationId: {
+              type: 'string',
+              description: 'ID of the location where the asset is installed'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'ID of the department responsible for the installation'
+            },
+            installationDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Date and time of the installation'
+            }
+          }
         }
       },
       parameters: {

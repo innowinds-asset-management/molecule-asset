@@ -18,6 +18,8 @@ import poRoutes from './routes/po.route';
 import poLineItemRoutes from './routes/poLineItem.route';
 import grnRoutes from './routes/grn.route';
 import grnItemRoutes from './routes/grnItem.route';
+import departmentRoutes from './routes/department.route';
+import locationRoutes from './routes/location.route';
 
 dotenv.config();
 
@@ -141,7 +143,10 @@ app.use(`${apiPrefix}/po-line-item`, poLineItemRoutes);
 app.use(`${apiPrefix}/grn`, grnRoutes);
 // Goods Received Note Item routes
 app.use(`${apiPrefix}/grn-item`, grnItemRoutes);
-
+// Department routes
+app.use(`${apiPrefix}/department`, departmentRoutes);
+// Location routes
+app.use(`${apiPrefix}/location`, locationRoutes);
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
