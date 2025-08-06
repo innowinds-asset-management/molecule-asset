@@ -66,6 +66,7 @@ model Asset {
   supplierSerialNo    String?
   assetSubType        AssetSubType   @relation(fields: [assetSubTypeId], references: [id])
   assetType           AssetType      @relation(fields: [assetTypeId], references: [id])
+  department          Department?    @relation(fields: [departmentId], references: [deptId])
   
   // Relations
   locations           Location[]     
@@ -73,6 +74,7 @@ model Asset {
 
   @@index([assetSubTypeId], map: "asset_assetSubTypeId_fkey")
   @@index([assetTypeId], map: "asset_assetTypeId_fkey")
+  @@index([departmentId], map: "asset_departmentId_fkey")
   @@map("asset")
 }
 
@@ -87,6 +89,7 @@ model Department {
   // Relations
   locations      Location[]
   installations  Installation[]
+  assets         Asset[]        // Reverse relation to Asset
 
   @@index([consumerId], map: "department_consumerId_idx")
   @@map("department")

@@ -12,6 +12,13 @@ export const getAllAssets = async () => {
 export const getAssetById = async (id: string) => {
   return await prisma.asset.findUnique({
     where: { id },
+    include: {
+      locations: true,   
+      installations: true,
+      department: true,
+      assetType: true,
+      assetSubType: true,
+    },
   });
 };
 

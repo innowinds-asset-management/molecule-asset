@@ -57,6 +57,7 @@ export type Asset = {
   // assetType?: AssetType;
   // locations?: Location[];
   // installations?: Installation[];
+  department?: Department[];
 };
 
 
