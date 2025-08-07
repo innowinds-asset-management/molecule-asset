@@ -71,6 +71,7 @@ export const createAssetComplete = async (data: CreateAssetCompleteData[]) => {
       ...(item.grnItemId !== undefined && { grnItemId: item.grnItemId }),
       ...(item.poLineItemId !== undefined && { poLineItemId: item.poLineItemId }),
       ...(item.supplierId !== undefined && { supplierId: item.supplierId }),
+      ...(item.isAmc !== undefined && { isAmc: item.isAmc }),
       ...(item.supplierSerialNo !== undefined && { supplierSerialNo: item.supplierSerialNo }),
       ...(item.departmentId !== undefined && { departmentId: item.departmentId })
     }));

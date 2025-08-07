@@ -52,6 +52,7 @@ export type Asset = {
   poLineItemId?: string | null;
   supplierId?: string | null;
   supplierSerialNo?: string | null;
+  isAmc?: boolean;
   // Optionally, you can add these if you want nested types:
   // assetSubType?: AssetSubType;
   // assetType?: AssetType;
@@ -174,6 +175,7 @@ export type CreateAssetCompleteData = {
       supplierSerialNo?: string | null;
       departmentId?: string;
       building?: string;
+      isAmc?: boolean;
       floorNumber?: string;
       roomNumber?: string;
       isCurrentLocation?: boolean;
