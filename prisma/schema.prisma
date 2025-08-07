@@ -57,6 +57,7 @@ model Asset {
   partNo              String?
   supplierCode        String?
   warrantyId          String?
+  isAmc               Boolean?       @default(true)
   consumerSerialNo    String?
   departmentId        String?
   grnId               String?
