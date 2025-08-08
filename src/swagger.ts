@@ -1023,7 +1023,201 @@ const options = {
               description: 'Date and time of the installation'
             }
           }
-        }
+        },
+        WarrantyType: {
+          type: 'object',
+          properties: {
+            warrantyTypeId: {
+              type: 'integer',
+              description: 'Unique identifier for the warranty type'
+            },
+            typeName: {
+              type: 'string',
+              description: 'Name of the warranty type'
+            },
+            description: {
+              type: 'string',
+              nullable: true,
+              description: 'Description of the warranty type'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty type creation timestamp'
+            }
+          },
+          required: ['warrantyTypeId', 'typeName', 'createdAt']
+        },
+        Warranty: {
+          type: 'object',
+          properties: {
+            warrantyId: {
+              type: 'integer',
+              description: 'Unique identifier for the warranty'
+            },
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset this warranty belongs to'
+            },
+            warrantyTypeId: {
+              type: 'integer',
+              description: 'ID of the warranty type'
+            },
+            warrantySupplierId: {
+              type: 'string',
+              nullable: true,
+              description: 'Supplier ID for the warranty'
+            },
+            warrantyNumber: {
+              type: 'string',
+              nullable: true,
+              description: 'Warranty number'
+            },
+            startDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Start date of the warranty'
+            },
+            endDate: {
+              type: 'string',
+              format: 'date-time',
+              description: 'End date of the warranty'
+            },
+            warrantyPeriod: {
+              type: 'integer',
+              nullable: true,
+              description: 'Warranty period in months'
+            },
+            coverageType: {
+              type: 'string',
+              nullable: true,
+              description: 'Type of coverage'
+            },
+            coverageDescription: {
+              type: 'string',
+              nullable: true,
+              description: 'Description of coverage'
+            },
+            termsConditions: {
+              type: 'string',
+              nullable: true,
+              description: 'Terms and conditions'
+            },
+            cost: {
+              type: 'number',
+              nullable: true,
+              description: 'Cost of the warranty'
+            },
+            isActive: {
+              type: 'boolean',
+              description: 'Whether the warranty is active',
+              default: true
+            },
+            autoRenewal: {
+              type: 'boolean',
+              description: 'Whether the warranty auto-renews',
+              default: false
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Warranty last update timestamp'
+            },
+            consumerId: {
+              type: 'integer',
+              nullable: true,
+              description: 'Consumer ID'
+            },
+            supplierId: {
+              type: 'integer',
+              nullable: true,
+              description: 'Supplier ID'
+            },
+            warrantyType: {
+              $ref: '#/components/schemas/WarrantyType',
+              description: 'Associated warranty type information'
+            },
+            asset: {
+              $ref: '#/components/schemas/Asset',
+              description: 'Associated asset information'
+            }
+          },
+          required: ['warrantyId', 'assetId', 'warrantyTypeId', 'startDate', 'endDate', 'isActive', 'autoRenewal', 'createdAt', 'updatedAt']
+        },
+        ServiceRequest: {
+          type: 'object',
+          properties: {
+            serviceRequestId: {
+              type: 'integer',
+              description: 'Unique identifier for the service request'
+            },
+            assetId: {
+              type: 'string',
+              description: 'ID of the asset this service request belongs to'
+            },
+            technicianName: {
+              type: 'string',
+              description: 'Name of the technician'
+            },
+            serviceSupplierName: {
+              type: 'string',
+              description: 'Name of the service supplier'
+            },
+            warrantyStatus: {
+              type: 'string',
+              enum: ['ACTIVE', 'EXPIRED', 'VOID', 'CLAIMED', 'PENDING_CLAIM', 'TRANSFERRED', 'SUSPENDED', 'NOT_APPLICABLE'],
+              description: 'Status of the warranty'
+            },
+            serviceStatus: {
+              type: 'string',
+              nullable: true,
+              description: 'Status of the service'
+            },
+            serviceDate: {
+              type: 'string',
+              format: 'date',
+              description: 'Date of the service'
+            },
+            serviceType: {
+              type: 'string',
+              nullable: true,
+              description: 'Type of service (Preventive, Repair, Installation)'
+            },
+            serviceDescription: {
+              type: 'string',
+              nullable: true,
+              description: 'Description of the service'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Service request creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Service request last update timestamp'
+            },
+            approverName: {
+              type: 'string',
+              nullable: true,
+              description: 'Name of the approver'
+            },
+            serviceRequestItems: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/ServiceRequestItem'
+              },
+              description: 'List of service request items'
+            }
+          },
+          required: ['serviceRequestId', 'assetId', 'technicianName', 'serviceSupplierName', 'warrantyStatus', 'serviceDate', 'createdAt', 'updatedAt']
+        },
       },
       parameters: {
         page: {

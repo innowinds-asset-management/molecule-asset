@@ -20,6 +20,8 @@ import grnRoutes from './routes/grn.route';
 import grnItemRoutes from './routes/grnItem.route';
 import departmentRoutes from './routes/department.route';
 import locationRoutes from './routes/location.route';
+import warrantyRoutes from './routes/warranty.route';
+import serviceRequestRoutes from './routes/serviceRequest.route';
 
 dotenv.config();
 
@@ -147,6 +149,10 @@ app.use(`${apiPrefix}/grn-item`, grnItemRoutes);
 app.use(`${apiPrefix}/department`, departmentRoutes);
 // Location routes
 app.use(`${apiPrefix}/location`, locationRoutes);
+// Warranty routes
+app.use(`${apiPrefix}/warranty`, warrantyRoutes);
+// Service Request routes
+app.use(`${apiPrefix}/service-request`, serviceRequestRoutes);
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {

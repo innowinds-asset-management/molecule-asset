@@ -45,7 +45,6 @@ export type Asset = {
   consumerId: string;
   partNo?: string | null;
   supplierCode?: string | null;
-  warrantyId?: string | null;
   consumerSerialNo?: string | null;
   grnId?: string | null;
   grnItemId?: string | null;
@@ -59,8 +58,8 @@ export type Asset = {
   // locations?: Location[];
   // installations?: Installation[];
   department?: Department[];
+  warranties?: Warranty[];
 };
-
 
 export type Department = {
   deptId: string;
@@ -150,6 +149,147 @@ export type GRNItem = {
   updatedAt: Date;
 };
 
+// Warranty Types
+export type WarrantyType = {
+  warrantyTypeId: number;
+  typeName: string;
+  description?: string | null;
+  createdAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // warranties?: Warranty[];
+};
+
+export type Warranty = {
+  warrantyId: number;
+  assetId: string;
+  warrantyTypeId: number;
+  warrantySupplierId?: string | null;
+  warrantyNumber?: string | null;
+  startDate: Date;
+  endDate: Date;
+  warrantyPeriod?: number | null;
+  coverageType?: string | null;
+  coverageDescription?: string | null;
+  termsConditions?: string | null;
+  cost?: number | null;
+  isActive: boolean;
+  autoRenewal: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+  consumerId?: number | null;
+  supplierId?: number | null;
+  // Optionally, you can add these if you want nested types:
+  // warrantyType?: WarrantyType;
+  // asset?: Asset;
+  // notifications?: WarrantyNotification[];
+};
+
+export type WarrantyNotification = {
+  notificationId: number;
+  warrantyId: number;
+  notificationType: 'Expiry_Warning' | 'Expired' | 'Renewal_Due' | 'Claim_Update';
+  message: string;
+  recipientEmail?: string | null;
+  sentDate?: Date | null;
+  isSent: boolean;
+  createdAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // warranty?: Warranty;
+};
+
+export type ConsumerPreference = {
+  preferenceId: number;
+  consumerId: number;
+  notificationDays: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type SupplierPreference = {
+  preferenceId: number;
+  supplierId: number;
+  notificationDays: number;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type ContractType = {
+  contractTypeId: number;
+  typeName: 'AMC' | 'CMC' | 'ON_CALL' | 'BREAKDOWN_MAINTENANCE';
+  typeCode: string;
+  description?: string | null;
+  contractDurationMonths?: number | null;
+  createdAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // serviceContracts?: ServiceContract[];
+};
+
+export type ServiceContractStatus = {
+  statusId: number;
+  name: string;
+  createdAt: Date;
+  updatedAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // serviceContracts?: ServiceContract[];
+};
+
+export type ServiceContract = {
+  contractId: number;
+  contractNumber: string;
+  contractTypeId: number;
+  assetId: string;
+  serviceSupplierId: number;
+  contractName: string;
+  startDate: Date;
+  endDate: Date;
+  paymentTerms: 'MONTHLY' | 'QUARTERLY' | 'HALF_YEARLY' | 'YEARLY' | 'ONE_TIME';
+  coverageType: 'COMPREHENSIVE' | 'PARTS_ONLY' | 'LABOR_ONLY' | 'PREVENTIVE_ONLY';
+  includes?: string | null;
+  excludes?: string | null;
+  serviceFrequency: 'MONTHLY' | 'QUARTERLY' | 'HALF_YEARLY' | 'YEARLY' | 'AS_REQUIRED';
+  preventiveMaintenanceIncluded: boolean;
+  breakdownMaintenanceIncluded: boolean;
+  autoRenewal: boolean;
+  createdBy?: string | null;
+  updatedBy?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  statusId?: number | null;
+  // Optionally, you can add these if you want nested types:
+  // contractType?: ContractType;
+  // status?: ServiceContractStatus;
+};
+
+export type ServiceRequest = {
+  serviceRequestId: number;
+  assetId: string;
+  technicianName: string;
+  serviceSupplierName: string;
+  warrantyStatus: 'ACTIVE' | 'EXPIRED' | 'VOID' | 'CLAIMED' | 'PENDING_CLAIM' | 'TRANSFERRED' | 'SUSPENDED' | 'NOT_APPLICABLE';
+  serviceStatus?: string | null;
+  serviceDate: Date;
+  serviceType?: string | null;
+  serviceDescription?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  approverName?: string | null;
+  // Optionally, you can add these if you want nested types:
+  // serviceRequestItems?: ServiceRequestItem[];
+};
+
+export type ServiceRequestItem = {
+  serviceRequestItemId: number;
+  serviceRequestId: number;
+  assetId: string;
+  partName: string;
+  partCost: number;
+  labourCost: number;
+  defectDescription?: string | null;
+  createdAt: Date;
+  updatedAt: Date;
+  // Optionally, you can add these if you want nested types:
+  // serviceRequest?: ServiceRequest;
+};
 
 export type CreateAssetCompleteData = {
       assetTypeId: string;
@@ -166,7 +306,6 @@ export type CreateAssetCompleteData = {
       consumerId: string;
       partNo?: string | null;
       supplierCode?: string | null;
-      warrantyId?: string | null;
       consumerSerialNo?: string | null;
       grnId?: string | null;
       grnItemId?: string | null;
