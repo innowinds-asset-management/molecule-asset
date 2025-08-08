@@ -56,7 +56,6 @@ model Asset {
   consumerId          String
   partNo              String?
   supplierCode        String?
-  warrantyId          String?
   isAmc               Boolean?       @default(true)
   consumerSerialNo    String?
   departmentId        String?
@@ -72,6 +71,8 @@ model Asset {
   // Relations
   locations           Location[]     
   installations       Installation[] 
+  warranties          Warranties[]  // New relation to Warranties
+  serviceRequests     ServiceRequest[]  // New relation to ServiceRequest
 
   @@index([assetSubTypeId], map: "asset_assetSubTypeId_fkey")
   @@index([assetTypeId], map: "asset_assetTypeId_fkey")
@@ -200,6 +201,252 @@ model GRNItem {
   @@index([grnId], map: "grnItem_grnId_fkey")
   @@index([poLineItemId], map: "grnItem_poLineItemId_fkey")
   @@map("grnItem")
+}
+
+// Warranty-related models moved from molecule-warranty
+
+//type_name-- 'Manufacturer', 'Extended', 'Service Contract', etc.
+model WarrantyType {
+  warrantyTypeId Int      @id @default(autoincrement()) 
+  typeName       String   @db.VarChar(100)              
+  description    String?  @db.Text
+  createdAt      DateTime @default(now())
+  consumerId           String?
+  supplierId           String?
+
+
+
+  // Relations
+  warranties      Warranties[]
+
+  @@map("warrantyType")
+}
+
+model Warranties {
+  warrantyId           Int       @id @default(autoincrement())
+  assetId              String    @db.VarChar(255)
+  warrantyTypeId       Int
+  warrantySupplierId   String?   @db.VarChar(255) // Could be manufacturer or third-party
+  warrantyNumber       String?   @db.VarChar(100)
+  startDate            DateTime
+  endDate              DateTime
+  warrantyPeriod       Int?
+  coverageType         String?   @db.Text
+  coverageDescription  String?   @db.Text
+  termsConditions      String?   @db.Text
+  cost                 Decimal?  @db.Decimal(10,2) // Uncomment if cost is needed
+  isActive             Boolean   @default(true)
+  autoRenewal          Boolean   @default(false)
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+  consumerId           String?
+  supplierId           String?
+
+  // Relations
+  warrantyType         WarrantyType @relation(fields: [warrantyTypeId], references: [warrantyTypeId])
+  asset                Asset        @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
+  notifications        WarrantyNotification[]
+
+  @@index([endDate], name: "idxEndDate")
+  @@index([assetId], name: "idxAssetId")
+
+   @@map("warranties")
+}
+
+enum WarrantyNotificationType {
+  Expiry_Warning
+  Expired
+  Renewal_Due
+  Claim_Update
+}
+
+model WarrantyNotification {
+  notificationId     Int      @id @default(autoincrement())
+  warrantyId         Int
+  notificationType   WarrantyNotificationType
+  message            String
+  recipientEmail     String?
+  sentDate           DateTime?
+  isSent             Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  warranty           Warranties @relation(fields: [warrantyId], references: [warrantyId])
+
+  @@map("warrantyNotifications")
+}
+
+/// ConsumerPreference model stores notification preferences for each consumer.
+model ConsumerPreference {
+  preferenceId      Int      @id @default(autoincrement())
+  consumerId        Int      
+  notificationDays  Int      @default(30) // Days before expiry to send notification
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+ 
+
+  @@unique([consumerId])
+  @@map("consumerPreferences")
+}
+
+/// SupplierPreference model stores notification preferences for each supplier.
+/// Allows suppliers to set how many days before warranty expiry they want to be notified.
+model SupplierPreference {
+  preferenceId      Int      @id @default(autoincrement())
+  supplierId        Int      
+  notificationDays  Int      @default(30) // Days before expiry to send notification
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  @@unique([supplierId])
+  @@map("supplierPreferences")
+}
+
+enum ContractTypeName {
+  AMC
+  CMC
+  ON_CALL
+  BREAKDOWN_MAINTENANCE
+}
+
+model ContractType {
+  contractTypeId          Int      @id @default(autoincrement()) 
+  typeName                ContractTypeName            
+  typeCode                String   @unique @db.VarChar(10)       
+  description             String?                       
+  contractDurationMonths  Int?    
+  createdAt               DateTime @default(now())               
+
+  // Relations
+  serviceContracts      ServiceContract[]
+
+  @@map("contractTypes")
+}
+
+//
+/// ServiceContractStatus model stores the possible statuses for service contracts.
+/// This is a lookup table referenced by ServiceContract.
+model ServiceContractStatus {
+  statusId   Int    @id @default(autoincrement())
+  name       String @unique @db.VarChar(20) // e.g., Draft, Active, Expired, Terminated, Suspended
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  // Relations
+  serviceContracts ServiceContract[]
+
+  @@map("serviceContractsStatus")
+}
+
+model ServiceContract {
+  contractId                        Int       @id @default(autoincrement())
+  contractNumber                    String    @unique @db.VarChar(100)
+  contractTypeId                    Int
+  assetId                           String   @db.VarChar(255)
+  serviceSupplierId                 Int
+  contractName                      String    @db.VarChar(255)
+  startDate                         DateTime  @db.Date
+  endDate                           DateTime  @db.Date
+  paymentTerms                      PaymentTerms   @default(YEARLY)
+  coverageType                      CoverageType   @default(COMPREHENSIVE)
+  includes                          String?
+  excludes                          String?
+  serviceFrequency                  ServiceFrequency @default(QUARTERLY)
+  preventiveMaintenanceIncluded     Boolean   @default(true)
+  breakdownMaintenanceIncluded      Boolean   @default(true)
+  autoRenewal                       Boolean   @default(false)
+  createdBy                         String?   @db.VarChar(100)
+  updatedBy                         String?   @db.VarChar(100)
+  createdAt                         DateTime  @default(now())
+  updatedAt                         DateTime  @updatedAt
+
+  // Relations
+  contractType                      ContractType @relation(fields: [contractTypeId], references: [contractTypeId])
+  status                            ServiceContractStatus? @relation(fields: [statusId], references: [statusId])
+  statusId                          Int?
+
+  @@map("serviceContracts")
+  @@index([contractNumber], name: "idxContractName")
+  @@index([startDate], name: "idxStartDate")
+  @@index([endDate], name: "idxEndDate")
+  @@index([assetId], name: "idxAssetId")
+}
+
+model ServiceRequest {
+  serviceRequestId      Int    @id @default(autoincrement())
+  assetId               String @db.VarChar(255)
+  technicianName        String @db.VarChar(100)
+  serviceSupplierName   String @db.VarChar(100)
+  warrantyStatus        WarrantyStatus
+  serviceStatus         String?        @db.VarChar(50)
+
+  serviceDate           DateTime       @db.Date
+  serviceType           String?        @db.VarChar(100)  // 'Preventive', 'Repair', 'Installation'
+  serviceDescription    String?        @db.Text
+    
+  createdAt             DateTime       @default(now())
+  updatedAt             DateTime       @updatedAt
+  approverName         String?
+
+  // Relations
+  serviceRequestItems   ServiceRequestItem[]
+  asset                 Asset          @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
+
+  @@map("serviceRequest")
+  @@index([serviceDate], name: "idxServiceRequestDate")
+  @@index([assetId], name: "idxServiceRequestAssetId")
+  @@index([warrantyStatus], name: "idxWarrantyStatus")
+}
+
+model ServiceRequestItem {
+  serviceRequestItemId  Int      @id @default(autoincrement())
+  serviceRequestId      Int
+  partName              String   @db.VarChar(255)
+  partCost              Float
+  labourCost            Float
+  defectDescription     String?  @db.Text
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+
+  // Relations
+  serviceRequest        ServiceRequest @relation(fields: [serviceRequestId], references: [serviceRequestId])
+
+  @@map("serviceRequestItem")
+  @@index([serviceRequestId], name: "idxServiceRequestItemRequestId")
+}
+
+// Warranty Status Enum for better type safety and consistency
+enum WarrantyStatus {
+  ACTIVE           // Warranty is currently valid and active
+  EXPIRED          // Warranty has expired
+  VOID             // Warranty has been voided/cancelled
+  CLAIMED          // Warranty claim has been made
+  PENDING_CLAIM    // Warranty claim is being processed
+  TRANSFERRED      // Warranty has been transferred to new owner
+  SUSPENDED        // Warranty is temporarily suspended
+  NOT_APPLICABLE   // Service not covered under warranty (paid service)
+}
+
+enum PaymentTerms {
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  YEARLY
+  ONE_TIME
+}
+
+enum CoverageType {
+  COMPREHENSIVE
+  PARTS_ONLY
+  LABOR_ONLY
+  PREVENTIVE_ONLY
+}
+
+enum ServiceFrequency {
+  MONTHLY
+  QUARTERLY
+  HALF_YEARLY
+  YEARLY
+  AS_REQUIRED
 }
 
 
