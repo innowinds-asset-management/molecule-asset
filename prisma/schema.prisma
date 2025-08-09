@@ -67,6 +67,8 @@ model Asset {
   assetSubType        AssetSubType   @relation(fields: [assetSubTypeId], references: [id])
   assetType           AssetType      @relation(fields: [assetTypeId], references: [id])
   department          Department?    @relation(fields: [departmentId], references: [deptId])
+  consumer            Consumer       @relation(fields: [consumerId], references: [id])
+  supplier            Supplier?      @relation("SupplierToAsset", fields: [supplierId], references: [id])
   
   // Relations
   locations           Location[]     
@@ -92,6 +94,7 @@ model Department {
   locations      Location[]
   installations  Installation[]
   assets         Asset[]        // Reverse relation to Asset
+  consumer       Consumer       @relation(fields: [consumerId], references: [id])
 
   @@index([consumerId], map: "department_consumerId_idx")
   @@map("department")
@@ -142,20 +145,34 @@ model Installation {
 
 enum POStatus {
   Draft
-  Issued
+  PendingApproval
   Approved
+  Issued
+  PartiallyReceived
+  FullyReceived
+  Cancelled
+  Closed
 }
+
+
 
 model PO {
   id           String       @id @default(cuid())
+  poNumber     String       @unique
   consumerId   String
   supplierId   String
   createdAt    DateTime     @default(now())
   updatedAt    DateTime     @updatedAt
   status       POStatus    @default(Draft)
+  totalAmount  Decimal     @db.Decimal(10,2) @default(0)
   grn          GRN[]
   poLineItem   POLineItem[]
+  consumer     Consumer     @relation(fields: [consumerId], references: [id])
+  supplier     Supplier     @relation(fields: [supplierId], references: [id])
 
+  @@index([consumerId])
+  @@index([supplierId])
+  @@index([status])
   @@map("po")
 }
 
@@ -166,12 +183,17 @@ model POLineItem {
   grnId              String?
   partNo             String
   poId               String
-  price              Float
-  quantity           Float
+  price              Decimal            @db.Decimal(10,2)
+  quantity           Decimal            @db.Decimal(10,3)
+  totalAmount        Decimal            @db.Decimal(10,2) @default(0)
+  receivedQty        Decimal            @db.Decimal(10,3) @default(0)
+  remainingQty       Decimal            @db.Decimal(10,3) @default(0)
   grnItem            GRNItem[]
   po                 PO                 @relation(fields: [poId], references: [id])
 
   @@index([poId], map: "purchaseItem_poId_fkey")
+  @@index([partNo])
+  @@index([receivedQty])
   @@map("poLineItem")
 }
 
@@ -246,6 +268,8 @@ model Warranties {
   warrantyType         WarrantyType @relation(fields: [warrantyTypeId], references: [warrantyTypeId])
   asset                Asset        @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
   notifications        WarrantyNotification[]
+  consumer             Consumer?    @relation(fields: [consumerId], references: [id])
+  supplier             Supplier?    @relation(fields: [supplierId], references: [id])
 
   @@index([endDate], name: "idxEndDate")
   @@index([assetId], name: "idxAssetId")
@@ -450,3 +474,60 @@ enum ServiceFrequency {
 }
 
 
+
+// New Consumer and Supplier models with many-to-many relation
+model Consumer {
+  id           String              @id @default(cuid())
+  name         String
+  code         String              @unique
+  contactName  String?
+  email        String?
+  phone        String?
+  address      String?
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  // Relations
+  assets       Asset[]
+  departments  Department[]
+  purchaseOrders PO[]
+  warranties   Warranties[]
+  consumerSuppliers ConsumerSupplier[]
+
+  @@map("consumer")
+}
+
+model Supplier {
+  id           String              @id @default(cuid())
+  name         String
+  code         String              @unique
+  gstNumber    String?
+  email        String?
+  phone        String?
+  address      String?
+  isActive     Boolean             @default(true)
+  createdAt    DateTime            @default(now())
+  updatedAt    DateTime            @updatedAt
+
+  // Relations
+  suppliedAssets Asset[]           @relation("SupplierToAsset")
+  purchaseOrders PO[]
+  warranties   Warranties[]
+  consumerSuppliers ConsumerSupplier[]
+
+  @@map("supplier")
+}
+
+model ConsumerSupplier {
+  consumerId String
+  supplierId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  consumer Consumer @relation(fields: [consumerId], references: [id])
+  supplier Supplier @relation(fields: [supplierId], references: [id])
+
+  @@id([consumerId, supplierId])
+  @@map("consumerSupplier")
+}

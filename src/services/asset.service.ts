@@ -5,7 +5,16 @@ import { CreateAssetCompleteData } from '../types';
 const prisma = new PrismaClient();
 
 export const getAllAssets = async () => {
-  return await prisma.asset.findMany();
+  return await prisma.asset.findMany({
+    include: {
+      supplier: true,
+      department: true,
+      assetType: true,
+      assetSubType: true,
+      locations: true,
+      installations: true,
+    },
+  });
 };
 
 //fetch asset by id 

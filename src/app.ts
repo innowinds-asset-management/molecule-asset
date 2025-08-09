@@ -22,6 +22,8 @@ import departmentRoutes from './routes/department.route';
 import locationRoutes from './routes/location.route';
 import warrantyRoutes from './routes/warranty.route';
 import serviceRequestRoutes from './routes/serviceRequest.route';
+import consumerRoutes from './routes/consumer.route';
+import supplierRoutes from './routes/supplier.route';
 
 dotenv.config();
 
@@ -153,6 +155,10 @@ app.use(`${apiPrefix}/location`, locationRoutes);
 app.use(`${apiPrefix}/warranty`, warrantyRoutes);
 // Service Request routes
 app.use(`${apiPrefix}/service-request`, serviceRequestRoutes);
+  // Consumer routes
+  app.use(`${apiPrefix}/consumer`, consumerRoutes);
+  // Supplier routes
+  app.use(`${apiPrefix}/supplier`, supplierRoutes);
 
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {

@@ -2,7 +2,8 @@ import { PrismaClient } from '@prisma/client';
 import app from './app';
 
 const prisma = new PrismaClient();
-const PORT = process.env['PORT'] || 3003;
+const PORT = parseInt(process.env['PORT'] || '3003');
+const HOST = process.env['HOST'] || 'localhost';
 
 // Graceful shutdown
 const gracefulShutdown = async (signal: string) => {
@@ -15,7 +16,7 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Start server
-app.listen(PORT, () => {
+app.listen(PORT, HOST, () => {
   console.log(`Consumer service running on port ${PORT}`);
   console.log(`Health check: http://localhost:${PORT}/health`);
   console.log(`API Base URL: http://localhost:${PORT}${process.env['API_PREFIX'] || '/api/v1'}`);

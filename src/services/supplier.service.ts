@@ -1,0 +1,77 @@
+import { PrismaClient } from '@prisma/client';
+
+const prisma = new PrismaClient();
+
+export const getAllSuppliers = async () => {
+  return prisma.supplier.findMany({
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const getSupplierById = async (id: string) => {
+  return prisma.supplier.findUnique({
+    where: { id },
+  });
+};
+
+export const createSupplier = async (data: {
+  name: string;
+  code: string;
+  gstNumber?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  address?: string | null;
+  isActive?: boolean;
+}) => {
+  return prisma.supplier.create({
+    data,
+  });
+};
+
+export const updateSupplier = async (
+  id: string,
+  data: Partial<{
+    name: string;
+    code: string;
+    gstNumber?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    isActive?: boolean;
+  }>
+) => {
+  return prisma.supplier.update({
+    where: { id },
+    data,
+  });
+};
+
+export const deleteSupplier = async (id: string) => {
+  return prisma.supplier.delete({
+    where: { id },
+  });
+};
+
+export const getConsumersForSupplier = async (supplierId: string) => {
+  return prisma.consumer.findMany({
+    where: { consumerSuppliers: { some: { supplierId } } },
+    orderBy: { createdAt: 'desc' },
+  });
+};
+
+export const linkConsumerToSupplier = async (supplierId: string, consumerId: string) => {
+  return prisma.consumerSupplier.upsert({
+    where: { consumerId_supplierId: { consumerId, supplierId } },
+    update: {},
+    create: { consumerId, supplierId },
+  });
+};
+
+export const unlinkConsumerFromSupplier = async (supplierId: string, consumerId: string) => {
+  return prisma.consumerSupplier.delete({
+    where: { consumerId_supplierId: { consumerId, supplierId } },
+  });
+};
+
+
+
