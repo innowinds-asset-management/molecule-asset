@@ -181,6 +181,7 @@ model POLineItem {
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   grnId              String?
+  itemName           String @default("Unknown")
   partNo             String
   poId               String
   price              Decimal            @db.Decimal(10,2)
