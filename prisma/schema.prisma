@@ -201,8 +201,13 @@ model POLineItem {
 model GRN {
   id        String    @id @default(cuid())
   poId      String
-  dateTime  DateTime
+  grnNo     String @default(cuid())
   challan   String?
+  deliveryNote String?
+  deliveryDate DateTime?
+  driverName String?
+  receivedBy String?
+  vehicleNumber String?
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   po        PO        @relation(fields: [poId], references: [id])
@@ -216,6 +221,12 @@ model GRNItem {
   id           String     @id @default(cuid())
   grnId        String
   poLineItemId String
+  quantityOrdered   Decimal @db.Decimal(10,3) @default(0)
+  quantityReceived  Decimal @db.Decimal(10,3) @default(0)
+  quantityAccepted  Decimal @db.Decimal(10,3) @default(0)
+  quantityRejected  Decimal @db.Decimal(10,3) @default(0)
+  quantityRemaining Decimal @db.Decimal(10,3) @default(0)
+  remarks      String?
   createdAt    DateTime   @default(now())
   updatedAt    DateTime   @updatedAt
   grn          GRN        @relation(fields: [grnId], references: [id])

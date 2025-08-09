@@ -1,7 +1,7 @@
 //fetch all goods received notes
 
 import { Request, Response } from 'express';
-import { getAllGoodsReceivedNotes, getGoodsReceivedNoteById, createGoodsReceivedNote, updateGoodsReceivedNote, deleteGoodsReceivedNote } from '../services/grn.service';
+import { getAllGoodsReceivedNotes, getGoodsReceivedNoteById, deleteGoodsReceivedNote, createGoodsReceivedNoteWithItems, updateGoodsReceivedNoteWithItems } from '../services/grn.service';
 
 export const getAllGoodsReceivedNotesController = async (_req: Request, res: Response) => {
   const goodsReceivedNotes = await getAllGoodsReceivedNotes();
@@ -20,9 +20,9 @@ export const getGoodsReceivedNoteByIdController = async (req: Request, res: Resp
 
 //create goods received note
 export const createGoodsReceivedNoteController = async (req: Request, res: Response) => {
-  const goodsReceivedNote = req.body;
-  const newGoodsReceivedNote = await createGoodsReceivedNote(goodsReceivedNote);
-  return res.json(newGoodsReceivedNote);
+  const payload = req.body;
+  const created = await createGoodsReceivedNoteWithItems(payload);
+  return res.json(created);
 };
 
 //update goods received note
@@ -31,9 +31,9 @@ export const updateGoodsReceivedNoteController = async (req: Request, res: Respo
   if (!id) {
     return res.status(400).json({ error: 'ID is required' });
   }
-  const goodsReceivedNote = req.body;
-  const updatedGoodsReceivedNote = await updateGoodsReceivedNote(id, goodsReceivedNote);
-  return res.json(updatedGoodsReceivedNote);
+  const payload = req.body;
+  const updated = await updateGoodsReceivedNoteWithItems(id, payload);
+  return res.json(updated);
 };
 
 //delete goods received note
