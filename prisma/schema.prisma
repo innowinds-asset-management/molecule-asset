@@ -39,42 +39,42 @@ model AssetSubType {
 }
 
 model Asset {
-  id                  String         @id @default(cuid())
-  assetTypeId         String
-  assetSubTypeId      String
-  assetName           String
-  warrantyPeriod      Int?
-  warrantyStartDate   DateTime?
-  warrantyEndDate     DateTime?
-  installationDate    DateTime?
-  brand               String?
-  model               String?
-  subModel            String?
-  isActive            Boolean        @default(true)
-  createdAt           DateTime       @default(now())
-  updatedAt           DateTime       @updatedAt
-  consumerId          String
-  partNo              String?
-  supplierCode        String?
-  isAmc               Boolean?       @default(true)
-  consumerSerialNo    String?
-  departmentId        String?
-  grnId               String?
-  grnItemId           String?
-  poLineItemId        String?
-  supplierId          String?
-  supplierSerialNo    String?
-  assetSubType        AssetSubType   @relation(fields: [assetSubTypeId], references: [id])
-  assetType           AssetType      @relation(fields: [assetTypeId], references: [id])
-  department          Department?    @relation(fields: [departmentId], references: [deptId])
-  consumer            Consumer       @relation(fields: [consumerId], references: [id])
-  supplier            Supplier?      @relation("SupplierToAsset", fields: [supplierId], references: [id])
-  
+  id                String       @id @default(cuid())
+  assetTypeId       String
+  assetSubTypeId    String
+  assetName         String
+  warrantyPeriod    Int?
+  warrantyStartDate DateTime?
+  warrantyEndDate   DateTime?
+  installationDate  DateTime?
+  brand             String?
+  model             String?
+  subModel          String?
+  isActive          Boolean      @default(true)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  consumerId        String
+  partNo            String?
+  supplierCode      String?
+  isAmc             Boolean?     @default(true)
+  consumerSerialNo  String?
+  departmentId      String?
+  grnId             String?
+  grnItemId         String?
+  poLineItemId      String?
+  supplierId        String?
+  supplierSerialNo  String?
+  assetSubType      AssetSubType @relation(fields: [assetSubTypeId], references: [id])
+  assetType         AssetType    @relation(fields: [assetTypeId], references: [id])
+  department        Department?  @relation(fields: [departmentId], references: [deptId])
+  consumer          Consumer     @relation(fields: [consumerId], references: [id])
+  supplier          Supplier?    @relation("SupplierToAsset", fields: [supplierId], references: [id])
+
   // Relations
-  locations           Location[]     
-  installations       Installation[] 
-  warranties          Warranties[]  // New relation to Warranties
-  serviceRequests     ServiceRequest[]  // New relation to ServiceRequest
+  locations       Location[]
+  installations   Installation[]
+  warranties      Warranties[] // New relation to Warranties
+  serviceRequests ServiceRequest[] // New relation to ServiceRequest
 
   @@index([assetSubTypeId], map: "asset_assetSubTypeId_fkey")
   @@index([assetTypeId], map: "asset_assetTypeId_fkey")
@@ -84,38 +84,37 @@ model Asset {
 
 // New Department Model
 model Department {
-  deptId         String         @id @default(cuid())
-  deptName       String
-  consumerId     String
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  
+  deptId     String   @id @default(cuid())
+  deptName   String
+  consumerId String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
   // Relations
-  locations      Location[]
-  installations  Installation[]
-  assets         Asset[]        // Reverse relation to Asset
-  consumer       Consumer       @relation(fields: [consumerId], references: [id])
+  locations     Location[]
+  installations Installation[]
+  assets        Asset[] // Reverse relation to Asset
+  consumer      Consumer       @relation(fields: [consumerId], references: [id])
 
   @@index([consumerId], map: "department_consumerId_idx")
   @@map("department")
 }
 
-
 model Location {
-  id                  String       @id @default(cuid())
-  assetId             String
-  departmentId        String
-  building            String?  
-  floorNumber         String?
-  roomNumber          String?
-  isCurrentLocation   Boolean @default(true)
-  createdAt           DateTime     @default(now())
-  updatedAt           DateTime     @updatedAt
-  
+  id                String   @id @default(cuid())
+  assetId           String
+  departmentId      String
+  building          String?
+  floorNumber       String?
+  roomNumber        String?
+  isCurrentLocation Boolean  @default(true)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
   // Relations
-  asset          Asset        @relation(fields: [assetId], references: [id])
-  department     Department   @relation(fields: [departmentId], references: [deptId])
-  installations  Installation[] // One location can have multiple installations
+  asset         Asset          @relation(fields: [assetId], references: [id])
+  department    Department     @relation(fields: [departmentId], references: [deptId])
+  installations Installation[] // One location can have multiple installations
 
   @@index([assetId], map: "location_assetId_fkey")
   @@index([departmentId], map: "location_departmentId_fkey")
@@ -123,25 +122,24 @@ model Location {
 }
 
 model Installation {
-  id               String     @id @default(cuid())
+  id               String   @id @default(cuid())
   assetId          String
   locationId       String
   departmentId     String
   installationDate DateTime
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
-  
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
   // Relations
-  asset            Asset      @relation(fields: [assetId], references: [id])
-  location         Location   @relation(fields: [locationId], references: [id])
-  department       Department @relation(fields: [departmentId], references: [deptId])
+  asset      Asset      @relation(fields: [assetId], references: [id])
+  location   Location   @relation(fields: [locationId], references: [id])
+  department Department @relation(fields: [departmentId], references: [deptId])
 
   @@index([assetId], map: "installation_assetId_fkey")
   @@index([locationId], map: "installation_locationId_fkey")
   @@index([departmentId], map: "installation_departmentId_fkey")
   @@map("installation")
 }
-
 
 enum POStatus {
   Draft
@@ -154,21 +152,19 @@ enum POStatus {
   Closed
 }
 
-
-
 model PO {
-  id           String       @id @default(cuid())
-  poNumber     String       @unique
-  consumerId   String
-  supplierId   String
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
-  status       POStatus    @default(Draft)
-  totalAmount  Decimal     @db.Decimal(10,2) @default(0)
-  grn          GRN[]
-  poLineItem   POLineItem[]
-  consumer     Consumer     @relation(fields: [consumerId], references: [id])
-  supplier     Supplier     @relation(fields: [supplierId], references: [id])
+  id          String       @id @default(cuid())
+  poNumber    String       @unique
+  consumerId  String
+  supplierId  String
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  status      POStatus     @default(Draft)
+  totalAmount Decimal      @default(0) @db.Decimal(10, 2)
+  grn         GRN[]
+  poLineItem  POLineItem[]
+  consumer    Consumer     @relation(fields: [consumerId], references: [id])
+  supplier    Supplier     @relation(fields: [supplierId], references: [id])
 
   @@index([consumerId])
   @@index([supplierId])
@@ -177,20 +173,20 @@ model PO {
 }
 
 model POLineItem {
-  id                 String             @id @default(cuid())
-  createdAt          DateTime           @default(now())
-  updatedAt          DateTime           @updatedAt
-  grnId              String?
-  itemName           String @default("Unknown")
-  partNo             String
-  poId               String
-  price              Decimal            @db.Decimal(10,2)
-  quantity           Decimal            @db.Decimal(10,3)
-  totalAmount        Decimal            @db.Decimal(10,2) @default(0)
-  receivedQty        Decimal            @db.Decimal(10,3) @default(0)
-  remainingQty       Decimal            @db.Decimal(10,3) @default(0)
-  grnItem            GRNItem[]
-  po                 PO                 @relation(fields: [poId], references: [id])
+  id           String    @id @default(cuid())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  grnId        String?
+  itemName     String    @default("Unknown")
+  partNo       String
+  poId         String
+  price        Decimal   @db.Decimal(10, 2)
+  quantity     Decimal   @db.Decimal(10, 3)
+  totalAmount  Decimal   @default(0) @db.Decimal(10, 2)
+  receivedQty  Decimal   @default(0) @db.Decimal(10, 3)
+  remainingQty Decimal   @default(0) @db.Decimal(10, 3)
+  grnItem      GRNItem[]
+  po           PO        @relation(fields: [poId], references: [id])
 
   @@index([poId], map: "purchaseItem_poId_fkey")
   @@index([partNo])
@@ -199,38 +195,38 @@ model POLineItem {
 }
 
 model GRN {
-  id        String    @id @default(cuid())
-  poId      String
-  grnNo     String @default(cuid())
-  challan   String?
-  deliveryNote String?
-  deliveryDate DateTime?
-  driverName String?
-  receivedBy String?
+  id            String    @id @default(cuid())
+  poId          String
+  grnNo         String    @default(cuid())
+  challan       String?
+  deliveryNote  String?
+  deliveryDate  DateTime?
+  driverName    String?
+  receivedBy    String?
   vehicleNumber String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  po        PO        @relation(fields: [poId], references: [id])
-  grnItem   GRNItem[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  po            PO        @relation(fields: [poId], references: [id])
+  grnItem       GRNItem[]
 
   @@index([poId], map: "grn_poId_fkey")
   @@map("grn")
 }
 
 model GRNItem {
-  id           String     @id @default(cuid())
-  grnId        String
-  poLineItemId String
-  quantityOrdered   Decimal @db.Decimal(10,3) @default(0)
-  quantityReceived  Decimal @db.Decimal(10,3) @default(0)
-  quantityAccepted  Decimal @db.Decimal(10,3) @default(0)
-  quantityRejected  Decimal @db.Decimal(10,3) @default(0)
-  quantityRemaining Decimal @db.Decimal(10,3) @default(0)
-  remarks      String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  grn          GRN        @relation(fields: [grnId], references: [id])
-  poLineItem   POLineItem @relation(fields: [poLineItemId], references: [id])
+  id                String     @id @default(cuid())
+  grnId             String
+  poLineItemId      String
+  quantityOrdered   Decimal    @default(0) @db.Decimal(10, 3)
+  quantityReceived  Decimal    @default(0) @db.Decimal(10, 3)
+  quantityAccepted  Decimal    @default(0) @db.Decimal(10, 3)
+  quantityRejected  Decimal    @default(0) @db.Decimal(10, 3)
+  quantityRemaining Decimal    @default(0) @db.Decimal(10, 3)
+  remarks           String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  grn               GRN        @relation(fields: [grnId], references: [id])
+  poLineItem        POLineItem @relation(fields: [poLineItemId], references: [id])
 
   @@index([grnId], map: "grnItem_grnId_fkey")
   @@index([poLineItemId], map: "grnItem_poLineItemId_fkey")
@@ -241,52 +237,49 @@ model GRNItem {
 
 //type_name-- 'Manufacturer', 'Extended', 'Service Contract', etc.
 model WarrantyType {
-  warrantyTypeId Int      @id @default(autoincrement()) 
-  typeName       String   @db.VarChar(100)              
+  warrantyTypeId Int      @id @default(autoincrement())
+  typeName       String   @db.VarChar(100)
   description    String?  @db.Text
   createdAt      DateTime @default(now())
-  consumerId           String?
-  supplierId           String?
-
-
+  consumerId     String?
+  supplierId     String?
 
   // Relations
-  warranties      Warranties[]
+  warranties Warranties[]
 
   @@map("warrantyType")
 }
 
 model Warranties {
-  warrantyId           Int       @id @default(autoincrement())
-  assetId              String    @db.VarChar(255)
-  warrantyTypeId       Int
-  warrantySupplierId   String?   @db.VarChar(255) // Could be manufacturer or third-party
-  warrantyNumber       String?   @db.VarChar(100)
-  startDate            DateTime
-  endDate              DateTime
-  warrantyPeriod       Int?
-  coverageType         String?   @db.Text
-  coverageDescription  String?   @db.Text
-  termsConditions      String?   @db.Text
-  cost                 Decimal?  @db.Decimal(10,2) // Uncomment if cost is needed
-  isActive             Boolean   @default(true)
-  autoRenewal          Boolean   @default(false)
-  createdAt            DateTime  @default(now())
-  updatedAt            DateTime  @updatedAt
-  consumerId           String?
-  supplierId           String?
+  warrantyId          Int      @id @default(autoincrement())
+  assetId             String   @db.VarChar(255)
+  warrantyTypeId      Int
+  warrantySupplierId  String?  @db.VarChar(255) // Could be manufacturer or third-party
+  warrantyNumber      String?  @db.VarChar(100)
+  startDate           DateTime
+  endDate             DateTime
+  warrantyPeriod      Int?
+  coverageType        String?  @db.Text
+  coverageDescription String?  @db.Text
+  termsConditions     String?  @db.Text
+  cost                Decimal? @db.Decimal(10, 2) // Uncomment if cost is needed
+  isActive            Boolean  @default(true)
+  autoRenewal         Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+  consumerId          String?
+  supplierId          String?
 
   // Relations
-  warrantyType         WarrantyType @relation(fields: [warrantyTypeId], references: [warrantyTypeId])
-  asset                Asset        @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
-  notifications        WarrantyNotification[]
-  consumer             Consumer?    @relation(fields: [consumerId], references: [id])
-  supplier             Supplier?    @relation(fields: [supplierId], references: [id])
+  warrantyType  WarrantyType           @relation(fields: [warrantyTypeId], references: [warrantyTypeId])
+  asset         Asset                  @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
+  notifications WarrantyNotification[]
+  consumer      Consumer?              @relation(fields: [consumerId], references: [id])
+  supplier      Supplier?              @relation(fields: [supplierId], references: [id])
 
   @@index([endDate], name: "idxEndDate")
   @@index([assetId], name: "idxAssetId")
-
-   @@map("warranties")
+  @@map("warranties")
 }
 
 enum WarrantyNotificationType {
@@ -297,28 +290,27 @@ enum WarrantyNotificationType {
 }
 
 model WarrantyNotification {
-  notificationId     Int      @id @default(autoincrement())
-  warrantyId         Int
-  notificationType   WarrantyNotificationType
-  message            String
-  recipientEmail     String?
-  sentDate           DateTime?
-  isSent             Boolean  @default(false)
-  createdAt          DateTime @default(now())
+  notificationId   Int                      @id @default(autoincrement())
+  warrantyId       Int
+  notificationType WarrantyNotificationType
+  message          String
+  recipientEmail   String?
+  sentDate         DateTime?
+  isSent           Boolean                  @default(false)
+  createdAt        DateTime                 @default(now())
 
-  warranty           Warranties @relation(fields: [warrantyId], references: [warrantyId])
+  warranty Warranties @relation(fields: [warrantyId], references: [warrantyId])
 
   @@map("warrantyNotifications")
 }
 
 /// ConsumerPreference model stores notification preferences for each consumer.
 model ConsumerPreference {
-  preferenceId      Int      @id @default(autoincrement())
-  consumerId        Int      
-  notificationDays  Int      @default(30) // Days before expiry to send notification
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
- 
+  preferenceId     Int      @id @default(autoincrement())
+  consumerId       Int
+  notificationDays Int      @default(30) // Days before expiry to send notification
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([consumerId])
   @@map("consumerPreferences")
@@ -327,11 +319,11 @@ model ConsumerPreference {
 /// SupplierPreference model stores notification preferences for each supplier.
 /// Allows suppliers to set how many days before warranty expiry they want to be notified.
 model SupplierPreference {
-  preferenceId      Int      @id @default(autoincrement())
-  supplierId        Int      
-  notificationDays  Int      @default(30) // Days before expiry to send notification
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  preferenceId     Int      @id @default(autoincrement())
+  supplierId       Int
+  notificationDays Int      @default(30) // Days before expiry to send notification
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 
   @@unique([supplierId])
   @@map("supplierPreferences")
@@ -345,15 +337,15 @@ enum ContractTypeName {
 }
 
 model ContractType {
-  contractTypeId          Int      @id @default(autoincrement()) 
-  typeName                ContractTypeName            
-  typeCode                String   @unique @db.VarChar(10)       
-  description             String?                       
-  contractDurationMonths  Int?    
-  createdAt               DateTime @default(now())               
+  contractTypeId         Int              @id @default(autoincrement())
+  typeName               ContractTypeName
+  typeCode               String           @unique @db.VarChar(10)
+  description            String?
+  contractDurationMonths Int?
+  createdAt              DateTime         @default(now())
 
   // Relations
-  serviceContracts      ServiceContract[]
+  serviceContracts ServiceContract[]
 
   @@map("contractTypes")
 }
@@ -362,10 +354,10 @@ model ContractType {
 /// ServiceContractStatus model stores the possible statuses for service contracts.
 /// This is a lookup table referenced by ServiceContract.
 model ServiceContractStatus {
-  statusId   Int    @id @default(autoincrement())
-  name       String @unique @db.VarChar(20) // e.g., Draft, Active, Expired, Terminated, Suspended
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
+  statusId  Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(20) // e.g., Draft, Active, Expired, Terminated, Suspended
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
   serviceContracts ServiceContract[]
@@ -374,92 +366,95 @@ model ServiceContractStatus {
 }
 
 model ServiceContract {
-  contractId                        Int       @id @default(autoincrement())
-  contractNumber                    String    @unique @db.VarChar(100)
-  contractTypeId                    Int
-  assetId                           String   @db.VarChar(255)
-  serviceSupplierId                 Int
-  contractName                      String    @db.VarChar(255)
-  startDate                         DateTime  @db.Date
-  endDate                           DateTime  @db.Date
-  paymentTerms                      PaymentTerms   @default(YEARLY)
-  coverageType                      CoverageType   @default(COMPREHENSIVE)
-  includes                          String?
-  excludes                          String?
-  serviceFrequency                  ServiceFrequency @default(QUARTERLY)
-  preventiveMaintenanceIncluded     Boolean   @default(true)
-  breakdownMaintenanceIncluded      Boolean   @default(true)
-  autoRenewal                       Boolean   @default(false)
-  createdBy                         String?   @db.VarChar(100)
-  updatedBy                         String?   @db.VarChar(100)
-  createdAt                         DateTime  @default(now())
-  updatedAt                         DateTime  @updatedAt
+  contractId                    String              @id @default(cuid())
+  contractNumber                String           @unique @db.VarChar(100)
+  contractTypeId                Int
+  assetId                       String           @db.VarChar(255)
+  serviceSupplierId             Int
+  contractName                  String           @db.VarChar(255)
+  startDate                     DateTime         @db.Date
+  endDate                       DateTime         @db.Date
+  paymentTerms                  PaymentTerms     @default(YEARLY)
+  coverageType                  CoverageType     @default(COMPREHENSIVE)
+  includes                      String?
+  excludes                      String?
+  serviceFrequency              ServiceFrequency @default(QUARTERLY)
+  preventiveMaintenanceIncluded Boolean          @default(true)
+  breakdownMaintenanceIncluded  Boolean          @default(true)
+  autoRenewal                   Boolean          @default(false)
+  createdBy                     String?          @db.VarChar(100)
+  updatedBy                     String?          @db.VarChar(100)
+  createdAt                     DateTime         @default(now())
+  updatedAt                     DateTime         @updatedAt
 
   // Relations
-  contractType                      ContractType @relation(fields: [contractTypeId], references: [contractTypeId])
-  status                            ServiceContractStatus? @relation(fields: [statusId], references: [statusId])
-  statusId                          Int?
+  contractType   ContractType           @relation(fields: [contractTypeId], references: [contractTypeId])
+  status         ServiceContractStatus? @relation(fields: [statusId], references: [statusId])
+  statusId       Int?
+  ServiceRequest ServiceRequest[]
 
-  @@map("serviceContracts")
   @@index([contractNumber], name: "idxContractName")
   @@index([startDate], name: "idxStartDate")
   @@index([endDate], name: "idxEndDate")
   @@index([assetId], name: "idxAssetId")
+  @@map("serviceContracts")
 }
 
 model ServiceRequest {
-  serviceRequestId      Int    @id @default(autoincrement())
-  assetId               String @db.VarChar(255)
-  technicianName        String @db.VarChar(100)
-  serviceSupplierName   String @db.VarChar(100)
-  warrantyStatus        WarrantyStatus
-  serviceStatus         String?        @db.VarChar(50)
+  serviceRequestId    Int            @id @default(autoincrement())
+  assetId             String         @db.VarChar(255)
+  technicianName      String         @db.VarChar(100)
+  serviceSupplierId   String?
+  serviceContractId   String?
+  warrantyStatus      WarrantyStatus
+  serviceStatus       String?        @db.VarChar(50)
 
-  serviceDate           DateTime       @db.Date
-  serviceType           String?        @db.VarChar(100)  // 'Preventive', 'Repair', 'Installation'
-  serviceDescription    String?        @db.Text
-    
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-  approverName         String?
+  serviceDate        DateTime @db.Date
+  serviceType        String?  @db.VarChar(100) // 'Preventive', 'Repair', 'Installation'
+  serviceDescription String?  @db.Text
+
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+  approverName String?
 
   // Relations
-  serviceRequestItems   ServiceRequestItem[]
-  asset                 Asset          @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
+  serviceRequestItems ServiceRequestItem[]
+  asset               Asset                @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
+  serviceSupplier     Supplier?            @relation(fields: [serviceSupplierId], references: [id])
+  serviceContract     ServiceContract?     @relation(fields: [serviceContractId], references: [contractId])
 
+  @@index([serviceSupplierId], name: "idxServiceRequestSupplierId")
+  @@index([serviceContractId], name: "idxServiceRequestContractId")
   @@map("serviceRequest")
-  @@index([serviceDate], name: "idxServiceRequestDate")
-  @@index([assetId], name: "idxServiceRequestAssetId")
-  @@index([warrantyStatus], name: "idxWarrantyStatus")
 }
 
 model ServiceRequestItem {
-  serviceRequestItemId  Int      @id @default(autoincrement())
-  serviceRequestId      Int
-  partName              String   @db.VarChar(255)
-  partCost              Float
-  labourCost            Float
-  defectDescription     String?  @db.Text
-  createdAt             DateTime @default(now())
-  updatedAt             DateTime @updatedAt
+  serviceRequestItemId Int      @id @default(autoincrement())
+  serviceRequestId     Int
+  partName             String   @db.VarChar(255)
+  partCost             Float
+  labourCost           Float
+  defectDescription    String?  @db.Text
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 
   // Relations
-  serviceRequest        ServiceRequest @relation(fields: [serviceRequestId], references: [serviceRequestId])
+  serviceRequest ServiceRequest @relation(fields: [serviceRequestId], references: [serviceRequestId])
 
-  @@map("serviceRequestItem")
   @@index([serviceRequestId], name: "idxServiceRequestItemRequestId")
+  @@map("serviceRequestItem")
 }
 
 // Warranty Status Enum for better type safety and consistency
 enum WarrantyStatus {
-  ACTIVE           // Warranty is currently valid and active
-  EXPIRED          // Warranty has expired
-  VOID             // Warranty has been voided/cancelled
-  CLAIMED          // Warranty claim has been made
-  PENDING_CLAIM    // Warranty claim is being processed
-  TRANSFERRED      // Warranty has been transferred to new owner
-  SUSPENDED        // Warranty is temporarily suspended
-  NOT_APPLICABLE   // Service not covered under warranty (paid service)
+  ACTIVE // Warranty is currently valid and active
+  EXPIRED // Warranty has expired
+  VOID // Warranty has been voided/cancelled
+  CLAIMED // Warranty claim has been made
+  PENDING_CLAIM // Warranty claim is being processed
+  TRANSFERRED // Warranty has been transferred to new owner
+  SUSPENDED // Warranty is temporarily suspended
+  NOT_APPLICABLE // Service not covered under warranty (paid service)
 }
 
 enum PaymentTerms {
@@ -485,48 +480,47 @@ enum ServiceFrequency {
   AS_REQUIRED
 }
 
-
-
 // New Consumer and Supplier models with many-to-many relation
 model Consumer {
-  id           String              @id @default(cuid())
-  name         String
-  code         String              @unique
-  contactName  String?
-  email        String?
-  phone        String?
-  address      String?
-  isActive     Boolean             @default(true)
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  id          String   @id @default(cuid())
+  name        String
+  code        String   @unique
+  contactName String?
+  email       String?
+  phone       String?
+  address     String?
+  isActive    Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
   // Relations
-  assets       Asset[]
-  departments  Department[]
-  purchaseOrders PO[]
-  warranties   Warranties[]
+  assets            Asset[]
+  departments       Department[]
+  purchaseOrders    PO[]
+  warranties        Warranties[]
   consumerSuppliers ConsumerSupplier[]
 
   @@map("consumer")
 }
 
 model Supplier {
-  id           String              @id @default(cuid())
-  name         String
-  code         String              @unique
-  gstNumber    String?
-  email        String?
-  phone        String?
-  address      String?
-  isActive     Boolean             @default(true)
-  createdAt    DateTime            @default(now())
-  updatedAt    DateTime            @updatedAt
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  gstNumber String?
+  email     String?
+  phone     String?
+  address   String?
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   // Relations
-  suppliedAssets Asset[]           @relation("SupplierToAsset")
-  purchaseOrders PO[]
-  warranties   Warranties[]
+  suppliedAssets    Asset[]            @relation("SupplierToAsset")
+  purchaseOrders    PO[]
+  warranties        Warranties[]
   consumerSuppliers ConsumerSupplier[]
+  ServiceRequest    ServiceRequest[]
 
   @@map("supplier")
 }
