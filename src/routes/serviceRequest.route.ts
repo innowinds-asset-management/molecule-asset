@@ -45,7 +45,7 @@ router.get('/', getAllServiceRequestsController);
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *         description: ID of the service request
  *     responses:
  *       200:
@@ -109,7 +109,6 @@ router.get('/asset/:assetId', getServiceRequestsByAssetIdController);
  *             required:
  *               - assetId
  *               - technicianName
- *               - serviceSupplierName
  *               - warrantyStatus
  *               - serviceDate
  *             properties:
@@ -119,9 +118,18 @@ router.get('/asset/:assetId', getServiceRequestsByAssetIdController);
  *               technicianName:
  *                 type: string
  *                 description: Name of the technician
- *               serviceSupplierName:
+ *               serviceSupplierId:
  *                 type: string
- *                 description: Name of the service supplier
+ *                 nullable: true
+ *                 description: Supplier ID providing the service
+ *               serviceContractId:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Related service contract ID
+ *               srNo:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Service Request number (auto if omitted)
  *               warrantyStatus:
  *                 type: string
  *                 enum: [ACTIVE, EXPIRED, VOID, CLAIMED, PENDING_CLAIM, TRANSFERRED, SUSPENDED, NOT_APPLICABLE]
@@ -168,7 +176,7 @@ router.post('/', createServiceRequestController);
  *         name: id
  *         required: true
  *         schema:
- *           type: integer
+ *           type: string
  *         description: ID of the service request to update
  *     requestBody:
  *       required: true
@@ -183,9 +191,18 @@ router.post('/', createServiceRequestController);
  *               technicianName:
  *                 type: string
  *                 description: Name of the technician
- *               serviceSupplierName:
+ *               serviceSupplierId:
  *                 type: string
- *                 description: Name of the service supplier
+ *                 nullable: true
+ *                 description: Supplier ID providing the service
+ *               serviceContractId:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Related service contract ID
+ *               srNo:
+ *                 type: string
+ *                 nullable: true
+ *                 description: Service Request number (auto if omitted)
  *               warrantyStatus:
  *                 type: string
  *                 enum: [ACTIVE, EXPIRED, VOID, CLAIMED, PENDING_CLAIM, TRANSFERRED, SUSPENDED, NOT_APPLICABLE]

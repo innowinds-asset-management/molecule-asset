@@ -26,7 +26,7 @@ export const getServiceRequestByIdController = async (req: Request, res: Respons
     if (!id) {
       return res.status(400).json({ error: 'Service Request ID is required' });
     }
-    const serviceRequest = await getServiceRequestById(parseInt(id));
+    const serviceRequest = await getServiceRequestById(id);
     if (!serviceRequest) {
       return res.status(404).json({ error: 'Service Request not found' });
     }
@@ -66,7 +66,7 @@ export const updateServiceRequestController = async (req: Request, res: Response
       return res.status(400).json({ error: 'Service Request ID is required' });
     }
     const serviceRequest = req.body;
-    const updatedServiceRequest = await updateServiceRequest(parseInt(id), serviceRequest);
+    const updatedServiceRequest = await updateServiceRequest(id, serviceRequest);
     return res.json(updatedServiceRequest);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to update service request' });
@@ -79,7 +79,7 @@ export const deleteServiceRequestController = async (req: Request, res: Response
     if (!id) {    
       return res.status(400).json({ error: 'Service Request ID is required' });
     }
-    const deletedServiceRequest = await deleteServiceRequest(parseInt(id));
+    const deletedServiceRequest = await deleteServiceRequest(id);
     return res.json(deletedServiceRequest);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to delete service request' });

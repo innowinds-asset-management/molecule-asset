@@ -234,11 +234,10 @@ export type ServiceContractStatus = {
 };
 
 export type ServiceContract = {
-  contractId: number;
+  contractId: string;
   contractNumber: string;
   contractTypeId: number;
-  assetId: string;
-  serviceSupplierId: number;
+  serviceSupplierId: string;
   contractName: string;
   startDate: Date;
   endDate: Date;
@@ -261,10 +260,12 @@ export type ServiceContract = {
 };
 
 export type ServiceRequest = {
-  serviceRequestId: number;
+  serviceRequestId: string;
   assetId: string;
   technicianName: string;
-  serviceSupplierName: string;
+  serviceSupplierId?: string | null;
+  serviceContractId?: string | null;
+  srNo?: string | null;
   warrantyStatus: 'ACTIVE' | 'EXPIRED' | 'VOID' | 'CLAIMED' | 'PENDING_CLAIM' | 'TRANSFERRED' | 'SUSPENDED' | 'NOT_APPLICABLE';
   serviceStatus?: string | null;
   serviceDate: Date;
@@ -279,14 +280,15 @@ export type ServiceRequest = {
 
 export type ServiceRequestItem = {
   serviceRequestItemId: number;
-  serviceRequestId: number;
-  assetId: string;
+  serviceRequestId: string;
   partName: string;
-  partCost: number;
-  labourCost: number;
+  partCost?: number | null;
+  labourCost?: number | null;
+  quantity?: number | null;
+  totalCost?: number | null;
   defectDescription?: string | null;
   createdAt: Date;
-  updatedAt: Date;
+  updatedAt: Date | null;
   // Optionally, you can add these if you want nested types:
   // serviceRequest?: ServiceRequest;
 };

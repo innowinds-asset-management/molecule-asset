@@ -154,7 +154,7 @@ app.use(`${apiPrefix}/location`, locationRoutes);
 // Warranty routes
 app.use(`${apiPrefix}/warranty`, warrantyRoutes);
 // Service Request routes
-app.use(`${apiPrefix}/service-request`, serviceRequestRoutes);
+app.use(`${apiPrefix}/servicerequest`, serviceRequestRoutes);
   // Consumer routes
   app.use(`${apiPrefix}/consumer`, consumerRoutes);
   // Supplier routes

@@ -1153,7 +1153,7 @@ const options = {
           type: 'object',
           properties: {
             serviceRequestId: {
-              type: 'integer',
+              type: 'string',
               description: 'Unique identifier for the service request'
             },
             assetId: {
@@ -1164,9 +1164,20 @@ const options = {
               type: 'string',
               description: 'Name of the technician'
             },
-            serviceSupplierName: {
+            serviceSupplierId: {
               type: 'string',
-              description: 'Name of the service supplier'
+              nullable: true,
+              description: 'Supplier ID providing the service'
+            },
+            serviceContractId: {
+              type: 'string',
+              nullable: true,
+              description: 'Related service contract ID'
+            },
+            srNo: {
+              type: 'string',
+              nullable: true,
+              description: 'Service Request number'
             },
             warrantyStatus: {
               type: 'string',
@@ -1216,7 +1227,7 @@ const options = {
               description: 'List of service request items'
             }
           },
-          required: ['serviceRequestId', 'assetId', 'technicianName', 'serviceSupplierName', 'warrantyStatus', 'serviceDate', 'createdAt', 'updatedAt']
+          required: ['serviceRequestId', 'assetId', 'technicianName', 'warrantyStatus', 'serviceDate', 'createdAt', 'updatedAt']
         },
       },
       parameters: {

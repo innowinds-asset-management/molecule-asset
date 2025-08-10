@@ -27,6 +27,13 @@ export const getAssetById = async (id: string) => {
       department: true,
       assetType: true,
       assetSubType: true,
+      supplier: true,
+      consumer: true,
+      grn: true,
+      grnItem: true,
+      poLineItem: true,
+      amc: true,
+      
     },
   });
 };
