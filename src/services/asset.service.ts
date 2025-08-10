@@ -28,11 +28,10 @@ export const getAssetById = async (id: string) => {
       assetType: true,
       assetSubType: true,
       supplier: true,
-      consumer: true,
-      grn: true,
-      grnItem: true,
-      poLineItem: true,
-      amc: true,
+      //consumer: true,
+      warranties: true,
+      //serviceRequests: true,
+      serviceContracts: true,
       
     },
   });

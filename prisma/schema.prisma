@@ -75,6 +75,7 @@ model Asset {
   installations   Installation[]
   warranties      Warranties[] // New relation to Warranties
   serviceRequests ServiceRequest[] // New relation to ServiceRequest
+  serviceContracts ServiceContract[] // New relation to ServiceContract
 
   @@index([assetSubTypeId], map: "asset_assetSubTypeId_fkey")
   @@index([assetTypeId], map: "asset_assetTypeId_fkey")
@@ -370,6 +371,7 @@ model ServiceContract {
   contractNumber                String           @unique @db.VarChar(100)
   contractTypeId                Int
   serviceSupplierId             String
+  assetId                       String
   contractName                  String           @db.VarChar(255)
   startDate                     DateTime         @db.Date
   endDate                       DateTime         @db.Date
@@ -391,29 +393,33 @@ model ServiceContract {
   status          ServiceContractStatus? @relation(fields: [statusId], references: [statusId])
   statusId        Int?
   serviceSupplier Supplier               @relation(fields: [serviceSupplierId], references: [id])
+  asset           Asset                  @relation(fields: [assetId], references: [id])
   serviceRequests ServiceRequest[]
 
   @@index([contractNumber], name: "idxContractName")
   @@index([startDate], name: "idxStartDate")
   @@index([endDate], name: "idxEndDate")
   @@index([serviceSupplierId], name: "idxServiceContractSupplierId")
+  @@index([assetId], name: "idxServiceContractAssetId")
   @@map("serviceContracts")
 }
 
 model ServiceRequest {
   serviceRequestId  String            @id @default(cuid())
   assetId           String         @db.VarChar(255)
-  technicianName    String         @db.VarChar(100)
+  technicianName    String?        @db.VarChar(100)
   serviceSupplierId String?
   serviceContractId String?
   warrantyStatus    WarrantyStatus
   srStatus     String?        @db.VarChar(50)
   srNo             String?        @db.VarChar(100) @default(cuid())
-  serviceDate        DateTime @db.Date
+  serviceDate        DateTime? @db.Date
   serviceType        String?  @db.VarChar(100) // 'Preventive', 'Repair', 'Installation'
   serviceDescription String?  @db.Text
+  assetCondition    String?  @db.VarChar(100) // 'Working', 'Not Working', 'Working with Conditions', etc.
+  problem           String?  @db.Text // Problem description in text form
   createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  updatedAt    DateTime? @updatedAt
   approverName String?
   closureNotes  String?
   closureDate  DateTime?

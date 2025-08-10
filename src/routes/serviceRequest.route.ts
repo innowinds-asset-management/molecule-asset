@@ -5,6 +5,9 @@ import {
   getAllServiceRequestsController, 
   getServiceRequestByIdController, 
   createServiceRequestController, 
+  createServiceRequestWithItemsController,
+  createServiceRequestItemController,
+  createServiceRequestItemsController,
   updateServiceRequestController, 
   deleteServiceRequestController,
   getServiceRequestsByAssetIdController
@@ -98,7 +101,48 @@ router.get('/asset/:assetId', getServiceRequestsByAssetIdController);
  * /api/service-request:
  *   post:
  *     summary: Create a new service request
- *     description: Create a new service request with the provided information
+ *     description: Create a new service request with minimal required information
+ *     tags: [Service Requests]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - assetId
+ *               - problem
+ *               - assetCondition
+ *             properties:
+ *               assetId:
+ *                 type: string
+ *                 description: ID of the asset this service request belongs to
+ *               problem:
+ *                 type: string
+ *                 description: Problem description in text form
+ *               assetCondition:
+ *                 type: string
+ *                 description: Current condition of the asset (Working, Not Working, Working with Conditions, etc.)
+ *     responses:
+ *       201:
+ *         description: Service request created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequest'
+ *       400:
+ *         description: Bad request - invalid input data
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/', createServiceRequestController);
+
+/**
+ * @swagger
+ * /api/service-request/with-items:
+ *   post:
+ *     summary: Create a new service request with items
+ *     description: Create a new service request with items included
  *     tags: [Service Requests]
  *     requestBody:
  *       required: true
@@ -147,12 +191,41 @@ router.get('/asset/:assetId', getServiceRequestsByAssetIdController);
  *               serviceDescription:
  *                 type: string
  *                 description: Description of the service
+ *               assetCondition:
+ *                 type: string
+ *                 description: Current condition of the asset (Working, Not Working, Working with Conditions, etc.)
+ *               problem:
+ *                 type: string
+ *                 description: Problem description in text form
  *               approverName:
  *                 type: string
  *                 description: Name of the approver
+ *               serviceRequestItems:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   properties:
+ *                     partName:
+ *                       type: string
+ *                       description: Name of the part
+ *                     partCost:
+ *                       type: number
+ *                       description: Cost of the part
+ *                     labourCost:
+ *                       type: number
+ *                       description: Labour cost
+ *                     quantity:
+ *                       type: integer
+ *                       description: Quantity of parts
+ *                     totalCost:
+ *                       type: number
+ *                       description: Total cost for this item
+ *                     defectDescription:
+ *                       type: string
+ *                       description: Description of the defect
  *     responses:
  *       201:
- *         description: Service request created successfully
+ *         description: Service request with items created successfully
  *         content:
  *           application/json:
  *             schema:
@@ -162,7 +235,120 @@ router.get('/asset/:assetId', getServiceRequestsByAssetIdController);
  *       500:
  *         description: Internal server error
  */
-router.post('/', createServiceRequestController);
+router.post('/with-items', createServiceRequestWithItemsController);
+
+/**
+ * @swagger
+ * /api/service-request/{serviceRequestId}/items:
+ *   post:
+ *     summary: Add a single item to a service request
+ *     description: Add a single service request item to an existing service request
+ *     tags: [Service Requests]
+ *     parameters:
+ *       - in: path
+ *         name: serviceRequestId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the service request
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - partName
+ *             properties:
+ *               partName:
+ *                 type: string
+ *                 description: Name of the part
+ *               partCost:
+ *                 type: number
+ *                 description: Cost of the part
+ *               labourCost:
+ *                 type: number
+ *                 description: Labour cost
+ *               quantity:
+ *                 type: integer
+ *                 description: Quantity of parts
+ *               totalCost:
+ *                 type: number
+ *                 description: Total cost for this item
+ *               defectDescription:
+ *                 type: string
+ *                 description: Description of the defect
+ *     responses:
+ *       201:
+ *         description: Service request item created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestItem'
+ *       400:
+ *         description: Bad request - service request ID is required
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:serviceRequestId/items', createServiceRequestItemController);
+
+/**
+ * @swagger
+ * /api/service-request/{serviceRequestId}/items/bulk:
+ *   post:
+ *     summary: Add multiple items to a service request
+ *     description: Add multiple service request items to an existing service request
+ *     tags: [Service Requests]
+ *     parameters:
+ *       - in: path
+ *         name: serviceRequestId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the service request
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - items
+ *             properties:
+ *               items:
+ *                 type: array
+ *                 items:
+ *                   type: object
+ *                   required:
+ *                     - partName
+ *                   properties:
+ *                     partName:
+ *                       type: string
+ *                       description: Name of the part
+ *                     partCost:
+ *                       type: number
+ *                       description: Cost of the part
+ *                     labourCost:
+ *                       type: number
+ *                       description: Labour cost
+ *                     quantity:
+ *                       type: integer
+ *                       description: Quantity of parts
+ *                     totalCost:
+ *                       type: number
+ *                       description: Total cost for this item
+ *                     defectDescription:
+ *                       type: string
+ *                       description: Description of the defect
+ *     responses:
+ *       201:
+ *         description: Service request items created successfully
+ *       400:
+ *         description: Bad request - service request ID is required or items must be an array
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/:serviceRequestId/items/bulk', createServiceRequestItemsController);
 
 /**
  * @swagger
@@ -220,6 +406,12 @@ router.post('/', createServiceRequestController);
  *               serviceDescription:
  *                 type: string
  *                 description: Description of the service
+ *               assetCondition:
+ *                 type: string
+ *                 description: Current condition of the asset (Working, Not Working, Working with Conditions, etc.)
+ *               problem:
+ *                 type: string
+ *                 description: Problem description in text form
  *               approverName:
  *                 type: string
  *                 description: Name of the approver
