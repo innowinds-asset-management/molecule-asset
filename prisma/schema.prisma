@@ -366,7 +366,7 @@ model ServiceContractStatus {
 }
 
 model ServiceContract {
-  contractId                    String              @id @default(cuid())
+  contractId                    String           @id @default(cuid())
   contractNumber                String           @unique @db.VarChar(100)
   contractTypeId                Int
   assetId                       String           @db.VarChar(255)
