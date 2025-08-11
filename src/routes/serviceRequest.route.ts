@@ -9,7 +9,9 @@ import {
   createServiceRequestItemController,
   createServiceRequestItemsController,
   updateServiceRequestController, 
+  updateServiceRequestItemController,
   deleteServiceRequestController,
+  deleteServiceRequestItemController,
   getServiceRequestsByAssetIdController
 } from '../controllers/serviceRequest.controller';
 
@@ -290,7 +292,7 @@ router.post('/with-items', createServiceRequestWithItemsController);
  *       500:
  *         description: Internal server error
  */
-router.post('/:serviceRequestId/items', createServiceRequestItemController);
+router.post('/:serviceRequestId/item', createServiceRequestItemController);
 
 /**
  * @swagger
@@ -349,6 +351,91 @@ router.post('/:serviceRequestId/items', createServiceRequestItemController);
  *         description: Internal server error
  */
 router.post('/:serviceRequestId/items/bulk', createServiceRequestItemsController);
+
+/**
+ * @swagger
+ * /api/service-request/item/{serviceRequestItemId}:
+ *   put:
+ *     summary: Update a service request item
+ *     description: Update an existing service request item with the provided information
+ *     tags: [Service Requests]
+ *     parameters:
+ *       - in: path
+ *         name: serviceRequestItemId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the service request item to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               partName:
+ *                 type: string
+ *                 description: Name of the part
+ *               partCost:
+ *                 type: number
+ *                 description: Cost of the part
+ *               labourCost:
+ *                 type: number
+ *                 description: Labour cost
+ *               quantity:
+ *                 type: integer
+ *                 description: Quantity of parts
+ *               totalCost:
+ *                 type: number
+ *                 description: Total cost for this item
+ *               defectDescription:
+ *                 type: string
+ *                 description: Description of the defect
+ *     responses:
+ *       200:
+ *         description: Service request item updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestItem'
+ *       400:
+ *         description: Bad request - service request item ID is required
+ *       404:
+ *         description: Service request item not found
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/item/:serviceRequestItemId', updateServiceRequestItemController);
+
+/**
+ * @swagger
+ * /api/service-request/item/{serviceRequestItemId}:
+ *   delete:
+ *     summary: Delete a service request item
+ *     description: Delete a service request item by its ID
+ *     tags: [Service Requests]
+ *     parameters:
+ *       - in: path
+ *         name: serviceRequestItemId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the service request item to delete
+ *     responses:
+ *       200:
+ *         description: Service request item deleted successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/ServiceRequestItem'
+ *       400:
+ *         description: Bad request - service request item ID is required
+ *       404:
+ *         description: Service request item not found
+ *       500:
+ *         description: Internal server error
+ */
+router.delete('/item/:serviceRequestItemId', deleteServiceRequestItemController);
 
 /**
  * @swagger
