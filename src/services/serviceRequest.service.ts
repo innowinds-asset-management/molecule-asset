@@ -7,6 +7,17 @@ export const getAllServiceRequests = async () => {
   return await prisma.serviceRequest.findMany({
     include: {
       serviceRequestItems: true,
+      warranty:{
+        select:{
+          isActive:true
+        }
+      },
+      serviceSupplier:{
+        select:{
+          name:true
+        }
+      }
+
     },
   });
 };
@@ -25,6 +36,7 @@ export const getServiceRequestById = async (id: string) => {
       serviceSupplier: true,
       serviceContract: true,
       serviceRequestItems: true,
+      warranty:true
     },
   });
 };
@@ -48,7 +60,6 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
     technicianName,
     serviceSupplierId,
     serviceContractId,
-    warrantyStatus,
     srStatus,
     srNo,
     serviceDate,
@@ -80,7 +91,6 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
       technicianName,
       serviceSupplierId,
       serviceContractId,
-      warrantyStatus,
       srStatus,
       srNo,
       serviceDate,
@@ -139,6 +149,26 @@ export const createServiceRequest = async (serviceRequest: any) => {
       throw new Error(`Asset with ID ${assetId} does not exist`);
     }
 
+    // Find warranty for the asset
+    let warrantyId = null;
+
+    // First, try to find warranties for the asset
+    const warranties = await prisma.warranties.findMany({
+      where: {
+        assetId: assetId,
+      },
+      orderBy: {
+        updatedAt: 'desc'
+      }
+    });
+
+    
+    if (warranties?.length) { 
+      warrantyId = warranties.find(w => w.isActive)?.warrantyId 
+      ?? warranties[0]?.warrantyId 
+      ?? null;
+    }
+    
     // Create the service request with minimal data
     const newServiceRequest = await prisma.serviceRequest.create({
       data: {
@@ -147,8 +177,8 @@ export const createServiceRequest = async (serviceRequest: any) => {
         assetCondition,
         // Set default values for required fields
         technicianName: 'Not Specified',
-        warrantyStatus: 'NOT_APPLICABLE',
         serviceDate: new Date(),
+        warrantyId
       },
       include: {
         serviceRequestItems: true,
@@ -220,7 +250,6 @@ export const updateServiceRequest = async (id: string, serviceRequest: any) => {
     technicianName,
     serviceSupplierId,
     serviceContractId,
-    warrantyStatus,
     srStatus,
     srNo,
     serviceDate,
@@ -247,7 +276,6 @@ export const updateServiceRequest = async (id: string, serviceRequest: any) => {
       technicianName,
       serviceSupplierId,
       serviceContractId,
-      warrantyStatus,
       srStatus,
       srNo,
       serviceDate,
@@ -310,6 +338,37 @@ export const createServiceRequestItems = async (serviceRequestId: string, items:
 
   return await prisma.serviceRequestItem.createMany({
     data: itemsData,
+  });
+};
+
+//update service request item
+export const updateServiceRequestItem = async (serviceRequestItemId: string, item: any) => {
+  const {
+    partName,
+    partCost,
+    labourCost,
+    quantity,
+    totalCost,
+    defectDescription,
+  } = item || {};
+
+  return await prisma.serviceRequestItem.update({
+    where: { serviceRequestItemId: parseInt(serviceRequestItemId) },
+    data: {
+      partName,
+      partCost: partCost ?? null,
+      labourCost: labourCost ?? null,
+      quantity: quantity ?? null,
+      totalCost: totalCost ?? null,
+      defectDescription: defectDescription ?? null,
+    },
+  });
+};
+
+//delete service request item
+export const deleteServiceRequestItem = async (serviceRequestItemId: string) => {
+  return await prisma.serviceRequestItem.delete({
+    where: { serviceRequestItemId: parseInt(serviceRequestItemId) },
   });
 };
 

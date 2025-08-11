@@ -69,7 +69,7 @@ model Asset {
   department        Department?  @relation(fields: [departmentId], references: [deptId])
   consumer          Consumer     @relation(fields: [consumerId], references: [id])
   supplier          Supplier?    @relation("SupplierToAsset", fields: [supplierId], references: [id])
-
+  
   // Relations
   locations       Location[]
   installations   Installation[]
@@ -90,7 +90,7 @@ model Department {
   consumerId String
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
-
+  
   // Relations
   locations     Location[]
   installations Installation[]
@@ -111,7 +111,7 @@ model Location {
   isCurrentLocation Boolean  @default(true)
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
-
+  
   // Relations
   asset         Asset          @relation(fields: [assetId], references: [id])
   department    Department     @relation(fields: [departmentId], references: [deptId])
@@ -130,7 +130,7 @@ model Installation {
   installationDate DateTime
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
-
+  
   // Relations
   asset      Asset      @relation(fields: [assetId], references: [id])
   location   Location   @relation(fields: [locationId], references: [id])
@@ -277,6 +277,7 @@ model Warranties {
   notifications WarrantyNotification[]
   consumer      Consumer?              @relation(fields: [consumerId], references: [id])
   supplier      Supplier?              @relation(fields: [supplierId], references: [id])
+  serviceRequest ServiceRequest[]
 
   @@index([endDate], name: "idxEndDate")
   @@index([assetId], name: "idxAssetId")
@@ -410,7 +411,6 @@ model ServiceRequest {
   technicianName    String?        @db.VarChar(100)
   serviceSupplierId String?
   serviceContractId String?
-  warrantyStatus    WarrantyStatus
   srStatus     String?        @db.VarChar(50)
   srNo             String?        @db.VarChar(100) @default(cuid())
   serviceDate        DateTime? @db.Date
@@ -426,6 +426,7 @@ model ServiceRequest {
   closureBy    String?
   closureReason String?
   totalCost     Decimal? @db.Decimal(10, 2)
+  warrantyId Int?
 
 
   // Relations
@@ -433,6 +434,7 @@ model ServiceRequest {
   asset               Asset                @relation(fields: [assetId], references: [id]) // Foreign key relation to Asset
   serviceSupplier     Supplier?            @relation(fields: [serviceSupplierId], references: [id])
   serviceContract     ServiceContract?     @relation(fields: [serviceContractId], references: [contractId])
+  warranty            Warranties?           @relation(fields: [warrantyId], references:[warrantyId])
 
   @@index([serviceSupplierId], name: "idxServiceRequestSupplierId")
   @@index([serviceContractId], name: "idxServiceRequestContractId")
