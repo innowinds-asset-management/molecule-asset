@@ -323,3 +323,18 @@ export type CreateAssetCompleteData = {
       createdAt?: Date;
       updatedAt?: Date;
 };
+
+
+export interface CreateAssetFromGrnAndPoLineItemInput {
+  assetSubType: string;
+  assetType: string;
+  consumerId: string;
+  grnId: string;
+  grnItemId: string;
+  assetName: string;
+  partNo: string;
+  poId: string;
+  poLineItemId: string;
+  qtyAccepted: number;
+  supplierId: string;
+}

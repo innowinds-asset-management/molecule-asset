@@ -1,6 +1,6 @@
 //fetch all assets
 import { Asset, PrismaClient } from '@prisma/client';
-import { CreateAssetCompleteData } from '../types';
+import { CreateAssetCompleteData, CreateAssetFromGrnAndPoLineItemInput } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -164,4 +164,67 @@ export const createAssetComplete = async (data: CreateAssetCompleteData[]) => {
 
   return result;
 };
+
+
+
+/**
+ * Create assets from GRN and PO Line Item input with optimized batch processing.
+ * Uses createMany for bulk insertion and returns only count for better performance.
+ */
+export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAssetFromGrnAndPoLineItemInput & { baseSerialNo?: string }) => {
+  // Validate required fields
+  const requiredFields = [
+    'assetSubType', 'assetType', 'consumerId', 'grnId', 'grnItemId',
+    'assetName', 'partNo', 'poId', 'poLineItemId', 'qtyAccepted', 'supplierId'
+  ];
+  for (const field of requiredFields) {
+    if (!data[field as keyof CreateAssetFromGrnAndPoLineItemInput]) {
+      throw new Error(`Missing required field: ${field}`);
+    }
+  }
+
+  // Generate consumerSerialNo for each asset
+  const now = Date.now();
+  const assetsToCreate = Array.from({ length: data.qtyAccepted }).map((_, idx) => {
+    let consumerSerialNo: string;
+    if (data.baseSerialNo) {
+      consumerSerialNo = `${data.baseSerialNo}-${idx + 1}`;
+    } else {
+      consumerSerialNo = `${data.assetName}-${now}-${idx + 1}`;
+    }
+    return {
+      assetSubTypeId: data.assetSubType,
+      assetTypeId: data.assetType,
+      consumerId: data.consumerId,
+      grnId: data.grnId,
+      grnItemId: data.grnItemId,
+      assetName: data.assetName,
+      partNo: data.partNo,
+      poLineItemId: data.poLineItemId,
+      supplierId: data.supplierId,
+      isActive: true,
+      consumerSerialNo
+    };
+  });
+
+  // Optimized batch creation - only create, don't fetch back
+  const result = await prisma.asset.createMany({
+    data: assetsToCreate,
+    skipDuplicates: false
+  });
+
+  return {
+    count: result.count,
+    message: `Successfully created ${result.count} assets`,
+    assetName: data.assetName,
+    partNo: data.partNo,
+    qtyAccepted: data.qtyAccepted
+  };
+};
+
+
+
+
+
+
       

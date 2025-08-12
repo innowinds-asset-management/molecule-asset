@@ -1,7 +1,7 @@
 //fetch all assets
 
 import { Request, Response } from 'express';
-import { getAllAssets, getAssetById, createAsset, updateAsset, deleteAsset, createAssetComplete } from '../services/asset.service';
+import { getAllAssets, getAssetById, createAsset, updateAsset, deleteAsset, createAssetComplete, createAssetFromGrnAndPoLineItemWithSerial } from '../services/asset.service';
 
 export const getAllAssetsController = async (_req: Request, res: Response) => {
   const assets = await getAllAssets();
@@ -50,5 +50,13 @@ export const deleteAssetController = async (req: Request, res: Response) => {
 export const createAssetCompleteController = async (req: Request, res: Response) => {
   const data = req.body;
   const result = await createAssetComplete(data);
+  return res.json(result);
+};
+
+
+//create asset from grn and po line item
+export const createAssetFromGrnAndPoLineItemController = async (req: Request, res: Response) => {
+  const data = req.body;
+  const result = await createAssetFromGrnAndPoLineItemWithSerial(data);
   return res.json(result);
 };

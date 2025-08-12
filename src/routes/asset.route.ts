@@ -1,7 +1,7 @@
 //asset routes
 
 import { Router } from 'express';
-import { getAllAssetsController, getAssetByIdController, createAssetController, updateAssetController, deleteAssetController, createAssetCompleteController } from '../controllers/asset.controller';
+import { getAllAssetsController, getAssetByIdController, createAssetController, updateAssetController, deleteAssetController, createAssetCompleteController, createAssetFromGrnAndPoLineItemController } from '../controllers/asset.controller';
 
 const router = Router();
 
@@ -224,5 +224,34 @@ router.delete('/:id', deleteAssetController);
  *         description: Internal server error
  */
 router.post('/complete', createAssetCompleteController);
+
+
+/**
+ * @swagger
+ * /api/asset/grn-po-line-item:
+ *   post:
+ *     summary: Create assets from GRN and PO Line Item
+ *     description: Create assets from GRN and PO Line Item with the provided information
+ *     tags: [Assets]   
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAssetFromGrnAndPoLineItemDto'  
+ *     responses:
+ *       201:
+ *         description: Assets created successfully
+ *         content:
+ *           application/json:
+ *             schema:          
+ *               $ref: '#/components/schemas/Asset'
+ *       400:
+ *         description: Bad request - invalid input data
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/grn-po-line-item', createAssetFromGrnAndPoLineItemController);
+
 
 export default router;
