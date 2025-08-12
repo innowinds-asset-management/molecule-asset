@@ -7,6 +7,17 @@ export const getAllServiceRequests = async () => {
   return await prisma.serviceRequest.findMany({
     include: {
       serviceRequestItems: true,
+      asset: {
+        select: {
+          assetName: true,
+          id: true,
+          department:{
+            select:{
+              deptName:true
+            }
+          }
+        }
+      },
       warranty:{
         select:{
           isActive:true
@@ -47,6 +58,7 @@ export const getServiceRequestsByAssetId = async (assetId: string) => {
     where: { assetId },
     include: {
       serviceRequestItems: true,
+      serviceSupplier:true
     },
   });
 };
@@ -62,7 +74,6 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
     serviceContractId,
     srStatus,
     srNo,
-    serviceDate,
     serviceType,
     serviceDescription,
     assetCondition,
@@ -93,7 +104,6 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
       serviceContractId,
       srStatus,
       srNo,
-      serviceDate,
       serviceType,
       serviceDescription,
       assetCondition,
@@ -140,14 +150,20 @@ export const createServiceRequest = async (serviceRequest: any) => {
       throw new Error('Asset condition is required');
     }
 
-    // Check if asset exists
+    // Check if asset exists and get supplierId
     const existingAsset = await prisma.asset.findUnique({
-      where: { id: assetId }
+      where: { id: assetId },
+      include: {
+        supplier: true
+      }
     });
 
     if (!existingAsset) {
       throw new Error(`Asset with ID ${assetId} does not exist`);
     }
+
+    // Get supplierId from asset for serviceSupplierId mapping
+    const serviceSupplierId = existingAsset.supplierId || null;
 
     // Find warranty for the asset
     let warrantyId = null;
@@ -175,10 +191,11 @@ export const createServiceRequest = async (serviceRequest: any) => {
         assetId,
         problem,
         assetCondition,
+        serviceSupplierId, // Map supplierId from asset to serviceSupplierId
         // Set default values for required fields
         technicianName: 'Not Specified',
-        serviceDate: new Date(),
-        warrantyId
+        warrantyId,
+        srStatus: 'OPEN'
       },
       include: {
         serviceRequestItems: true,
@@ -245,29 +262,31 @@ export const createServiceRequest = async (serviceRequest: any) => {
 //update service request
 export const updateServiceRequest = async (id: string, serviceRequest: any) => {
   const {
-    serviceRequestItems = [],
+    // serviceRequestItems = [],
     assetId,
     technicianName,
     serviceSupplierId,
     serviceContractId,
     srStatus,
     srNo,
-    serviceDate,
     serviceType,
     serviceDescription,
     assetCondition,
     problem,
     approverName,
+    closureReason,
+    closureNotes
+
   } = serviceRequest || {};
 
-  const itemsData = (Array.isArray(serviceRequestItems) ? serviceRequestItems : []).map((item: any) => ({
-    partName: item?.partName,
-    partCost: item?.partCost ?? null,
-    labourCost: item?.labourCost ?? null,
-    quantity: item?.quantity ?? null,
-    totalCost: item?.totalCost ?? null,
-    defectDescription: item?.defectDescription ?? null,
-  }));
+  // const itemsData = (Array.isArray(serviceRequestItems) ? serviceRequestItems : []).map((item: any) => ({
+  //   partName: item?.partName,
+  //   partCost: item?.partCost ?? null,
+  //   labourCost: item?.labourCost ?? null,
+  //   quantity: item?.quantity ?? null,
+  //   totalCost: item?.totalCost ?? null,
+  //   defectDescription: item?.defectDescription ?? null,
+  // }));
 
   return await prisma.serviceRequest.update({
     where: { serviceRequestId: id },
@@ -278,21 +297,22 @@ export const updateServiceRequest = async (id: string, serviceRequest: any) => {
       serviceContractId,
       srStatus,
       srNo,
-      serviceDate,
       serviceType,
       serviceDescription,
       assetCondition,
       problem,
       approverName,
-      // Replace all existing items with provided list (if any)
-      ...(Array.isArray(serviceRequestItems)
-        ? {
-            serviceRequestItems: {
-              deleteMany: {},
-              create: itemsData,
-            },
-          }
-        : {}),
+      closureReason,
+      closureNotes,
+      // // Replace all existing items with provided list (if any)
+      // ...(Array.isArray(serviceRequestItems)
+      //   ? {
+      //       serviceRequestItems: {
+      //         deleteMany: {},
+      //         create: itemsData,
+      //       },
+      //     }
+      //   : {}),
     },
     include: {
       serviceRequestItems: true,

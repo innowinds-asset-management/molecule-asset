@@ -370,7 +370,6 @@ model ServiceRequest {
   serviceContractId   String?
   srStatus            String?              @db.VarChar(50)
   srNo                String?              @default(cuid()) @db.VarChar(100)
-  serviceDate         DateTime?            @db.Date
   serviceType         String?              @db.VarChar(100)
   serviceDescription  String?              @db.Text
   assetCondition      String?              @db.VarChar(100)
