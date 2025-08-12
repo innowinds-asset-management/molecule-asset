@@ -9,7 +9,9 @@ import {
   createServiceRequestItem,
   createServiceRequestItems,
   updateServiceRequest, 
+  updateServiceRequestItem,
   deleteServiceRequest,
+  deleteServiceRequestItem,
   getServiceRequestsByAssetId
 } from '../services/serviceRequest.service';
 
@@ -146,6 +148,22 @@ export const updateServiceRequestController = async (req: Request, res: Response
   }
 };
 
+export const updateServiceRequestItemController = async (req: Request, res: Response) => {
+  try {
+    const { serviceRequestItemId } = req.params;
+    const item = req.body;
+    
+    if (!serviceRequestItemId) {
+      return res.status(400).json({ error: 'Service Request Item ID is required' });
+    }
+    
+    const updatedItem = await updateServiceRequestItem(serviceRequestItemId, item);
+    return res.json(updatedItem);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to update service request item' });
+  }
+};
+
 export const deleteServiceRequestController = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
@@ -156,5 +174,18 @@ export const deleteServiceRequestController = async (req: Request, res: Response
     return res.json(deletedServiceRequest);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to delete service request' });
+  }
+};
+
+export const deleteServiceRequestItemController = async (req: Request, res: Response) => {
+  try {
+    const { serviceRequestItemId } = req.params;
+    if (!serviceRequestItemId) {
+      return res.status(400).json({ error: 'Service Request Item ID is required' });
+    }
+    const deletedItem = await deleteServiceRequestItem(serviceRequestItemId);
+    return res.json(deletedItem);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to delete service request item' });
   }
 };
