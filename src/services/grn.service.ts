@@ -32,6 +32,14 @@ export const getGoodsReceivedNoteById = async (id: string) => {
   });
 };
 
+//fetch goods received note by po id
+export const getGoodsReceivedNoteByPoId = async (poId: string) => {
+  return await prisma.gRN.findMany({
+    where: { poId },
+  });
+};
+
+
 //create goods received note
 export const createGoodsReceivedNote = async (goodsReceivedNote: GRN) => {
   return await prisma.gRN.create({
@@ -96,9 +104,23 @@ export const createGoodsReceivedNoteWithItems = async (payload: CreateGRNWithIte
           remarks: it.remarks ?? null,
         })),
       });
+    
+    // Update each POLineItem with the correct receivedQty and remainingQty from grnItem array
+    for (const item of grnItem) {
+      await tx.pOLineItem.update({
+        where: { id: item.poLineItemId },
+        data: {
+          grnId:(grn.id),
+          receivedQty: (item.quantityReceived as any) ?? 0,
+          remainingQty: (item.quantityRemaining as any) ?? 0,
+        },
+      });
+    }
     }
 
-    return await tx.gRN.findUnique({
+    
+
+   return await tx.gRN.findUnique({
       where: { id: grn.id },
       include: {
         po: true,

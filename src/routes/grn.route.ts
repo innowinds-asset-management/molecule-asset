@@ -1,11 +1,13 @@
 //goods received note routes
 
 import { Router } from 'express';
-import { getAllGoodsReceivedNotesController, getGoodsReceivedNoteByIdController, createGoodsReceivedNoteController, updateGoodsReceivedNoteController, deleteGoodsReceivedNoteController } from '../controllers/grn.controller';
+import { getAllGoodsReceivedNotesController, getGoodsReceivedNoteByIdController, createGoodsReceivedNoteController, updateGoodsReceivedNoteController, deleteGoodsReceivedNoteController, getGoodsReceivedNoteByPoIdController } from '../controllers/grn.controller';
 
 const router = Router();
 //get all goods received notes
 router.get('/', getAllGoodsReceivedNotesController);
+//get goods received note by po id
+router.get('/po/:poId', getGoodsReceivedNoteByPoIdController);
 //get goods received note by id
 router.get('/:id', getGoodsReceivedNoteByIdController);
 //create goods received note

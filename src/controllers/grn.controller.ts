@@ -1,7 +1,7 @@
 //fetch all goods received notes
 
 import { Request, Response } from 'express';
-import { getAllGoodsReceivedNotes, getGoodsReceivedNoteById, deleteGoodsReceivedNote, createGoodsReceivedNoteWithItems, updateGoodsReceivedNoteWithItems } from '../services/grn.service';
+import { getAllGoodsReceivedNotes, getGoodsReceivedNoteById, deleteGoodsReceivedNote, createGoodsReceivedNoteWithItems, updateGoodsReceivedNoteWithItems, getGoodsReceivedNoteByPoId } from '../services/grn.service';
 
 export const getAllGoodsReceivedNotesController = async (_req: Request, res: Response) => {
   const goodsReceivedNotes = await getAllGoodsReceivedNotes();
@@ -44,4 +44,14 @@ export const deleteGoodsReceivedNoteController = async (req: Request, res: Respo
   }
   const deletedGoodsReceivedNote = await deleteGoodsReceivedNote(id);
   return res.json(deletedGoodsReceivedNote);
+};
+
+//fetch goods received note by po id
+export const getGoodsReceivedNoteByPoIdController = async (req: Request, res: Response) => {
+  const { poId } = req.params;
+  if (!poId) {
+    return res.status(400).json({ error: 'PO ID is required' });
+  }
+  const goodsReceivedNote = await getGoodsReceivedNoteByPoId(poId);
+  return res.json(goodsReceivedNote);
 };
