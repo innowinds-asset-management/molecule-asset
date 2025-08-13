@@ -73,5 +73,73 @@ export const unlinkConsumerFromSupplier = async (supplierId: string, consumerId:
   });
 };
 
+// Get all suppliers with asset counts and open service request counts
+
+// Get suppliers of a consumer with asset counts and open service request counts
+export const listSuppliersOfConsumerWithStats = async (consumerId: string) => {
+  const consumerSuppliers = await prisma.consumerSupplier.findMany({
+    where: {
+      consumerId: consumerId
+    },
+    include: {
+      supplier: {
+        include: {
+          _count: {
+            select: {
+              suppliedAssets: {
+                where: {
+                  consumerId: consumerId
+                }
+              },
+              serviceRequests: {
+                where: {
+                  srStatusCode: 'OP' // Open status
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    orderBy: { createdAt: 'desc' }
+  });
+
+  return consumerSuppliers.map(consumerSupplier => ({
+    supplier: consumerSupplier.supplier,
+    assetCount: consumerSupplier.supplier._count.suppliedAssets,
+    openServiceRequestCount: consumerSupplier.supplier._count.serviceRequests,
+    registeredFrom: consumerSupplier.createdAt
+  }));
+};
+
+// Get supplier details by ID with asset counts and open service request counts
+export const getSupplierDetailsById = async (id: string) => {
+  const supplier = await prisma.supplier.findUnique({
+    where: { id },
+    include: {
+      _count: {
+        select: {
+          suppliedAssets: true,
+          serviceRequests: {
+            where: {
+              srStatusCode: 'OP' // Open status
+            }
+          }
+        }
+      }
+    }
+  });
+
+  if (!supplier) {
+    return null;
+  }
+
+  return {
+    ...supplier,
+    assetCount: supplier._count.suppliedAssets,
+    openServiceRequestCount: supplier._count.serviceRequests
+  };
+};
+
 
 

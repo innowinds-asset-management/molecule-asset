@@ -22,6 +22,8 @@ import departmentRoutes from './routes/department.route';
 import locationRoutes from './routes/location.route';
 import warrantyRoutes from './routes/warranty.route';
 import serviceRequestRoutes from './routes/serviceRequest.route';
+import serviceRequestStatusRoutes from './routes/serviceRequestStatus.route';
+import assetConditionRoutes from './routes/assetCondition.route';
 import consumerRoutes from './routes/consumer.route';
 import supplierRoutes from './routes/supplier.route';
 import consumerSupplierRoutes from './routes/consumerSupplier.route';
@@ -155,10 +157,14 @@ app.use(`${apiPrefix}/location`, locationRoutes);
 app.use(`${apiPrefix}/warranty`, warrantyRoutes);
 // Service Request routes
 app.use(`${apiPrefix}/servicerequest`, serviceRequestRoutes);
-  // Consumer routes
-  app.use(`${apiPrefix}/consumer`, consumerRoutes);
-  // Supplier routes
-  app.use(`${apiPrefix}/supplier`, supplierRoutes);
+// Service Request Status routes
+app.use(`${apiPrefix}/service-request-status`, serviceRequestStatusRoutes);
+// Asset Condition routes
+app.use(`${apiPrefix}/asset-condition`, assetConditionRoutes);
+// Consumer routes
+app.use(`${apiPrefix}/consumer`, consumerRoutes);
+// Supplier routes
+app.use(`${apiPrefix}/supplier`, supplierRoutes);
 // Consumer Supplier routes
 app.use(`${apiPrefix}/consumer-supplier`, consumerSupplierRoutes);
 // Swagger documentation

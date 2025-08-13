@@ -368,11 +368,9 @@ model ServiceRequest {
   technicianName      String?              @db.VarChar(100)
   serviceSupplierId   String?
   serviceContractId   String?
-  srStatus            String?              @db.VarChar(50)
   srNo                String?              @default(cuid()) @db.VarChar(100)
   serviceType         String?              @db.VarChar(100)
   serviceDescription  String?              @db.Text
-  assetCondition      String?              @db.VarChar(100)
   problem             String?              @db.Text
   createdAt           DateTime             @default(now())
   updatedAt           DateTime?            @updatedAt
@@ -383,10 +381,15 @@ model ServiceRequest {
   closureReason       String?
   totalCost           Decimal?             @db.Decimal(10, 2)
   warrantyId          Int?
+  srStatusCode         String?
+  assetConditionCode   String?
+
   asset               Asset                @relation(fields: [assetId], references: [id])
   serviceContract     ServiceContract?     @relation(fields: [serviceContractId], references: [contractId])
   serviceSupplier     Supplier?            @relation(fields: [serviceSupplierId], references: [id])
   warranty            Warranties?          @relation(fields: [warrantyId], references: [warrantyId])
+  serviceRequestStatus ServiceRequestStatus? @relation(fields: [srStatusCode], references:[code])
+  assetCondition       AssetCondition?       @relation(fields:[assetConditionCode], references:[code])
   serviceRequestItems ServiceRequestItem[]
 
   @@index([serviceSupplierId], map: "idxServiceRequestSupplierId")
@@ -408,6 +411,9 @@ model ServiceRequestItem {
   createdAt            DateTime       @default(now())
   updatedAt            DateTime?      @updatedAt
   serviceRequest       ServiceRequest @relation(fields: [serviceRequestId], references: [serviceRequestId])
+  isDeleted            Boolean        @default(false)
+  deletedBy            String?
+  deletedAt            DateTime?
 
   @@index([serviceRequestId], map: "idxServiceRequestItemRequestId")
   @@map("serviceRequestItem")
@@ -513,4 +519,26 @@ enum ServiceFrequency {
   HALF_YEARLY
   YEARLY
   AS_REQUIRED
+}
+
+model ServiceRequestStatus {
+  code String @id 
+  name String
+  displayName String
+  
+  serviceRequest ServiceRequest[]
+
+  @@map("serviceRequestStatus")
+
+}
+
+model AssetCondition {
+  code String @id 
+  name String
+  displayName String
+
+  serviceRequest ServiceRequest[]
+
+  @@map("assetCondition")
+
 }
