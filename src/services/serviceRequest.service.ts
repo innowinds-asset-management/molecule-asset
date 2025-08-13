@@ -5,29 +5,34 @@ const prisma = new PrismaClient();
 
 export const getAllServiceRequests = async () => {
   return await prisma.serviceRequest.findMany({
+    orderBy: {
+      updatedAt: 'desc'
+    },
     include: {
       serviceRequestItems: true,
       asset: {
         select: {
           assetName: true,
           id: true,
-          department:{
-            select:{
-              deptName:true
+          department: {
+            select: {
+              deptName: true
             }
           }
         }
       },
-      warranty:{
-        select:{
-          isActive:true
+      warranty: {
+        select: {
+          isActive: true
         }
       },
-      serviceSupplier:{
-        select:{
-          name:true
+      serviceSupplier: {
+        select: {
+          name: true
         }
-      }
+      },
+      serviceRequestStatus:true,
+      assetCondition:true
 
     },
   });
@@ -46,8 +51,12 @@ export const getServiceRequestById = async (id: string) => {
       },
       serviceSupplier: true,
       serviceContract: true,
-      serviceRequestItems: true,
-      warranty:true
+      serviceRequestItems: {
+        where: {
+          isDeleted: false
+        }
+      },
+      warranty: true
     },
   });
 };
@@ -58,7 +67,8 @@ export const getServiceRequestsByAssetId = async (assetId: string) => {
     where: { assetId },
     include: {
       serviceRequestItems: true,
-      serviceSupplier:true
+      serviceSupplier: true,
+      serviceRequestStatus:true
     },
   });
 };
@@ -72,11 +82,11 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
     technicianName,
     serviceSupplierId,
     serviceContractId,
-    srStatus,
+    // srStatus,
     srNo,
     serviceType,
     serviceDescription,
-    assetCondition,
+    // assetCondition,
     problem,
     approverName,
   } = serviceRequest || {};
@@ -102,19 +112,19 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
       technicianName,
       serviceSupplierId,
       serviceContractId,
-      srStatus,
+      // srStatus,
       srNo,
       serviceType,
       serviceDescription,
-      assetCondition,
+      // assetCondition,
       problem,
       approverName,
       ...(itemsData.length > 0
         ? {
-            serviceRequestItems: {
-              create: itemsData,
-            },
-          }
+          serviceRequestItems: {
+            create: itemsData,
+          },
+        }
         : {}),
     },
     include: {
@@ -134,7 +144,7 @@ export const createServiceRequest = async (serviceRequest: any) => {
     const {
       assetId,
       problem,
-      assetCondition,
+      assetConditionCode
     } = serviceRequest || {};
 
     // Validate required fields
@@ -146,7 +156,7 @@ export const createServiceRequest = async (serviceRequest: any) => {
       throw new Error('Problem description is required');
     }
 
-    if (!assetCondition) {
+    if (!assetConditionCode) {
       throw new Error('Asset condition is required');
     }
 
@@ -178,24 +188,27 @@ export const createServiceRequest = async (serviceRequest: any) => {
       }
     });
 
-    
-    if (warranties?.length) { 
-      warrantyId = warranties.find(w => w.isActive)?.warrantyId 
-      ?? warranties[0]?.warrantyId 
-      ?? null;
+
+    if (warranties?.length) {
+      warrantyId = warranties.find(w => w.isActive)?.warrantyId
+        ?? warranties[0]?.warrantyId
+        ?? null;
     }
-    
+
     // Create the service request with minimal data
     const newServiceRequest = await prisma.serviceRequest.create({
       data: {
         assetId,
         problem,
-        assetCondition,
+        // assetCondition,
         serviceSupplierId, // Map supplierId from asset to serviceSupplierId
         // Set default values for required fields
         technicianName: 'Not Specified',
         warrantyId,
-        srStatus: 'OPEN'
+        // srStatus: 'OPEN'
+        assetConditionCode,
+        srStatusCode: 'OP'
+
       },
       include: {
         serviceRequestItems: true,
@@ -235,25 +248,25 @@ export const createServiceRequest = async (serviceRequest: any) => {
   } catch (error: any) {
     // Log the error for debugging
     console.error('Error creating service request:', error);
-    
+
     // Re-throw the error with a more user-friendly message if it's a Prisma error
     if (error.code === 'P2002') {
       throw new Error('A service request with this information already exists');
     }
-    
+
     if (error.code === 'P2003') {
       throw new Error('Foreign key constraint failed. Please check the provided IDs');
     }
-    
+
     if (error.code === 'P2014') {
       throw new Error('The change you are trying to make would violate the required relation');
     }
-    
+
     // Re-throw the original error if it's our custom validation error
     if (error.message && !error.code) {
       throw error;
     }
-    
+
     // Generic error for unexpected issues
     throw new Error('Failed to create service request. Please try again later.');
   }
@@ -267,11 +280,13 @@ export const updateServiceRequest = async (id: string, serviceRequest: any) => {
     technicianName,
     serviceSupplierId,
     serviceContractId,
-    srStatus,
+    // srStatus,
+    srStatusCode,
+    assetConditionCode,
     srNo,
     serviceType,
     serviceDescription,
-    assetCondition,
+    // assetCondition,
     problem,
     approverName,
     closureReason,
@@ -295,15 +310,18 @@ export const updateServiceRequest = async (id: string, serviceRequest: any) => {
       technicianName,
       serviceSupplierId,
       serviceContractId,
-      srStatus,
+      // srStatus,
+      srStatusCode,
+      assetConditionCode,
       srNo,
       serviceType,
       serviceDescription,
-      assetCondition,
+      // assetCondition,
       problem,
       approverName,
       closureReason,
       closureNotes,
+      updatedAt: new Date()
       // // Replace all existing items with provided list (if any)
       // ...(Array.isArray(serviceRequestItems)
       //   ? {
@@ -387,15 +405,19 @@ export const updateServiceRequestItem = async (serviceRequestItemId: string, ite
 
 //delete service request item
 export const deleteServiceRequestItem = async (serviceRequestItemId: string) => {
-  return await prisma.serviceRequestItem.delete({
+  return await prisma.serviceRequestItem.update({
     where: { serviceRequestItemId: parseInt(serviceRequestItemId) },
+    data: {
+      isDeleted: true,
+      deletedAt: new Date()
+    },
   });
 };
 
 //delete service request
 export const deleteServiceRequest = async (id: string) => {
   // Delete child items first to satisfy FK constraints
-  await prisma.serviceRequestItem.deleteMany({ where: { serviceRequestId: id } });
+  await prisma.serviceRequestItem.updateMany({ where: { serviceRequestId: id }, data: { isDeleted: true } });
   return await prisma.serviceRequest.delete({
     where: { serviceRequestId: id },
   });

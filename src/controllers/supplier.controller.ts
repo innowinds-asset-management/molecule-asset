@@ -8,6 +8,8 @@ import {
   linkConsumerToSupplier,
   unlinkConsumerFromSupplier,
   updateSupplier,
+  listSuppliersOfConsumerWithStats,
+  getSupplierDetailsById,
 } from '../services/supplier.service';
 
 export const listSuppliersController = async (_req: Request, res: Response) => {
@@ -62,6 +64,40 @@ export const unlinkConsumerFromSupplierController = async (req: Request, res: Re
   if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
   const row = await unlinkConsumerFromSupplier(id, consumerId);
   return res.json(row);
+};
+
+
+// Get suppliers of a consumer with asset counts and open service request counts
+export const listSuppliersOfConsumerWithStatsController = async (req: Request, res: Response) => {
+  try {
+    const { cid } = req.query;
+    
+    if (!cid || typeof cid !== 'string') {
+      return res.status(400).json({ error: 'consumerId is required as a query parameter' });
+    }
+    
+    const suppliers = await listSuppliersOfConsumerWithStats(cid);
+    return res.json(suppliers);
+  } catch (error) {
+    console.error('Error fetching suppliers with stats:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
+};
+
+// Get supplier details by ID with asset counts and open service request counts
+export const getSupplierDetailsByIdController = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    
+    const supplier = await getSupplierDetailsById(id);
+    if (!supplier) return res.status(404).json({ error: 'Supplier not found' });
+    
+    return res.json(supplier);
+  } catch (error) {
+    console.error('Error fetching supplier details:', error);
+    return res.status(500).json({ error: 'Internal server error' });
+  }
 };
 
 

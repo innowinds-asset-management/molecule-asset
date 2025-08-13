@@ -5,15 +5,17 @@ import {
   getSupplierByIdController,
   linkConsumerToSupplierController,
   listConsumersForSupplierController,
-  listSuppliersController,
   unlinkConsumerFromSupplierController,
   updateSupplierController,
+  listSuppliersOfConsumerWithStatsController,
+  getSupplierDetailsByIdController,
 } from '../controllers/supplier.controller';
 
 const router = Router();
 
-router.get('/', listSuppliersController);
+router.get('/', listSuppliersOfConsumerWithStatsController);
 router.post('/', createSupplierController);
+router.get('/:id/details', getSupplierDetailsByIdController);
 router.get('/:id', getSupplierByIdController);
 router.put('/:id', updateSupplierController);
 router.delete('/:id', deleteSupplierController);
