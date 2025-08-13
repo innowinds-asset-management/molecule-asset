@@ -22,7 +22,7 @@ export const getAllPurchaseOrders = async () => {
     include: {
       poLineItem: true,
       supplier: true,
-      //consumer: true,
+      consumer: true,
       //asset: true,
       //assetType: true,
       //assetSubType: true,
@@ -38,6 +38,8 @@ export const getPurchaseOrderById = async (id: string) => {
     where: { id },
     include: {
       poLineItem: true,
+      supplier:true,
+      consumer:true
     },
   });
 };

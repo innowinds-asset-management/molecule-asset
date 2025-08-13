@@ -8,11 +8,14 @@ export const getAllGoodsReceivedNotes = async () => {
   return await prisma.gRN.findMany({
     include: {
       po: true,
-      grnItem: {
+      grnItem: {  
         include: {
           poLineItem: true,
         },
       },
+    },
+    orderBy: {
+      createdAt: 'desc',
     },
   });
 };
