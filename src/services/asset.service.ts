@@ -1,6 +1,6 @@
 //fetch all assets
 import { Asset, PrismaClient } from '@prisma/client';
-import { CreateAssetCompleteData, CreateAssetFromGrnAndPoLineItemInput } from '../types';
+import { CreateAssetCompleteData,CreateAssetFromGrnAndPoLineItemInput } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -165,13 +165,11 @@ export const createAssetComplete = async (data: CreateAssetCompleteData[]) => {
   return result;
 };
 
-
-
-/**
- * Create assets from GRN and PO Line Item input with optimized batch processing.
- * Uses createMany for bulk insertion and returns only count for better performance.
- */
-export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAssetFromGrnAndPoLineItemInput & { baseSerialNo?: string }) => {
+export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAssetFromGrnAndPoLineItemInput & { 
+  baseSerialNo?: string;
+  serialNumbers?: string[];
+  consumerSerialNoArray?: string[];
+}) => {
   // Validate required fields
   const requiredFields = [
     'assetSubType', 'assetType', 'consumerId', 'grnId', 'grnItemId',
@@ -183,15 +181,36 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
     }
   }
 
+  // Validate serial numbers if provided
+  if (data.serialNumbers && data.serialNumbers.length !== data.qtyAccepted) {
+    throw new Error(`Serial numbers count (${data.serialNumbers.length}) must match accepted quantity (${data.qtyAccepted})`);
+  }
+
+  // Validate consumerSerialNoArray if provided and not empty - allow partial arrays
+  if (data.consumerSerialNoArray && data.consumerSerialNoArray.length > data.qtyAccepted) {
+    throw new Error(`Consumer serial number array count (${data.consumerSerialNoArray.length}) cannot exceed accepted quantity (${data.qtyAccepted})`);
+  }
+
   // Generate consumerSerialNo for each asset
   const now = Date.now();
   const assetsToCreate = Array.from({ length: data.qtyAccepted }).map((_, idx) => {
-    let consumerSerialNo: string;
-    if (data.baseSerialNo) {
+    let consumerSerialNo: string | undefined;
+    
+    // Priority: consumerSerialNoArray > serialNumbers > baseSerialNo > auto-generate
+    if (data.consumerSerialNoArray && data.consumerSerialNoArray.length > 0 && idx < data.consumerSerialNoArray.length && data.consumerSerialNoArray[idx] && data.consumerSerialNoArray[idx].trim() !== '') {
+      // Use provided serial number from consumerSerialNoArray
+      consumerSerialNo = data.consumerSerialNoArray[idx];
+    } else if (data.serialNumbers && data.serialNumbers[idx]) {
+      // Use provided serial number from serialNumbers
+      consumerSerialNo = data.serialNumbers[idx];
+    } else if (data.baseSerialNo) {
+      // Generate from base serial number
       consumerSerialNo = `${data.baseSerialNo}-${idx + 1}`;
     } else {
+      // Generate auto serial number
       consumerSerialNo = `${data.assetName}-${now}-${idx + 1}`;
     }
+    
     return {
       assetSubTypeId: data.assetSubType,
       assetTypeId: data.assetType,
