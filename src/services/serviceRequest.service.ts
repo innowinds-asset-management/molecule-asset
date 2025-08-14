@@ -3,8 +3,32 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const getAllServiceRequests = async () => {
+export const getAllServiceRequests = async (status?: string, supplierId?: string, departmentId?: string) => {
+  console.log('status======>',status)
+  console.log('supplierId======>',supplierId)
+  console.log('departmentId======>',departmentId)
+  const where: any = {};
+  
+  if (status) {
+    where.serviceRequestStatus = {
+      code: status
+    };
+  }
+
+  if (supplierId) {
+    where.serviceSupplierId = supplierId;
+  }
+
+  if (departmentId) {
+    where.asset = {
+      departmentId: departmentId
+    };
+  }
+
+  console.log('where clause======>', JSON.stringify(where, null, 2))
+  
   return await prisma.serviceRequest.findMany({
+    where,
     orderBy: {
       updatedAt: 'desc'
     },

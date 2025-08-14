@@ -7,9 +7,93 @@ export const getAllDepartments = async () => {
 };  
 
 export const getDepartmentById = async (deptId: string) => {
-  return await prisma.department.findUnique({
+  const department = await prisma.department.findUnique({
     where: { deptId },
   });
+
+  if (!department) {
+    return null;
+  }
+
+  // Get assets in this department
+  const assets = await prisma.asset.findMany({
+    where: { 
+      departmentId: deptId,
+      consumerId: department.consumerId
+    },
+    include: {
+      assetType: true,
+      assetSubType: true,
+      supplier: true,
+      department: true
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  // Get service requests for assets in this department
+  const serviceRequests = await prisma.serviceRequest.findMany({
+    where: {
+      asset: {
+        departmentId: deptId,
+        consumerId: department.consumerId
+      }
+    },
+    include: {
+      serviceRequestItems: true,
+      asset: {
+        select: {
+          assetName: true,
+          id: true,
+          consumerSerialNo: true
+        }
+      },
+      warranty: {
+        select: {
+          isActive: true
+        }
+      },
+      serviceSupplier: {
+        select: {
+          name: true
+        }
+      },
+      serviceRequestStatus: true,
+      assetCondition: true
+    },
+    orderBy: {
+      updatedAt: 'desc'
+    }
+  });
+
+  // Count assets and open service requests
+  const assetCount = await prisma.asset.count({
+    where: { 
+      departmentId: deptId,
+      consumerId: department.consumerId
+    },
+  });
+
+  const openServiceRequestCount = await prisma.serviceRequest.count({
+    where: {
+      asset: {
+        departmentId: deptId,
+        consumerId: department.consumerId
+      },
+      serviceRequestStatus: {
+        code: 'OP' // Open status
+      }
+    },
+  });
+
+  return {
+    ...department,
+    assets,
+    serviceRequests,
+    assetCount,
+    openServiceRequestCount,
+  };
 };
 
 export const createDepartment = async (department: Department) => {
@@ -25,13 +109,46 @@ export const updateDepartment = async (deptId: string, department: Department) =
   });
 };
   
-//fetch all departments by  consumer id
+//fetch all departments by consumer id with asset count and open service request count
 export const getDepartmentsByConsumerId = async (consumerId: string) => {
-  return await prisma.department.findMany({
+  const departments = await prisma.department.findMany({
     where: { consumerId },
   });
-};
 
+  // Get asset count and open service request count for each department
+  const departmentsWithCounts = await Promise.all(
+    departments.map(async (department) => {
+      // Count assets in this department
+      const assetCount = await prisma.asset.count({
+        where: { 
+          departmentId: department.deptId,
+          consumerId: consumerId
+        },
+      });
+
+      // Count open service requests for assets in this department
+      const openServiceRequestCount = await prisma.serviceRequest.count({
+        where: {
+          asset: {
+            departmentId: department.deptId,
+            consumerId: consumerId
+          },
+          serviceRequestStatus: {
+            code: 'OP' // Open status
+          }
+        },
+      });
+
+      return {
+        ...department,
+        assetCount,
+        openServiceRequestCount,
+      };
+    })
+  );
+
+  return departmentsWithCounts;
+};
 
 export const deleteDepartment = async (deptId: string) => { 
     return await prisma.department.delete({
