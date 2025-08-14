@@ -65,6 +65,7 @@ model Asset {
   supplierId        String?
   supplierSerialNo  String?
   assetConditionCode   String?
+  ageDays Int? @default(50)
 
   assetCondition       AssetCondition?       @relation(fields:[assetConditionCode], references:[code])
   assetSubType      AssetSubType?     @relation(fields: [assetSubTypeId], references: [id])
