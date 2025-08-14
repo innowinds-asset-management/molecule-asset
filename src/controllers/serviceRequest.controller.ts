@@ -16,9 +16,10 @@ import {
 } from '../services/serviceRequest.service';
 
 // Service Request Controllers
-export const getAllServiceRequestsController = async (_req: Request, res: Response) => {
+export const getAllServiceRequestsController = async (req: Request, res: Response) => {
   try {
-    const serviceRequests = await getAllServiceRequests();
+    const { status, sid, did } = req.query; // Added did for departmentId
+    const serviceRequests = await getAllServiceRequests(status as string, sid as string, did as string); // Passed did
     return res.json(serviceRequests);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch service requests' });
@@ -144,6 +145,7 @@ export const updateServiceRequestController = async (req: Request, res: Response
     const updatedServiceRequest = await updateServiceRequest(id, serviceRequest);
     return res.json(updatedServiceRequest);
   } catch (error) {
+    console.log('error======>',error)
     return res.status(500).json({ error: 'Failed to update service request' });
   }
 };
