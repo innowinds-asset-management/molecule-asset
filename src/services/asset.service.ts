@@ -30,9 +30,14 @@ export const getAssetById = async (id: string) => {
       supplier: true,
       //consumer: true,
       warranties: true,
-      //serviceRequests: true,
+      serviceRequests: {
+        orderBy: {
+          createdAt: 'desc'
+        },
+        take: 1
+      },
       serviceContracts: true,
-      
+      assetCondition: true,      
     },
   });
 };

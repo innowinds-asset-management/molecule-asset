@@ -7,7 +7,11 @@ const prisma = new PrismaClient();
 export const getAllGoodsReceivedNotes = async () => {
   return await prisma.gRN.findMany({
     include: {
-      po: true,
+      po: {
+        include: {
+          supplier: true,
+        },
+      },
       grnItem: {  
         include: {
           poLineItem: true,
