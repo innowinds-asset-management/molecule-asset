@@ -1,7 +1,7 @@
 //asset routes
 
 import { Router } from 'express';
-import { getAllAssetsController, getAssetByIdController, createAssetController, updateAssetController, deleteAssetController, createAssetCompleteController, createAssetFromGrnAndPoLineItemController } from '../controllers/asset.controller';
+import { getAllAssetsController, getAssetByIdController, createAssetController, updateAssetController, deleteAssetController, createAssetCompleteController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController } from '../controllers/asset.controller';
 
 const router = Router();
 
@@ -253,5 +253,31 @@ router.post('/complete', createAssetCompleteController);
  */
 router.post('/grn-po-line-item', createAssetFromGrnAndPoLineItemController);
 
+/** 
+ * @swagger
+ * /api/asset/warranty:
+ *   post:
+ *     summary: Create assets with warranty
+ *     description: Create assets with warranty with the provided information
+ *     tags: [Assets]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             $ref: '#/components/schemas/CreateAssetWithWarrantyDto'
+ *     responses:
+ *       201:
+ *         description: Assets created successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               $ref: '#/components/schemas/Asset'
+ *       400:
+ *         description: Bad request - invalid input data
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/warranty', createAssetWithWarrantyController);
 
 export default router;

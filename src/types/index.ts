@@ -155,6 +155,7 @@ export type WarrantyType = {
   typeName: string;
   description?: string | null;
   createdAt: Date;
+  updatedAt: Date;
   // Optionally, you can add these if you want nested types:
   // warranties?: Warranty[];
 };
@@ -338,3 +339,54 @@ export interface CreateAssetFromGrnAndPoLineItemInput {
   qtyAccepted: number;
   supplierId: string;
 }
+
+export interface CreateAssetWithWarrantyInput {
+  asset: {
+    assetTypeId: string;
+    assetSubTypeId: string;
+    assetName: string;
+    consumerId: string;
+    installationDate?: string;
+    brand?: string;
+    model?: string;
+    subModel?: string;
+    isActive?: boolean;
+    partNo?: string;
+    supplierCode?: string;
+    consumerSerialNo?: string;
+    grnId?: string;
+    grnItemId?: string;
+    poLineItemId?: string;
+    supplierId?: string;
+    isAmc?: boolean;
+    supplierSerialNo?: string;
+    departmentId?: string;
+    building?: string;
+    floorNumber?: string;
+    roomNumber?: string;
+    isCurrentLocation?: boolean;
+  };
+  warranty?: {
+    warrantyNumber?: string;
+    startDate?: string;
+    endDate?: string;
+    warrantyPeriod?: number;
+    coverageType?: string;
+    coverageDescription?: string;
+    termsConditions?: string;
+    cost?: string | number;
+    isActive?: boolean;
+    autoRenewal?: boolean;
+    consumerId?: string | number;
+    supplierId?: string | number;
+  };
+}
+
+
+export type CreateWarrantyTypeInput = {
+  typeName: string;
+  description?: string | null;
+  consumerId?: string | null;
+  supplierId?: string | null;
+};
+

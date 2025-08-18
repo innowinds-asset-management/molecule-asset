@@ -100,5 +100,5 @@ export const getSupplierDetailsByIdController = async (req: Request, res: Respon
   }
 };
 
-
+//fetch all suppliers
 

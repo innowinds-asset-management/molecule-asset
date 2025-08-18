@@ -2,6 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+//fetch all supplers 
 export const getAllSuppliers = async () => {
   return prisma.supplier.findMany({
     orderBy: { createdAt: 'desc' },
