@@ -21,3 +21,5 @@ console.log('ID 123456:', generateWarrantyNumber(123456));
 // Expected format: WR-YYYYMMDD-XXXXX
 // Example: WR-20250115-00001
 
+
+

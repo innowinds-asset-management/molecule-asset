@@ -178,7 +178,7 @@ export type Warranty = {
   createdAt: Date;
   updatedAt: Date;
   consumerId?: number | null;
-  supplierId?: number | null;
+  supplierId?: number | null;  
   // Optionally, you can add these if you want nested types:
   // warrantyType?: WarrantyType;
   // asset?: Asset;
@@ -380,6 +380,8 @@ export interface CreateAssetWithWarrantyInput {
     autoRenewal?: boolean;
     consumerId?: string | number;
     supplierId?: string | number;
+    included?:String | null;
+    excluded?:String | null;
   };
 }
 

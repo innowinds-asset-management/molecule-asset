@@ -29,6 +29,9 @@ export const getAllAssets = async (params?: { consumerId?: string; supplierId?: 
       locations: true,
       installations: true,
     },
+    orderBy: {
+      createdAt: 'desc'
+    },
   });
 };
 
@@ -270,7 +273,8 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
         ...(data.warranty.coverageType && { coverageType: data.warranty.coverageType }),
         ...(data.warranty.coverageDescription && { coverageDescription: data.warranty.coverageDescription }),
         ...(data.warranty.termsConditions && { termsConditions: data.warranty.termsConditions }),
-        //...(data.warranty.cost && { cost: typeof data.warranty.cost === 'string' ? parseFloat(data.warranty.cost) : data.warranty.cost }),
+        ...(data.warranty.included && { included: data.warranty.included.toString() }),
+        ...(data.warranty.excluded && { excluded: data.warranty.excluded.toString() }),
         ...(data.warranty.isActive !== undefined && { isActive: data.warranty.isActive }),
         ...(data.warranty.autoRenewal !== undefined && { autoRenewal: data.warranty.autoRenewal }),
         ...(data.warranty.consumerId && { consumerId: typeof data.warranty.consumerId === 'string' ? data.warranty.consumerId : data.warranty.consumerId.toString() }),
