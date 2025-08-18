@@ -1,7 +1,7 @@
 //fetch all assets
 
 import { Request, Response } from 'express';
-import { getAllAssets, getAssetById, createAsset, updateAsset, deleteAsset, createAssetComplete, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty } from '../services/asset.service';
+import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty } from '../services/asset.service';
 
 export const getAllAssetsController = async (req: Request, res: Response) => {
   const { consumerId, supplierId, departmentId } = req.query;
@@ -23,12 +23,6 @@ export const getAssetByIdController = async (req: Request, res: Response) => {
   return res.json(asset);
 };
 
-//create asset  
-export const createAssetController = async (req: Request, res: Response) => {
-  const asset = req.body;
-  const newAsset = await createAsset(asset);
-  return res.json(newAsset);
-};
 
 //update asset
 export const updateAssetController = async (req: Request, res: Response) => {
@@ -49,13 +43,6 @@ export const deleteAssetController = async (req: Request, res: Response) => {
   }
   const deletedAsset = await deleteAsset(id);
   return res.json(deletedAsset);
-};
-
-//create asset complete
-export const createAssetCompleteController = async (req: Request, res: Response) => {
-  const data = req.body;
-  const result = await createAssetComplete(data);
-  return res.json(result);
 };
 
 

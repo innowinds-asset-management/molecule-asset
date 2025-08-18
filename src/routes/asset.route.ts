@@ -1,7 +1,7 @@
 //asset routes
 
 import { Router } from 'express';
-import { getAllAssetsController, getAssetByIdController, createAssetController, updateAssetController, deleteAssetController, createAssetCompleteController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController } from '../controllers/asset.controller';
+import { getAllAssetsController, getAssetByIdController, updateAssetController, deleteAssetController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController } from '../controllers/asset.controller';
 
 const router = Router();
 
@@ -72,32 +72,7 @@ router.get('/', getAllAssetsController);
  */
 router.get('/:id', getAssetByIdController);
 
-/**
- * @swagger
- * /api/asset:
- *   post:
- *     summary: Create a new asset
- *     description: Create a new asset with the provided information
- *     tags: [Assets]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateAssetDto'
- *     responses:
- *       201:
- *         description: Asset created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Asset'
- *       400:
- *         description: Bad request - invalid input data
- *       500:
- *         description: Internal server error
- */
-router.post('/', createAssetController);
+
 
 /**
  * @swagger
@@ -165,81 +140,7 @@ router.put('/:id', updateAssetController);
  */
 router.delete('/:id', deleteAssetController);
 
-/**
- * @swagger
- * /api/asset/complete:
- *   post:
- *     summary: Create assets with locations and installations (Batch)
- *     description: Create multiple assets with their associated locations and installations in a single transaction. This is a high-performance batch operation that creates assets, locations, and installations atomically.
- *     tags: [Assets]
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/CreateAssetCompleteDto'
- *           example:
- *             - assetTypeId: "asset_type_1"
- *               assetSubTypeId: "asset_subtype_1"
- *               assetName: "Laptop Dell XPS 15"
- *               consumerId: "consumer_1"
- *               departmentId: "dept_1"
- *               building: "Building A"
- *               floorNumber: "2"
- *               roomNumber: "201"
- *               isCurrentLocation: true
- *               installationDate: "2024-01-15T10:00:00Z"
- *               brand: "Dell"
- *               model: "XPS 15"
- *               isActive: true
- *             - assetTypeId: "asset_type_1"
- *               assetSubTypeId: "asset_subtype_2"
- *               assetName: "Printer HP LaserJet"
- *               consumerId: "consumer_1"
- *               departmentId: "dept_2"
- *               building: "Building B"
- *               floorNumber: "1"
- *               roomNumber: "105"
- *               isCurrentLocation: true
- *               installationDate: "2024-01-20T14:30:00Z"
- *               brand: "HP"
- *               model: "LaserJet Pro"
- *               isActive: true
- *     responses:
- *       201:
- *         description: Assets with locations and installations created successfully
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/AssetComplete'
- *             example:
- *               assets:
- *                 - id: "asset_1"
- *                   assetName: "Laptop Dell XPS 15"
- *                   assetTypeId: "asset_type_1"
- *                   assetSubTypeId: "asset_subtype_1"
- *                   consumerId: "consumer_1"
- *                   isActive: true
- *               locations:
- *                 - id: "location_1"
- *                   assetId: "asset_1"
- *                   departmentId: "dept_1"
- *                   building: "Building A"
- *                   floorNumber: "2"
- *                   roomNumber: "201"
- *                   isCurrentLocation: true
- *               installations:
- *                 - id: "installation_1"
- *                   assetId: "asset_1"
- *                   locationId: "location_1"
- *                   departmentId: "dept_1"
- *                   installationDate: "2024-01-15T10:00:00Z"
- *       400:
- *         description: Bad request - invalid input data
- *       500:
- *         description: Internal server error
- */
-router.post('/complete', createAssetCompleteController);
+
 
 
 /**

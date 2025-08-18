@@ -1,6 +1,6 @@
 //fetch all assets
 import { Asset, PrismaClient } from '@prisma/client';
-import { CreateAssetCompleteData, CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } from '../types';
+import { CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } from '../types';
 
 const prisma = new PrismaClient();
 
@@ -60,12 +60,6 @@ export const getAssetById = async (id: string) => {
   });
 };
 
-//create asset
-export const createAsset = async (asset: Asset) => {    
-  return await prisma.asset.create({
-    data: asset,
-  });
-};
 
 //update asset
 export const updateAsset = async (id: string, asset: Asset) => {
@@ -81,112 +75,6 @@ export const deleteAsset = async (id: string) => {
     where: { id },
   });
 };  
-
-//create asset complete by batch process and create location and installation in single transaction  with transacion safe
-//data is an array of CreateAssetCompleteData
-export const createAssetComplete = async (data: CreateAssetCompleteData[]) => {
-  // Start database transaction
-  const result = await prisma.$transaction(async (tx) => {
-    // 1. Create all assets in bulk
-    const assetDataArray = data.map(item => ({
-      assetTypeId: item.assetTypeId,
-      assetSubTypeId: item.assetSubTypeId,
-      assetName: item.assetName,
-      consumerId: item.consumerId,
-      ...(item.warrantyPeriod !== undefined && { warrantyPeriod: item.warrantyPeriod }),
-      ...(item.warrantyStartDate !== undefined && { warrantyStartDate: item.warrantyStartDate }),
-      ...(item.warrantyEndDate !== undefined && { warrantyEndDate: item.warrantyEndDate }),
-      ...(item.installationDate !== undefined && { installationDate: item.installationDate }),
-      ...(item.brand !== undefined && { brand: item.brand }),
-      ...(item.model !== undefined && { model: item.model }),
-      ...(item.subModel !== undefined && { subModel: item.subModel }),
-      ...(item.isActive !== undefined && { isActive: item.isActive }),
-      ...(item.partNo !== undefined && { partNo: item.partNo }),
-      ...(item.supplierCode !== undefined && { supplierCode: item.supplierCode }),
-      ...(item.consumerSerialNo !== undefined && { consumerSerialNo: item.consumerSerialNo }),
-      ...(item.grnId !== undefined && { grnId: item.grnId }),
-      ...(item.grnItemId !== undefined && { grnItemId: item.grnItemId }),
-      ...(item.poLineItemId !== undefined && { poLineItemId: item.poLineItemId }),
-      ...(item.supplierId !== undefined && { supplierId: item.supplierId }),
-      ...(item.isAmc !== undefined && { isAmc: item.isAmc }),
-      ...(item.supplierSerialNo !== undefined && { supplierSerialNo: item.supplierSerialNo }),
-      ...(item.departmentId !== undefined && { departmentId: item.departmentId })
-    }));
-
-    await tx.asset.createMany({
-      data: assetDataArray,
-      skipDuplicates: false
-    });
-
-    // 2. Get created assets with IDs
-    const createdAssets = await tx.asset.findMany({
-      where: {
-        assetTypeId: { in: data.map(item => item.assetTypeId) },
-        assetName: { in: data.map(item => item.assetName) },
-        consumerId: { in: data.map(item => item.consumerId) }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: data.length
-    });
-
-    // 3. Create all locations in bulk
-    const locationDataArray = createdAssets.map((asset, index) => {
-      const item = data[index];
-      if (!item) throw new Error(`No data found for asset at index ${index}`);
-      
-      return {
-        assetId: asset.id,
-        departmentId: item.departmentId || '',
-        building: item.building || '',
-        floorNumber: item.floorNumber || '',
-        roomNumber: item.roomNumber || '',   
-        isCurrentLocation: item.isCurrentLocation || false
-      };
-    });
-
-    await tx.location.createMany({
-      data: locationDataArray,
-      skipDuplicates: false
-    });
-
-    // 4. Get created locations with IDs
-    const createdLocations = await tx.location.findMany({
-      where: {
-        assetId: { in: createdAssets.map(asset => asset.id) }
-      },
-      orderBy: { createdAt: 'desc' },
-      take: data.length
-    });
-
-    // 5. Create all installations in bulk
-    const installationDataArray = createdAssets.map((asset, index) => {
-      const item = data[index];
-      const location = createdLocations[index];
-      
-      if (!item) throw new Error(`No data found for asset at index ${index}`);
-      
-      return {
-        assetId: asset.id,
-        locationId: location?.id || '',
-        departmentId: item.departmentId || '',
-        installationDate: item.installationDate || new Date()
-      };
-    });
-
-    const installations = await tx.installation.createMany({
-      data: installationDataArray,
-      skipDuplicates: false
-    });
-
-    return {
-      assets: createdAssets,
-      locations: createdLocations,
-      installations
-    };
-  });
-
-  return result;
-};
 
 /**
  * Create asset with warranty, location, and installation in a single transaction.
@@ -269,7 +157,7 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
         endDate: new Date(data.warranty.endDate),
         warrantyNumber: "WR-"+ Date.now() || '',
         cost: 0,
-        ...(data.warranty.warrantyPeriod && { warrantyPeriod: data.warranty.warrantyPeriod }),
+                  ...(data.warranty.warrantyPeriod && { warrantyPeriod: typeof data.warranty.warrantyPeriod === 'string' ? parseInt(data.warranty.warrantyPeriod) : data.warranty.warrantyPeriod }),
         ...(data.warranty.coverageType && { coverageType: data.warranty.coverageType }),
         ...(data.warranty.coverageDescription && { coverageDescription: data.warranty.coverageDescription }),
         ...(data.warranty.termsConditions && { termsConditions: data.warranty.termsConditions }),
@@ -301,6 +189,7 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
   baseSerialNo?: string;
   serialNumbers?: string[];
   consumerSerialNoArray?: string[];
+  warranty?: any;
 }) => {
   // Validate required fields
   const requiredFields = [
@@ -358,19 +247,70 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
     };
   });
 
-  // Optimized batch creation - only create, don't fetch back
-  const result = await prisma.asset.createMany({
-    data: assetsToCreate,
-    skipDuplicates: false
+  // Use transaction to create assets and warranties
+  const result = await prisma.$transaction(async (tx) => {
+    // Create assets in batch
+    const createResult = await tx.asset.createMany({
+      data: assetsToCreate,
+      skipDuplicates: false
+    });
+
+    // If warranty data is provided, create warranties for each asset
+    let warranties = [];
+    if (data.warranty) {
+      // Get the created assets to create warranties
+      const createdAssets = await tx.asset.findMany({
+        where: {
+          assetName: data.assetName,
+          partNo: data.partNo,
+          consumerId: data.consumerId,
+          supplierId: data.supplierId
+        },
+        orderBy: { createdAt: 'desc' },
+        take: data.qtyAccepted
+      });
+
+      // Create warranty for each asset
+      for (const asset of createdAssets) {
+        // Check if warranty has required fields
+        if (data.warranty.startDate && new Date(data.warranty.endDate) > new Date()) {
+          const warrantyData = {
+            assetId: asset.id,
+            warrantyTypeId: data.warranty.warrantyTypeId, 
+            startDate: new Date(data.warranty.startDate),
+            endDate: new Date(data.warranty.endDate),
+            warrantyNumber: "WR-"+ Date.now() + Math.floor(Math.random() * 1000),
+            cost: 0,
+            ...(data.warranty.warrantyPeriod && { warrantyPeriod: typeof data.warranty.warrantyPeriod === 'string' ? parseInt(data.warranty.warrantyPeriod) : data.warranty.warrantyPeriod }),
+            ...(data.warranty.coverageType && { coverageType: data.warranty.coverageType }),
+            ...(data.warranty.coverageDescription && { coverageDescription: data.warranty.coverageDescription }),
+            ...(data.warranty.termsConditions && { termsConditions: data.warranty.termsConditions }),
+            ...(data.warranty.included && { included: data.warranty.included.toString() }),
+            ...(data.warranty.excluded && { excluded: data.warranty.excluded.toString() }),
+            ...(data.warranty.isActive !== undefined && { isActive: data.warranty.isActive }),
+            ...(data.warranty.autoRenewal !== undefined && { autoRenewal: data.warranty.autoRenewal }),
+            ...(data.warranty.consumerId && { consumerId: typeof data.warranty.consumerId === 'string' ? data.warranty.consumerId : data.warranty.consumerId.toString() }),
+            ...(data.warranty.supplierId && { supplierId: typeof data.warranty.supplierId === 'string' ? data.warranty.supplierId : data.warranty.supplierId.toString() })
+          };
+          const warranty = await tx.warranties.create({
+            data: warrantyData
+          });
+          warranties.push(warranty);
+        }
+      }
+    }
+
+    return {
+      count: createResult.count,
+      message: `Successfully created ${createResult.count} assets${data.warranty ? ` and ${warranties.length} warranties` : ''}`,
+      assetName: data.assetName,
+      partNo: data.partNo,
+      qtyAccepted: data.qtyAccepted,
+      warranties: warranties
+    };
   });
 
-  return {
-    count: result.count,
-    message: `Successfully created ${result.count} assets`,
-    assetName: data.assetName,
-    partNo: data.partNo,
-    qtyAccepted: data.qtyAccepted
-  };
+  return result;
 };
 
 
