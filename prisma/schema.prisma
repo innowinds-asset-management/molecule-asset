@@ -66,6 +66,7 @@ model Asset {
   supplierSerialNo  String?
   assetConditionCode   String?
   ageDays Int? @default(50)
+  draft           Boolean @default(false) 
 
   assetCondition       AssetCondition?       @relation(fields:[assetConditionCode], references:[code])
   assetSubType      AssetSubType?     @relation(fields: [assetSubTypeId], references: [id])
@@ -251,6 +252,8 @@ model Warranties {
   updatedAt           DateTime               @updatedAt
   consumerId          String?
   supplierId          String?
+  included            String?                @db.Text
+  excluded            String?                @db.Text
   serviceRequest      ServiceRequest[]
   asset               Asset                  @relation(fields: [assetId], references: [id])
   consumer            Consumer?              @relation(fields: [consumerId], references: [id])
