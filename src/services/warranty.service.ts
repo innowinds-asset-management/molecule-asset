@@ -1,6 +1,7 @@
 //fetch all warranties
 import { Warranties, PrismaClient } from '@prisma/client';
 
+
 const prisma = new PrismaClient();
 
 export const getAllWarranties = async (supplierId?: string, consumerId?: string) => {
