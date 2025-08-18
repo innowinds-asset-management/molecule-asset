@@ -367,6 +367,7 @@ export interface CreateAssetWithWarrantyInput {
     isCurrentLocation?: boolean;
   };
   warranty?: {
+    warrantyTypeId?: number;
     warrantyNumber?: string;
     startDate?: string;
     endDate?: string;
