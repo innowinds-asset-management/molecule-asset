@@ -536,7 +536,6 @@ enum ServiceFrequency {
 
 model ServiceRequestStatus {
   code String @id 
-  name String
   displayName String
   
   serviceRequest ServiceRequest[]
@@ -547,7 +546,6 @@ model ServiceRequestStatus {
 
 model AssetCondition {
   code String @id 
-  name String
   displayName String
 
   serviceRequest ServiceRequest[]
