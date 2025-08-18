@@ -28,7 +28,7 @@ import consumerRoutes from './routes/consumer.route';
 import supplierRoutes from './routes/supplier.route';
 import consumerSupplierRoutes from './routes/consumerSupplier.route';
 import warrantyTypeRoutes from './routes/warrantyType.route';
-
+import entityIdRoutes from './routes/entityId.route';
 dotenv.config();
 
 const app = express();
@@ -171,7 +171,8 @@ app.use(`${apiPrefix}/supplier`, supplierRoutes);
 app.use(`${apiPrefix}/consumer-supplier`, consumerSupplierRoutes);
 // Warranty Type routes
 app.use(`${apiPrefix}/warranty-type`, warrantyTypeRoutes);
-
+// Entity ID routes
+app.use(`${apiPrefix}/entity-id`, entityIdRoutes);
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customCss: '.swagger-ui .topbar { display: none }',

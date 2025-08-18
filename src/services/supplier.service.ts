@@ -118,6 +118,7 @@ export const getSupplierDetailsById = async (id: string) => {
   const supplier = await prisma.supplier.findUnique({
     where: { id },
     include: {
+      consumerSuppliers:true,
       _count: {
         select: {
           suppliedAssets: true,

@@ -22,8 +22,24 @@ const router = Router();
  * /api/service-request:
  *   get:
  *     summary: Get all service requests
- *     description: Retrieve a list of all service requests with their related data
+ *     description: Retrieve a list of all service requests with their related data, optionally filtered by status
  *     tags: [Service Requests]
+ *     parameters:
+ *       - in: query
+ *         name: status
+ *         schema:
+ *           type: string
+ *         description: Filter service requests by status code
+ *       - in: query
+ *         name: sid
+ *         schema:
+ *           type: string
+ *         description: Filter service requests by supplier ID
+ *       - in: query
+ *         name: did
+ *         schema:
+ *           type: string
+ *         description: Filter service requests by department ID
  *     responses:
  *       200:
  *         description: List of service requests retrieved successfully

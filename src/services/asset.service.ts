@@ -4,8 +4,23 @@ import { CreateAssetCompleteData, CreateAssetFromGrnAndPoLineItemInput, CreateAs
 
 const prisma = new PrismaClient();
 
-export const getAllAssets = async () => {
+export const getAllAssets = async (params?: { consumerId?: string; supplierId?: string; departmentId?: string }) => {
+  const where: any = {};
+  
+  if (params?.consumerId) {
+    where.consumerId = params.consumerId;
+  }
+  
+  if (params?.supplierId) {
+    where.supplierId = params.supplierId;
+  }
+  
+  if (params?.departmentId) {
+    where.departmentId = params.departmentId;
+  }
+  
   return await prisma.asset.findMany({
+    where,
     include: {
       supplier: true,
       department: true,
