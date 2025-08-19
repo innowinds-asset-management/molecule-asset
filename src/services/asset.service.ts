@@ -1,5 +1,5 @@
 //fetch all assets
-import { Asset, PrismaClient } from '@prisma/client';
+import { Asset, PrismaClient, InstallationStatus } from '@prisma/client';
 import { CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } from '../types';
 
 const prisma = new PrismaClient();
@@ -134,6 +134,7 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
         assetId: createdAsset.id,
         locationId: createdLocation.id,
         departmentId: data.asset.departmentId || '',
+        installationStatus: (data.asset.installStatus) as InstallationStatus,
         installationDate: data.asset.installationDate ? new Date(data.asset.installationDate) : new Date()
       };
 

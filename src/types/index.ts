@@ -365,6 +365,7 @@ export interface CreateAssetWithWarrantyInput {
     floorNumber?: string;
     roomNumber?: string;
     isCurrentLocation?: boolean;
+    installStatus?: string;
   };
   warranty?: {
     warrantyTypeId?: number;
