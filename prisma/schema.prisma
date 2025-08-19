@@ -458,7 +458,6 @@ model Consumer {
   assets            Asset[]
   consumerSuppliers ConsumerSupplier[]
   departments       Department[]
-  inventory         inventory[]
   purchaseOrders    PO[]
   warranties        Warranties[]
   inventory           Inventory[]
@@ -483,7 +482,6 @@ model Supplier {
   primaryContactPhone String?
   suppliedAssets      Asset[]            @relation("SupplierToAsset")
   consumerSuppliers   ConsumerSupplier[]
-  inventory           inventory[]
   purchaseOrders      PO[]
   ServiceContract     ServiceContract[]
   serviceRequests     ServiceRequest[]
@@ -657,13 +655,6 @@ enum InstallationStatus {
   Installable
   Installed
   ReadyToUse
-}
-
-enum LifecycleStatus {
-  RECEIVED
-  Installed
-  ACTIVE
-  RETIRE
 }
 
 
