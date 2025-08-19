@@ -67,7 +67,7 @@ model Asset {
   assetConditionCode String?
   ageDays            Int?              @default(50)
   draft              Boolean           @default(false)
-  lifecycleStatus    LifecycleStatus   @default(RECEIVED)
+  status             String?
   assetCondition     AssetCondition?   @relation(fields: [assetConditionCode], references: [code])
   assetSubType       AssetSubType?     @relation(fields: [assetSubTypeId], references: [id])
   assetType          AssetType?        @relation(fields: [assetTypeId], references: [id])
@@ -86,19 +86,31 @@ model Asset {
   @@index([consumerId], map: "asset_consumerId_fkey")
   @@index([supplierId], map: "asset_supplierId_fkey")
   @@index([assetConditionCode], map: "asset_assetConditionCode_fkey")
+  @@index([status], map: "asset_status_fkey")
   @@map("asset")
 }
 
+model AssetStatus {
+  statusCode  String @id
+  displayName String
+  group       String @map("group_name")
+
+  @@map("assetStatus")
+}
+
 model Department {
-  deptId        String         @id @default(cuid())
-  deptName      String
-  consumerId    String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  assets        Asset[]
-  consumer      Consumer       @relation(fields: [consumerId], references: [id])
-  installations Installation[]
-  locations     Location[]
+  deptId                                                                   String                  @id @default(cuid())
+  deptName                                                                 String
+  consumerId                                                               String
+  createdAt                                                                DateTime                @default(now())
+  updatedAt                                                                DateTime                @updatedAt
+  assets                                                                   Asset[]
+  consumer                                                                 Consumer                @relation(fields: [consumerId], references: [id])
+  departmentInventory                                                      departmentInventory[]
+  installations                                                            Installation[]
+  inventoryTransactions_inventoryTransactions_fromDepartmentIdTodepartment inventoryTransactions[] @relation("inventoryTransactions_fromDepartmentIdTodepartment")
+  inventoryTransactions_inventoryTransactions_toDepartmentIdTodepartment   inventoryTransactions[] @relation("inventoryTransactions_toDepartmentIdTodepartment")
+  locations                                                                Location[]
 
   @@index([consumerId])
   @@map("department")
@@ -443,6 +455,7 @@ model Consumer {
   assets            Asset[]
   consumerSuppliers ConsumerSupplier[]
   departments       Department[]
+  inventory         inventory[]
   purchaseOrders    PO[]
   warranties        Warranties[]
 
@@ -465,6 +478,7 @@ model Supplier {
   primaryContactPhone String?
   suppliedAssets      Asset[]            @relation("SupplierToAsset")
   consumerSuppliers   ConsumerSupplier[]
+  inventory           inventory[]
   purchaseOrders      PO[]
   ServiceContract     ServiceContract[]
   serviceRequests     ServiceRequest[]
@@ -504,6 +518,54 @@ model AssetCondition {
   serviceRequest ServiceRequest[]
 
   @@map("assetCondition")
+}
+
+model departmentInventory {
+  id           String     @id
+  departmentId String
+  quantity     Int
+  inventoryId  String
+  department   Department @relation(fields: [departmentId], references: [deptId])
+  inventory    inventory  @relation(fields: [inventoryId], references: [id])
+
+  @@index([departmentId], map: "departmentInventory_departmentId_fkey")
+  @@index([inventoryId], map: "departmentInventory_inventoryId_fkey")
+}
+
+model inventory {
+  id                    String                  @id
+  name                  String
+  quantity              Int
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime
+  expiredAt             DateTime?
+  minStock              Int?
+  supplierId            String
+  consumerId            String
+  departmentInventory   departmentInventory[]
+  consumer              Consumer                @relation(fields: [consumerId], references: [id])
+  supplier              Supplier                @relation(fields: [supplierId], references: [id])
+  inventoryTransactions inventoryTransactions[]
+
+  @@index([consumerId], map: "inventory_consumerId_fkey")
+  @@index([supplierId], map: "inventory_supplierId_fkey")
+}
+
+model inventoryTransactions {
+  id                                                            String                                @id
+  inventoryId                                                   String
+  fromDepartmentId                                              String?
+  toDepartmentId                                                String?
+  quantity                                                      Int
+  transactionType                                               inventoryTransactions_transactionType
+  transactionDate                                               DateTime                              @default(now())
+  department_inventoryTransactions_fromDepartmentIdTodepartment Department?                           @relation("inventoryTransactions_fromDepartmentIdTodepartment", fields: [fromDepartmentId], references: [deptId])
+  inventory                                                     inventory                             @relation(fields: [inventoryId], references: [id])
+  department_inventoryTransactions_toDepartmentIdTodepartment   Department?                           @relation("inventoryTransactions_toDepartmentIdTodepartment", fields: [toDepartmentId], references: [deptId])
+
+  @@index([fromDepartmentId], map: "inventoryTransactions_fromDepartmentId_fkey")
+  @@index([inventoryId], map: "inventoryTransactions_inventoryId_fkey")
+  @@index([toDepartmentId], map: "inventoryTransactions_toDepartmentId_fkey")
 }
 
 enum POStatus {
@@ -560,9 +622,9 @@ enum InstallationStatus {
   ReadyToUse
 }
 
-enum LifecycleStatus {
-  RECEIVED
-  Installed
-  ACTIVE
-  RETIRE
+enum inventoryTransactions_transactionType {
+  IN
+  OUT
+  TRANSFER
+  EXPIRED
 }
