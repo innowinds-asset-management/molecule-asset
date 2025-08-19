@@ -99,18 +99,17 @@ model AssetStatus {
 }
 
 model Department {
-  deptId                                                                   String                  @id @default(cuid())
-  deptName                                                                 String
-  consumerId                                                               String
-  createdAt                                                                DateTime                @default(now())
-  updatedAt                                                                DateTime                @updatedAt
-  assets                                                                   Asset[]
-  consumer                                                                 Consumer                @relation(fields: [consumerId], references: [id])
-  departmentInventory                                                      departmentInventory[]
-  installations                                                            Installation[]
-  inventoryTransactions_inventoryTransactions_fromDepartmentIdTodepartment inventoryTransactions[] @relation("inventoryTransactions_fromDepartmentIdTodepartment")
-  inventoryTransactions_inventoryTransactions_toDepartmentIdTodepartment   inventoryTransactions[] @relation("inventoryTransactions_toDepartmentIdTodepartment")
-  locations                                                                Location[]
+  deptId        String         @id @default(cuid())
+  deptName      String
+  consumerId    String
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+  assets        Asset[]
+  consumer      Consumer       @relation(fields: [consumerId], references: [id])
+  installations Installation[]
+  locations     Location[]
+  departmentInventory DepartmentInventory[]
+  inventoryTransactions InventoryTransactions[]
 
   @@index([consumerId])
   @@map("department")
@@ -189,6 +188,8 @@ model POLineItem {
   remainingQty Decimal   @default(0.000) @db.Decimal(10, 3)
   grnItem      GRNItem[]
   po           PO        @relation(fields: [poId], references: [id])
+  inventoryTransactions InventoryTransactions[]
+
 
   @@index([poId], map: "purchaseItem_poId_fkey")
   @@index([partNo])
@@ -229,6 +230,8 @@ model GRNItem {
   updatedAt         DateTime   @updatedAt
   grn               GRN        @relation(fields: [grnId], references: [id])
   poLineItem        POLineItem @relation(fields: [poLineItemId], references: [id])
+  inventoryTransactions InventoryTransactions[]
+
 
   @@index([grnId], map: "grnItem_grnId_fkey")
   @@index([poLineItemId], map: "grnItem_poLineItemId_fkey")
@@ -458,6 +461,8 @@ model Consumer {
   inventory         inventory[]
   purchaseOrders    PO[]
   warranties        Warranties[]
+  inventory           Inventory[]
+
 
   @@map("consumer")
 }
@@ -483,6 +488,7 @@ model Supplier {
   ServiceContract     ServiceContract[]
   serviceRequests     ServiceRequest[]
   warranties          Warranties[]
+  inventoryTransactions         InventoryTransactions[]
 
   @@map("supplier")
 }
@@ -503,6 +509,75 @@ model ConsumerSupplier {
   @@map("consumerSupplier")
 }
 
+model Inventory {
+  id       String     @id @default(cuid())
+  itemName     String
+  quantity Int
+  unitMeasure UnitMeasure?
+  itemNo String?
+
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+  minStock Int?
+  consumerId String
+
+
+
+  consumer     Consumer  @relation(fields: [consumerId], references: [id])
+
+  departmentInventory DepartmentInventory[]
+  inventoryTransactions InventoryTransactions[]
+
+
+  @@map("inventory")
+
+}
+
+model DepartmentInventory {
+  id            String     @id @default(cuid())
+  departmentId  String
+  quantity      Int
+  inventoryId   String
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+
+
+  department        Department     @relation(fields: [departmentId], references: [deptId])
+  inventory        Inventory     @relation(fields: [inventoryId], references: [id])
+
+
+  @@map("departmentInventory")
+
+}
+
+model InventoryTransactions {
+  id            String     @id @default(cuid())
+  inventoryId            String
+  departmentId String?      
+  quantity           Int
+  transactionTypeCode   String
+  createdAt   DateTime  @default(now())
+  grnItemId          String?
+  poLineItemId       String?
+  expiredAt DateTime?
+  supplierId String?
+
+
+
+
+  inventory          Inventory   @relation(fields: [inventoryId], references: [id])
+  department     Department?      @relation(fields: [departmentId], references: [deptId])
+  poLineItem    POLineItem? @relation(fields: [poLineItemId], references: [id])
+  grnItem       GRNItem?    @relation(fields: [grnItemId], references: [id])
+  supplier     Supplier?  @relation(fields: [supplierId], references: [id])
+  transactionType InventoryTransactionType @relation(fields:[transactionTypeCode], references: [code])
+
+
+  @@map("inventoryTransactions")
+
+}
+
 model ServiceRequestStatus {
   code           String           @id
   displayName    String
@@ -520,53 +595,15 @@ model AssetCondition {
   @@map("assetCondition")
 }
 
-model departmentInventory {
-  id           String     @id
-  departmentId String
-  quantity     Int
-  inventoryId  String
-  department   Department @relation(fields: [departmentId], references: [deptId])
-  inventory    inventory  @relation(fields: [inventoryId], references: [id])
+model InventoryTransactionType {
+  code           String           @id
+  displayName    String
 
-  @@index([departmentId], map: "departmentInventory_departmentId_fkey")
-  @@index([inventoryId], map: "departmentInventory_inventoryId_fkey")
+  inventoryTransactions InventoryTransactions[]
+
+  @@map("inventoryTransactionType")
 }
 
-model inventory {
-  id                    String                  @id
-  name                  String
-  quantity              Int
-  createdAt             DateTime                @default(now())
-  updatedAt             DateTime
-  expiredAt             DateTime?
-  minStock              Int?
-  supplierId            String
-  consumerId            String
-  departmentInventory   departmentInventory[]
-  consumer              Consumer                @relation(fields: [consumerId], references: [id])
-  supplier              Supplier                @relation(fields: [supplierId], references: [id])
-  inventoryTransactions inventoryTransactions[]
-
-  @@index([consumerId], map: "inventory_consumerId_fkey")
-  @@index([supplierId], map: "inventory_supplierId_fkey")
-}
-
-model inventoryTransactions {
-  id                                                            String                                @id
-  inventoryId                                                   String
-  fromDepartmentId                                              String?
-  toDepartmentId                                                String?
-  quantity                                                      Int
-  transactionType                                               inventoryTransactions_transactionType
-  transactionDate                                               DateTime                              @default(now())
-  department_inventoryTransactions_fromDepartmentIdTodepartment Department?                           @relation("inventoryTransactions_fromDepartmentIdTodepartment", fields: [fromDepartmentId], references: [deptId])
-  inventory                                                     inventory                             @relation(fields: [inventoryId], references: [id])
-  department_inventoryTransactions_toDepartmentIdTodepartment   Department?                           @relation("inventoryTransactions_toDepartmentIdTodepartment", fields: [toDepartmentId], references: [deptId])
-
-  @@index([fromDepartmentId], map: "inventoryTransactions_fromDepartmentId_fkey")
-  @@index([inventoryId], map: "inventoryTransactions_inventoryId_fkey")
-  @@index([toDepartmentId], map: "inventoryTransactions_toDepartmentId_fkey")
-}
 
 enum POStatus {
   Draft
@@ -622,9 +659,27 @@ enum InstallationStatus {
   ReadyToUse
 }
 
-enum inventoryTransactions_transactionType {
-  IN
-  OUT
-  TRANSFER
-  EXPIRED
+enum LifecycleStatus {
+  RECEIVED
+  Installed
+  ACTIVE
+  RETIRE
 }
+
+
+enum UnitMeasure {
+  PIECE      // individual item (default for most)
+  BOX        // multiple pieces in a box
+  PACK       // pack of items
+  LITER      // liquids
+  MILLILITER // smaller liquid units
+  GRAM       // weight
+  KILOGRAM   // larger weight units
+  TABLET     // medical tablets
+  STRIP      // strip of tablets
+  VIAL       // injectable liquid medicines
+  AMPULLE    // small sealed vial for injection
+}
+
+
+

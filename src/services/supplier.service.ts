@@ -2,6 +2,49 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+// Search suppliers by consumer ID and search term
+export const searchSuppliersByConsumer = async (searchTerm: string, consumerId: string) => {
+  console.log('cid=====>',consumerId)
+  const where: any = {
+    consumerId: consumerId,
+    supplier: {
+      OR: [
+        {
+          name: {
+            contains: searchTerm,
+          }
+        },
+        {
+          code: {
+            contains: searchTerm,
+          }
+        }
+      ]
+    }
+  };
+  
+  return await prisma.consumerSupplier.findMany({
+    where,
+    select: {
+      supplier: {
+        select: {
+          id: true,
+          name: true,
+          code: true,
+          email: true,
+          phone: true
+        }
+      }
+    },
+    orderBy: {
+      supplier: {
+        name: 'asc'
+      }
+    },
+    take: 10 // Limit results to 10 suppliers
+  });
+};
+
 //fetch all supplers 
 export const getAllSuppliers = async () => {
   return prisma.supplier.findMany({

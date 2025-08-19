@@ -10,6 +10,7 @@ import {
   updateSupplier,
   listSuppliersOfConsumerWithStats,
   getSupplierDetailsById,
+  searchSuppliersByConsumer,
 } from '../services/supplier.service';
 
 export const listSuppliersController = async (_req: Request, res: Response) => {
@@ -66,6 +67,35 @@ export const unlinkConsumerFromSupplierController = async (req: Request, res: Re
   return res.json(row);
 };
 
+// Search suppliers by consumer
+export const searchSuppliersController = async (req: Request, res: Response) => {
+  try {
+    const { search, cid } = req.query;
+
+    if (!search || !cid) {
+      return res.status(400).json({ 
+        error: 'Search term and Consumer ID are required' 
+      });
+    }
+
+    const searchTerm = search as string;
+    const consumerId = cid as string;
+
+    if (searchTerm.length < 1) {
+      return res.status(400).json({ 
+        error: 'Search term must be at least 1 character long' 
+      });
+    }
+
+    const results = await searchSuppliersByConsumer(searchTerm, consumerId);
+    return res.json(results);
+  } catch (error) {
+    console.error('Error searching suppliers:', error);
+    return res.status(500).json({ 
+      error: 'Failed to search suppliers' 
+    });
+  }
+};
 
 // Get suppliers of a consumer with asset counts and open service request counts
 export const listSuppliersOfConsumerWithStatsController = async (req: Request, res: Response) => {

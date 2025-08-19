@@ -1229,6 +1229,177 @@ const options = {
           },
           required: ['serviceRequestId', 'assetId', 'technicianName', 'warrantyStatus', 'serviceDate', 'createdAt', 'updatedAt']
         },
+        Inventory: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique identifier for the inventory item'
+            },
+            itemName: {
+              type: 'string',
+              description: 'Name of the inventory item'
+            },
+            quantity: {
+              type: 'integer',
+              description: 'Current quantity of the item'
+            },
+            unitMeasure: {
+              type: 'string',
+              enum: ['PIECE', 'BOX', 'PACK', 'LITER', 'MILLILITER', 'GRAM', 'KILOGRAM', 'TABLET', 'STRIP', 'VIAL', 'AMPULLE'],
+              nullable: true,
+              description: 'Unit of measurement for the item'
+            },
+            minStock: {
+              type: 'integer',
+              nullable: true,
+              description: 'Minimum stock level for the item'
+            },
+            consumerId: {
+              type: 'string',
+              description: 'ID of the consumer this inventory item belongs to'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Inventory item creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Inventory item last update timestamp'
+            },
+            consumer: {
+              $ref: '#/components/schemas/Consumer'
+            },
+            departmentInventory: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/DepartmentInventory'
+              },
+              description: 'List of department inventory records'
+            },
+            inventoryTransactions: {
+              type: 'array',
+              items: {
+                $ref: '#/components/schemas/InventoryTransaction'
+              },
+              description: 'List of inventory transactions'
+            }
+          },
+          required: ['id', 'itemName', 'quantity', 'consumerId', 'createdAt', 'updatedAt']
+        },
+        DepartmentInventory: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique identifier for the department inventory record'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'ID of the department'
+            },
+            quantity: {
+              type: 'integer',
+              description: 'Quantity of the item in this department'
+            },
+            inventoryId: {
+              type: 'string',
+              description: 'ID of the inventory item'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Department inventory record creation timestamp'
+            },
+            updatedAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Department inventory record last update timestamp'
+            },
+            department: {
+              $ref: '#/components/schemas/Department'
+            }
+          },
+          required: ['id', 'departmentId', 'quantity', 'inventoryId', 'createdAt', 'updatedAt']
+        },
+        InventoryTransaction: {
+          type: 'object',
+          properties: {
+            id: {
+              type: 'string',
+              description: 'Unique identifier for the inventory transaction'
+            },
+            inventoryId: {
+              type: 'string',
+              description: 'ID of the inventory item'
+            },
+            departmentId: {
+              type: 'string',
+              nullable: true,
+              description: 'ID of the department'
+            },
+            quantity: {
+              type: 'integer',
+              description: 'Quantity involved in the transaction'
+            },
+            transactionTypeCode: {
+              type: 'string',
+              description: 'Code of the transaction type'
+            },
+            grnItemId: {
+              type: 'string',
+              nullable: true,
+              description: 'Goods Received Note Item ID'
+            },
+            poLineItemId: {
+              type: 'string',
+              nullable: true,
+              description: 'Purchase Order Line Item ID'
+            },
+            expiredAt: {
+              type: 'string',
+              format: 'date-time',
+              nullable: true,
+              description: 'Expiration date of the item'
+            },
+            supplierId: {
+              type: 'string',
+              nullable: true,
+              description: 'ID of the supplier'
+            },
+            createdAt: {
+              type: 'string',
+              format: 'date-time',
+              description: 'Transaction creation timestamp'
+            },
+            department: {
+              $ref: '#/components/schemas/Department'
+            },
+            supplier: {
+              $ref: '#/components/schemas/Supplier'
+            },
+            transactionType: {
+              $ref: '#/components/schemas/InventoryTransactionType'
+            }
+          },
+          required: ['id', 'inventoryId', 'quantity', 'transactionTypeCode', 'createdAt']
+        },
+        InventoryTransactionType: {
+          type: 'object',
+          properties: {
+            code: {
+              type: 'string',
+              description: 'Unique code for the transaction type'
+            },
+            displayName: {
+              type: 'string',
+              description: 'Display name for the transaction type'
+            }
+          },
+          required: ['code', 'displayName']
+        },
       },
       parameters: {
         page: {
