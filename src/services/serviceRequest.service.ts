@@ -4,9 +4,9 @@ import { PrismaClient } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export const getAllServiceRequests = async (status?: string, supplierId?: string, departmentId?: string) => {
-  console.log('status======>',status)
-  console.log('supplierId======>',supplierId)
-  console.log('departmentId======>',departmentId)
+  // console.log('status======>',status)
+  // console.log('supplierId======>',supplierId)
+  // console.log('departmentId======>',departmentId)
   const where: any = {};
   
   if (status) {
@@ -25,7 +25,7 @@ export const getAllServiceRequests = async (status?: string, supplierId?: string
     };
   }
 
-  console.log('where clause======>', JSON.stringify(where, null, 2))
+  // console.log('where clause======>', JSON.stringify(where, null, 2))
   
   return await prisma.serviceRequest.findMany({
     where,
@@ -231,7 +231,7 @@ export const createServiceRequest = async (serviceRequest: any) => {
         warrantyId,
         // srStatus: 'OPEN'
         assetConditionCode,
-        srStatusCode: 'OP'
+        srStatusCode: 'OPEN'
 
       },
       include: {
