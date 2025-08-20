@@ -4,45 +4,46 @@ const prisma = new PrismaClient();
 
 // Search suppliers by consumer ID and search term
 export const searchSuppliersByConsumer = async (searchTerm: string, consumerId: string) => {
-  console.log('cid=====>',consumerId)
-  const where: any = {
-    consumerId: consumerId,
-    supplier: {
-      OR: [
-        {
-          name: {
-            contains: searchTerm,
-          }
+  // console.log('cid=====>',consumerId)
+ const where: any = {
+  consumerId: consumerId,
+  OR: [
+    {
+      supplierCode: {
+        contains: searchTerm,
+      },
+    },
+    {
+      supplier: {
+        name: {
+          contains: searchTerm,
         },
-        {
-          code: {
-            contains: searchTerm,
-          }
-        }
-      ]
+      },
+    },
+  ],
+};
+
+
+return await prisma.consumerSupplier.findMany({
+  where,
+  select: {
+    supplier: {
+      select: {
+        id: true,
+        name: true,
+        code: true,
+        email: true,
+        phone: true
+      }
     }
-  };
-  
-  return await prisma.consumerSupplier.findMany({
-    where,
-    select: {
-      supplier: {
-        select: {
-          id: true,
-          name: true,
-          code: true,
-          email: true,
-          phone: true
-        }
-      }
-    },
-    orderBy: {
-      supplier: {
-        name: 'asc'
-      }
-    },
-    take: 10 // Limit results to 10 suppliers
-  });
+  },
+  orderBy: {
+    supplier: {
+      name: 'asc'
+    }
+  },
+  take: 10 // Limit results to 10 suppliers
+});
 };
 
 //fetch all supplers 
@@ -161,7 +162,7 @@ export const getSupplierDetailsById = async (id: string) => {
   const supplier = await prisma.supplier.findUnique({
     where: { id },
     include: {
-      consumerSuppliers:true,
+      consumerSuppliers: true,
       _count: {
         select: {
           suppliedAssets: true,

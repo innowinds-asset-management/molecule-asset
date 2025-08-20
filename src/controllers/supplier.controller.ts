@@ -70,17 +70,17 @@ export const unlinkConsumerFromSupplierController = async (req: Request, res: Re
 // Search suppliers by consumer
 export const searchSuppliersController = async (req: Request, res: Response) => {
   try {
-    const { search, cid } = req.query;
+    const { name, cid } = req.query;
 
-    if (!search || !cid) {
+    if (!name || !cid) {
       return res.status(400).json({ 
         error: 'Search term and Consumer ID are required' 
       });
     }
-
-    const searchTerm = search as string;
+    
+    const searchTerm = name as string;
     const consumerId = cid as string;
-
+    
     if (searchTerm.length < 1) {
       return res.status(400).json({ 
         error: 'Search term must be at least 1 character long' 
