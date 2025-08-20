@@ -512,7 +512,7 @@ model Inventory {
   itemName     String
   quantity Int
   unitMeasure UnitMeasure?
-  itemNo String?
+  itemNo String? @default(cuid())
 
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
