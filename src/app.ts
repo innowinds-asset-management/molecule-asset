@@ -30,6 +30,7 @@ import consumerSupplierRoutes from './routes/consumerSupplier.route';
 import warrantyTypeRoutes from './routes/warrantyType.route';
 import entityIdRoutes from './routes/entityId.route';
 import inventoryRoutes from './routes/inventory.route';
+import assetStatusRoutes from './routes/assetStatus.route';
 dotenv.config();
 
 const app = express();
@@ -176,6 +177,8 @@ app.use(`${apiPrefix}/warranty-type`, warrantyTypeRoutes);
 app.use(`${apiPrefix}/entity-id`, entityIdRoutes);
 // Inventory routes (includes unit measures)
 app.use(`${apiPrefix}/inventory`, inventoryRoutes);
+// Asset Status routes
+app.use(`${apiPrefix}/asset-status`, assetStatusRoutes);
 // Swagger documentation
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(specs, {
   customCss: '.swagger-ui .topbar { display: none }',

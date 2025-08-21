@@ -31,8 +31,12 @@ export const updateAssetController = async (req: Request, res: Response) => {
     return res.status(400).json({ error: 'ID is required' });
   }
   const asset = req.body;
-  const updatedAsset = await updateAsset(id, asset);
-  return res.json(updatedAsset);
+  await updateAsset(id, asset);
+  return res.json({
+    success: true,
+    message: 'Asset updated successfully',
+    assetId: id
+  });
 };
 
 //delete asset
