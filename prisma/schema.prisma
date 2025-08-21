@@ -560,9 +560,7 @@ model InventoryTransactions {
   poLineItemId       String?
   expiredAt DateTime?
   supplierId String?
-
-
-
+  reason String? @db.Text()
 
   inventory          Inventory   @relation(fields: [inventoryId], references: [id])
   department     Department?      @relation(fields: [departmentId], references: [deptId])
