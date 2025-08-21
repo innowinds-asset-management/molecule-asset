@@ -1,7 +1,8 @@
 //fetch all inventory items
 
 import { Request, Response } from 'express';
-import { getAllInventory, getInventoryById, createOrUpdateInventory, searchInventoryItems } from '../services/inventory.service';
+import { getAllInventory, getInventoryById, createOrUpdateInventory, searchInventoryItems, transferInventory } from '../services/inventory.service';
+import { INVENTORY_TRANSACTION_TYPE_CODES } from '../utils/constants';
 
 export const getAllInventoryController = async (req: Request, res: Response) => {
   const { cid } = req.query;
@@ -102,6 +103,87 @@ export const createOrUpdateInventoryController = async (req: Request, res: Respo
     console.error('Error creating/updating inventory:', error);
     return res.status(500).json({ 
       error: 'Failed to create/update inventory item' 
+    });
+  }
+};
+
+export const transferInventoryController = async (req: Request, res: Response) => {
+  try {
+    const {
+      inventoryId,
+      quantity,
+      transactionTypeCode,
+      departmentId,
+      supplierId,
+      grnItemId,
+      poLineItemId,
+      expiredAt,
+      reason
+    } = req.body;
+
+    // Validate required fields
+    if (!inventoryId || !quantity || !transactionTypeCode) {
+      return res.status(400).json({
+        success: false,
+        message: 'inventoryId, quantity, and transactionTypeCode are required'
+      });
+    }
+
+    // Validate transaction type
+    if (!INVENTORY_TRANSACTION_TYPE_CODES.includes(transactionTypeCode)) {
+      return res.status(400).json({
+        success: false,
+        message: `transactionTypeCode must be one of: ${INVENTORY_TRANSACTION_TYPE_CODES.join(', ')}`
+      });
+    }
+
+    // Validate quantity
+    if (quantity < 0) {
+      return res.status(400).json({
+        success: false,
+        message: 'quantity must be greater than 0'
+      });
+    }
+
+    // Convert expiredAt to Date if provided
+    let expiredAtDate: Date | undefined;
+    if (expiredAt) {
+      expiredAtDate = new Date(expiredAt);
+      if (isNaN(expiredAtDate.getTime())) {
+        return res.status(400).json({
+          success: false,
+          message: 'Invalid expiredAt date format'
+        });
+      }
+    }
+
+    const transferData: any = {
+      inventoryId,
+      quantity,
+      transactionTypeCode,
+      departmentId,
+      supplierId,
+      grnItemId,
+      poLineItemId,
+      reason
+    };
+
+    if (expiredAtDate) {
+      transferData.expiredAt = expiredAtDate;
+    }
+
+    const result = await transferInventory(transferData);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Inventory transfer completed successfully',
+      data: result
+    });
+  } catch (error: any) {
+    console.error('Error in transferInventoryController:', error);
+    return res.status(500).json({
+      success: false,
+      message: error.message || 'Internal server error'
     });
   }
 };

@@ -1,8 +1,9 @@
 //inventory routes
 
 import { Router } from 'express';
-import { getAllInventoryController, getInventoryByIdController, createOrUpdateInventoryController, searchInventoryController } from '../controllers/inventory.controller';
+import { getAllInventoryController, getInventoryByIdController, createOrUpdateInventoryController, searchInventoryController, transferInventoryController } from '../controllers/inventory.controller';
 import { getAllUnitMeasuresController } from '../controllers/unitMeasure.controller';
+import { getAllInventoryTransactionTypesController } from '../controllers/inventoryTransactionType.controller';
 
 const router = Router();
 
@@ -110,6 +111,34 @@ router.get('/unit-measures', getAllUnitMeasuresController);
 
 /**
  * @swagger
+ * /api/inventory/transaction-types:
+ *   get:
+ *     summary: Get all inventory transaction types
+ *     description: Retrieve a list of all available inventory transaction types
+ *     tags: [Inventory]
+ *     responses:
+ *       200:
+ *         description: List of transaction types retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: object
+ *                 properties:
+ *                   code:
+ *                     type: string
+ *                     description: The transaction type code
+ *                   displayName:
+ *                     type: string
+ *                     description: The display name for the transaction type
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/transaction-types', getAllInventoryTransactionTypesController);
+
+/**
+ * @swagger
  * /api/inventory/{id}:
  *   get:
  *     summary: Get inventory item by ID
@@ -206,5 +235,76 @@ router.get('/:id', getInventoryByIdController);
  *         description: Internal server error
  */
 router.post('/', createOrUpdateInventoryController);
+
+/**
+ * @swagger
+ * /api/inventory/transfer:
+ *   post:
+ *     summary: Transfer inventory
+ *     description: Transfer inventory between departments or locations with transaction tracking
+ *     tags: [Inventory]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               inventoryId:
+ *                 type: string
+ *                 description: ID of the inventory item to transfer
+ *                 required: true
+ *               quantity:
+ *                 type: number
+ *                 description: Quantity to transfer
+ *                 required: true
+ *               transactionTypeCode:
+ *                 type: string
+ *                 enum: [DEPT-EXPIRED-RETURN, DEPT-GENERAL-RETURN, DEPT-OUT, DISPOSED, IN, RESALE, SUPPLIER-RETURN]
+ *                 description: Type of transaction (DEPT_OUT decreases quantity, others may have different behaviors)
+ *                 required: true
+ *               departmentId:
+ *                 type: string
+ *                 description: Department ID (optional)
+ *               supplierId:
+ *                 type: string
+ *                 description: Supplier ID (optional)
+ *               grnItemId:
+ *                 type: string
+ *                 description: GRN Item ID (optional)
+ *               poLineItemId:
+ *                 type: string
+ *                 description: Purchase Order Line Item ID (optional)
+ *               expiredAt:
+ *                 type: string
+ *                 format: date-time
+ *                 description: Expiration date (optional)
+ *               notes:
+ *                 type: string
+ *                 description: Additional notes for the transfer (optional)
+ *             required:
+ *               - inventoryId
+ *               - quantity
+ *               - transactionTypeCode
+ *     responses:
+ *       200:
+ *         description: Inventory transfer completed successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 data:
+ *                   $ref: '#/components/schemas/Inventory'
+ *       400:
+ *         description: Bad request - validation error
+ *       500:
+ *         description: Internal server error
+ */
+router.post('/transfer', transferInventoryController);
 
 export default router;
