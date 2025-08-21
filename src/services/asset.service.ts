@@ -4,22 +4,43 @@ import { CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } fr
 
 const prisma = new PrismaClient();
 
-export const getAllAssets = async (params?: { consumerId?: string; supplierId?: string; departmentId?: string }) => {
-  const where: any = {};
-  
-  if (params?.consumerId) {
+export const getAllAssets = async (params?: { consumerId?: string; supplierId?: string; departmentId?: string;status?: string }) => {
+  const where: any = {};  
+  if (params && typeof params.consumerId !== 'undefined' && params.consumerId !== null) { 
     where.consumerId = params.consumerId;
   }
   
-  if (params?.supplierId) {
+  if (params && typeof params.supplierId !== 'undefined' && params.supplierId !== null) { 
     where.supplierId = params.supplierId;
   }
   
-  if (params?.departmentId) {
+  if (params && typeof params.departmentId !== 'undefined' && params.departmentId !== null) { 
     where.departmentId = params.departmentId;
   }
+
+  if (params && typeof params.status !== 'undefined' && params.status !== null) { 
+    if (params.status === 'pre-active') {
+      // Received group contains: installation_pending, retired, installed     
+      where.AND = [
+        {
+          status: {
+            in: ['installation_pending', 'received', 'installed']
+          }
+        },
+        {
+          status: {
+            not: null
+          }
+        }
+      ];      
+    } else if (params.status === 'active') {
+      where.status = params.status;
+    } else if (params.status === 'retired') {
+      where.status = params.status;
+    }
+  }
   
-  return await prisma.asset.findMany({
+  const assets = await prisma.asset.findMany({
     where,
     include: {
       supplier: true,
@@ -33,6 +54,7 @@ export const getAllAssets = async (params?: { consumerId?: string; supplierId?: 
       createdAt: 'desc'
     },
   });
+  return assets;
 };
 
 //fetch asset by id 

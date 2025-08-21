@@ -4,11 +4,12 @@ import { Request, Response } from 'express';
 import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty } from '../services/asset.service';
 
 export const getAllAssetsController = async (req: Request, res: Response) => {
-  const { consumerId, supplierId, departmentId } = req.query;
+  const { consumerId, supplierId, departmentId, groupstatus } = req.query; 
   const assets = await getAllAssets({
     consumerId: consumerId as string,
     supplierId: supplierId as string,
-    departmentId: departmentId as string
+    departmentId: departmentId as string,
+    status: groupstatus as string
   });
   return res.json(assets);
 };
