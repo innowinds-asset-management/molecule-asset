@@ -335,10 +335,86 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
 
   return result;
 };
+  
+//fecth asset count based on status active , retired and pre-active - contains['installation_pending', 'received', 'installed']
+export const getAssetCountByStatus = async () => {
+  try {
+    // Count active assets
+    const activeCount = await prisma.asset.count({
+      where: {
+        AND: [
+          {
+            status: 'active'
+          },
+          {
+            status: {
+              not: null
+            }
+          }
+        ]
+      }
+    });
 
+    // Count retired assets
+    const retiredCount = await prisma.asset.count({
+      where: {
+        AND: [
+          {
+            status: 'retired'
+          },
+          {
+            status: {
+              not: null
+            }
+          }
+        ]
+      }
+    });
 
+    // Count pre-active assets (installation_pending, received, installed)
+    const preActiveCount = await prisma.asset.count({
+      where: {
+        AND: [
+          {
+            status: {
+              in: ['installation_pending', 'received', 'installed']
+            }
+          },
+          {
+            status: {
+              not: null
+            }
+          }
+        ]
+      }
+    });
 
+    // Count total assets with status
+    const totalWithStatus = await prisma.asset.count({
+      where: {
+        status: {
+          not: null
+        }
+      }
+    });
 
+    // Count assets without status
+    const totalWithoutStatus = await prisma.asset.count({
+      where: {
+        status: null
+      }
+    });
 
-
-      
+    return {
+      active: activeCount,
+      retired: retiredCount,
+      preActive: preActiveCount,
+      totalWithStatus: totalWithStatus,
+      totalWithoutStatus: totalWithoutStatus,
+      grandTotal: totalWithStatus + totalWithoutStatus
+    };
+  } catch (error) {
+    console.error('Error fetching asset counts by status:', error);
+    throw new Error('Failed to fetch asset counts by status');
+  }
+};

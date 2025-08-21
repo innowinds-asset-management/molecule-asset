@@ -1,7 +1,7 @@
 //asset routes
 
 import { Router } from 'express';
-import { getAllAssetsController, getAssetByIdController, updateAssetController, deleteAssetController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController } from '../controllers/asset.controller';
+import { getAllAssetsController, getAssetByIdController, updateAssetController, deleteAssetController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController, getAssetCountByStatusController } from '../controllers/asset.controller';
 
 const router = Router();
 
@@ -41,6 +41,49 @@ const router = Router();
  *         description: Internal server error
  */
 router.get('/', getAllAssetsController);
+
+/**
+ * @swagger
+ * /api/asset/count/status:
+ *   get:
+ *     summary: Get asset counts by status
+ *     description: Retrieve counts of assets grouped by status (active, retired, pre-active)
+ *     tags: [Assets]
+ *     responses:
+ *       200:
+ *         description: Asset counts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     active:
+ *                       type: number
+ *                       description: Count of active assets
+ *                     retired:
+ *                       type: number
+ *                       description: Count of retired assets
+ *                     preActive:
+ *                       type: number
+ *                       description: Count of pre-active assets (installation_pending, received, installed)
+ *                     totalWithStatus:
+ *                       type: number
+ *                       description: Total assets with any status
+ *                     totalWithoutStatus:
+ *                       type: number
+ *                       description: Total assets without status
+ *                     grandTotal:
+ *                       type: number
+ *                       description: Total of all assets
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/count/status', getAssetCountByStatusController);
 
 /**
  * @swagger

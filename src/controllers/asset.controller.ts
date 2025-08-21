@@ -1,7 +1,7 @@
 //fetch all assets
 
 import { Request, Response } from 'express';
-import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty } from '../services/asset.service';
+import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty, getAssetCountByStatus } from '../services/asset.service';
 
 export const getAllAssetsController = async (req: Request, res: Response) => {
   const { consumerId, supplierId, departmentId, groupstatus } = req.query; 
@@ -64,4 +64,21 @@ export const createAssetWithWarrantyController = async (req: Request, res: Respo
   const data = req.body;
   const result = await createAssetWithWarranty(data);
   return res.json(result);
+};
+
+//get asset count by status
+export const getAssetCountByStatusController = async (_req: Request, res: Response) => {
+  try {
+    const counts = await getAssetCountByStatus();
+    return res.json({
+      success: true,
+      data: counts
+    });
+  } catch (error) {
+    console.error('Error in getAssetCountByStatusController:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Failed to fetch asset counts by status'
+    });
+  }
 };
