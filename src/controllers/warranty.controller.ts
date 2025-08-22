@@ -12,7 +12,8 @@ import {
   getWarrantyTypeById,
   createWarrantyType,
   updateWarrantyType,
-  deleteWarrantyType
+  deleteWarrantyType,
+  getWarrantyStats
 } from '../services/warranty.service';
 import { validateQueryParams } from '../helper/helper';
 
@@ -167,3 +168,12 @@ export const deleteWarrantyTypeController = async (req: Request, res: Response) 
   }
 };
 
+//get warranty stats
+export const getWarrantyStatsController = async (_req: Request, res: Response) => {
+  try {
+    const warrantyStats = await getWarrantyStats();
+    return res.json(warrantyStats);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch warranty stats' });
+  }
+};

@@ -123,3 +123,95 @@ export const deleteWarrantyType = async (id: number) => {
   });
 };
 
+//get warranty stats based on expiring soon and recently expired warranties
+export const getWarrantyStats = async () => {
+  const currentDate = new Date();
+  
+  // Calculate dates for expiring soon (future dates)
+  const expiringIn5Days = new Date(currentDate.getTime() + 5 * 24 * 60 * 60 * 1000);
+  const expiringIn10Days = new Date(currentDate.getTime() + 10 * 24 * 60 * 60 * 1000);
+  const expiringIn30Days = new Date(currentDate.getTime() + 30 * 24 * 60 * 60 * 1000);
+  
+  // Calculate dates for recently expired (past dates)
+  const expired5DaysAgo = new Date(currentDate.getTime() - 5 * 24 * 60 * 60 * 1000);
+  const expired10DaysAgo = new Date(currentDate.getTime() - 10 * 24 * 60 * 60 * 1000);
+  const expired30DaysAgo = new Date(currentDate.getTime() - 30 * 24 * 60 * 60 * 1000);
+
+  // Get counts for expiring soon warranties
+  const expiringIn5DaysCount = await prisma.warranties.count({
+    where: {
+      endDate: {
+        gte: currentDate,
+        lte: expiringIn5Days
+      },
+      isActive: true
+    }
+  });
+
+  const expiringIn10DaysCount = await prisma.warranties.count({
+    where: {
+      endDate: {
+        gte: currentDate,
+        lte: expiringIn10Days
+      },
+      isActive: true
+    }
+  });
+
+  const expiringIn30DaysCount = await prisma.warranties.count({
+    where: {
+      endDate: {
+        gte: currentDate,
+        lte: expiringIn30Days
+      },
+      isActive: true
+    }
+  });
+
+  // Get counts for recently expired warranties
+  const expired5DaysAgoCount = await prisma.warranties.count({
+    where: {
+      endDate: {
+        gte: expired5DaysAgo,
+        lte: currentDate
+      },
+      isActive: true
+    }
+  });
+
+  const expired10DaysAgoCount = await prisma.warranties.count({
+    where: {
+      endDate: {
+        gte: expired10DaysAgo,
+        lte: currentDate
+      },
+      isActive: true
+    }
+  });
+
+  const expired30DaysAgoCount = await prisma.warranties.count({
+    where: {
+      endDate: {
+        gte: expired30DaysAgo,
+        lte: currentDate
+      },
+      isActive: true
+    }
+  });
+
+  return {
+    expiringSoon: {
+      in5Days: expiringIn5DaysCount,
+      in10Days: expiringIn10DaysCount,
+      in30Days: expiringIn30DaysCount
+    },
+    recentlyExpired: {
+      inLast5Days: expired5DaysAgoCount,
+      inLast10Days: expired10DaysAgoCount,
+      inLast30Days: expired30DaysAgoCount
+    }
+  };
+};
+
+
+

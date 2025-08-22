@@ -12,7 +12,8 @@ import {
   getWarrantyTypeByIdController,
   createWarrantyTypeController,
   updateWarrantyTypeController,
-  deleteWarrantyTypeController
+  deleteWarrantyTypeController,
+  getWarrantyStatsController
 } from '../controllers/warranty.controller';
 
 const router = Router();
@@ -423,6 +424,9 @@ router.put('/type/:id', updateWarrantyTypeController);
  */
 router.delete('/type/:id', deleteWarrantyTypeController);
 
+//get warranty stats
+router.get('/stats', getWarrantyStatsController);
+
 /**
  * @swagger
  * /api/warranty/{id}:
@@ -452,8 +456,6 @@ router.delete('/type/:id', deleteWarrantyTypeController);
  *         description: Internal server error
  */
 router.get('/:id', getWarrantyByIdController);
-
-
 
 export default router;
 
