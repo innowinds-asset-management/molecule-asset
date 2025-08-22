@@ -1,4 +1,6 @@
 import { Department, PrismaClient } from '@prisma/client';
+import { generateEntityId } from '../helper/helper';
+import { ENTITY_NAMES } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -98,7 +100,10 @@ export const getDepartmentById = async (deptId: string) => {
 
 export const createDepartment = async (department: Department) => {
   return await prisma.department.create({
-    data: department,
+    data: {
+      ...department,
+      deptId: generateEntityId(ENTITY_NAMES.DEPARTMENT)
+    },
   });
 };
 

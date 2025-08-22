@@ -1,5 +1,7 @@
 //fetch all service requests
 import { PrismaClient } from '@prisma/client';
+import { generateEntityId } from '../helper/helper';
+import { ENTITY_NAMES } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -107,7 +109,6 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
     serviceSupplierId,
     serviceContractId,
     // srStatus,
-    srNo,
     serviceType,
     serviceDescription,
     // assetCondition,
@@ -132,12 +133,12 @@ export const createServiceRequestWithItems = async (serviceRequest: any) => {
 
   return await prisma.serviceRequest.create({
     data: {
+      srNo: generateEntityId(ENTITY_NAMES.SERVICE_REQUEST),
       assetId,
       technicianName,
       serviceSupplierId,
       serviceContractId,
       // srStatus,
-      srNo,
       serviceType,
       serviceDescription,
       // assetCondition,
@@ -222,6 +223,7 @@ export const createServiceRequest = async (serviceRequest: any) => {
     // Create the service request with minimal data
     const newServiceRequest = await prisma.serviceRequest.create({
       data: {
+        srNo: generateEntityId(ENTITY_NAMES.SERVICE_REQUEST),
         assetId,
         problem,
         // assetCondition,

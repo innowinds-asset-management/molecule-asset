@@ -8,7 +8,9 @@ export function validateQueryParams(query: Record<string, any>, allowedParams: s
 }
 
 
-export function generateEntityId(entityName:string) {
-  const randomNumber = Math.floor(1000000000 + Math.random() * 9000000000); // ensures 10 digits
-  return `${entityName}${randomNumber}`;
+export function generateEntityId(entityName: string) {
+  const randomNumber = Math.floor(10000 + Math.random() * 90000); // ensures 5 digits
+  return `${entityName}-${randomNumber}`;
 }
+
+
