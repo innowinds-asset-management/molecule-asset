@@ -1,6 +1,7 @@
 //fetch all inventory items
 import { PrismaClient, UnitMeasure } from '@prisma/client';
-import { INVENTORY_TRANSACTION_TYPES, InventoryTransactionTypeCode } from '../utils/constants';
+import { INVENTORY_TRANSACTION_TYPES, InventoryTransactionTypeCode, ENTITY_NAMES } from '../utils/constants';
+import { generateEntityId } from '../helper/helper';
 
 const prisma = new PrismaClient();
 
@@ -153,6 +154,7 @@ export const createOrUpdateInventory = async (data: {
         inventory = await tx.inventory.create({
           data: {
             itemName: data.itemName,
+            itemNo: generateEntityId(ENTITY_NAMES.INVENTORY),
             quantity: data.quantity,
             unitMeasure: data.unitMeasure || null,
             consumerId: data.consumerId
@@ -182,6 +184,7 @@ export const createOrUpdateInventory = async (data: {
       inventory = await tx.inventory.create({
         data: {
           itemName: data.itemName,
+          itemNo: generateEntityId(ENTITY_NAMES.INVENTORY),
           quantity: data.quantity,
           unitMeasure: data.unitMeasure || null,
           consumerId: data.consumerId
@@ -238,7 +241,7 @@ export const transferInventory = async (data: {
   reason?: string;
 }) => {
   return await prisma.$transaction(async (tx) => {
-    // Get the current inventory item
+    // Get inventory item with related data
     const inventory = await tx.inventory.findUnique({
       where: { id: data.inventoryId },
       include: {
@@ -268,6 +271,63 @@ export const transferInventory = async (data: {
     // Check if there's enough quantity for DEPT_OUT transactions
     if (data.transactionTypeCode === INVENTORY_TRANSACTION_TYPES.DEPT_OUT && inventory.quantity < data.quantity) {
       throw new Error('Insufficient inventory quantity for transfer');
+    }
+
+    // Handle department inventory management
+    if (data.departmentId) {
+      // Check if department inventory entry exists
+      const existingDepartmentInventory = await tx.departmentInventory.findFirst({
+        where: {
+          departmentId: data.departmentId,
+          inventoryId: data.inventoryId
+        }
+      });
+
+      if (data.transactionTypeCode === INVENTORY_TRANSACTION_TYPES.DEPT_OUT) {
+        // For DEPT_OUT, add to department inventory
+        if (existingDepartmentInventory) {
+          // Update existing entry
+          await tx.departmentInventory.update({
+            where: { id: existingDepartmentInventory.id },
+            data: {
+              quantity: {
+                increment: data.quantity
+              },
+              updatedAt: new Date()
+            }
+          });
+        } else {
+          // Create new entry
+          await tx.departmentInventory.create({
+            data: {
+              departmentId: data.departmentId,
+              inventoryId: data.inventoryId,
+              quantity: data.quantity
+            }
+          });
+        }
+      } else if (data.transactionTypeCode === INVENTORY_TRANSACTION_TYPES.DEPT_EXPIRED_RETURN || 
+                 data.transactionTypeCode === INVENTORY_TRANSACTION_TYPES.DEPT_GENERAL_RETURN) {
+        // For return transactions, subtract from department inventory
+        if (!existingDepartmentInventory) {
+          throw new Error(`No department inventory entry found for department ${data.departmentId} and inventory ${data.inventoryId}`);
+        }
+
+        if (existingDepartmentInventory.quantity < data.quantity) {
+          throw new Error(`Insufficient quantity in department inventory. Available: ${existingDepartmentInventory.quantity}, Requested: ${data.quantity}`);
+        }
+
+        // Update department inventory by subtracting quantity
+        await tx.departmentInventory.update({
+          where: { id: existingDepartmentInventory.id },
+          data: {
+            quantity: {
+              decrement: data.quantity
+            },
+            updatedAt: new Date()
+          }
+        });
+      }
     }
 
     // Update inventory quantity based on transaction type

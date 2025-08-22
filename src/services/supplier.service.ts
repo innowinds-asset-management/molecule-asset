@@ -1,4 +1,6 @@
 import { PrismaClient } from '@prisma/client';
+import { generateEntityId } from '../helper/helper';
+import { ENTITY_NAMES } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -69,7 +71,10 @@ export const createSupplier = async (data: {
   isActive?: boolean;
 }) => {
   return prisma.supplier.create({
-    data,
+    data: {
+      ...data,
+      id: generateEntityId(ENTITY_NAMES.SUPPLIER)
+    },
   });
 };
 

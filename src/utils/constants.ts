@@ -14,3 +14,14 @@ export type InventoryTransactionTypeCode = typeof INVENTORY_TRANSACTION_TYPES[ke
 
 // Array of all transaction types for easy iteration
 export const INVENTORY_TRANSACTION_TYPE_CODES = Object.values(INVENTORY_TRANSACTION_TYPES);
+
+// Entity Names for ID Generation
+export const ENTITY_NAMES = {
+  SUPPLIER: 'SUP',
+  SERVICE_REQUEST: 'SR',
+  DEPARTMENT: 'DEPT',
+  INVENTORY: 'INV'
+} as const;
+
+// Type for entity names
+export type EntityName = typeof ENTITY_NAMES[keyof typeof ENTITY_NAMES];

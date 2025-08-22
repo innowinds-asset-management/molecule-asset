@@ -4,6 +4,7 @@ import { Router } from 'express';
 import { getAllInventoryController, getInventoryByIdController, createOrUpdateInventoryController, searchInventoryController, transferInventoryController } from '../controllers/inventory.controller';
 import { getAllUnitMeasuresController } from '../controllers/unitMeasure.controller';
 import { getAllInventoryTransactionTypesController } from '../controllers/inventoryTransactionType.controller';
+import { getDepartmentInventoryByDepartmentAndInventoryController, getDepartmentInventoryByDepartmentController } from '../controllers/departmentInventory.controller';
 
 const router = Router();
 
@@ -136,6 +137,136 @@ router.get('/unit-measures', getAllUnitMeasuresController);
  *         description: Internal server error
  */
 router.get('/transaction-types', getAllInventoryTransactionTypesController);
+
+/**
+ * @swagger
+ * /api/inventory/department-inventory/{departmentId}/{inventoryId}:
+ *   get:
+ *     summary: Get department inventory by department and inventory
+ *     description: Retrieve department inventory information for a specific department and inventory item
+ *     tags: [Inventory]
+ *     parameters:
+ *       - in: path
+ *         name: departmentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Department ID
+ *       - in: path
+ *         name: inventoryId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Inventory ID
+ *     responses:
+ *       200:
+ *         description: Department inventory retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     id:
+ *                       type: string
+ *                     departmentId:
+ *                       type: string
+ *                     inventoryId:
+ *                       type: string
+ *                     quantity:
+ *                       type: number
+ *                     department:
+ *                       type: object
+ *                       properties:
+ *                         deptId:
+ *                           type: string
+ *                         deptName:
+ *                           type: string
+ *                     inventory:
+ *                       type: object
+ *                       properties:
+ *                         id:
+ *                           type: string
+ *                         itemName:
+ *                           type: string
+ *                         itemNo:
+ *                           type: string
+ *                         unitMeasure:
+ *                           type: string
+ *       400:
+ *         description: Bad request - missing required parameters
+ *       404:
+ *         description: Department inventory not found
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/department-inventory/:departmentId/:inventoryId', getDepartmentInventoryByDepartmentAndInventoryController);
+
+/**
+ * @swagger
+ * /api/inventory/department-inventory/{departmentId}:
+ *   get:
+ *     summary: Get all department inventory by department
+ *     description: Retrieve all department inventory items for a specific department
+ *     tags: [Inventory]
+ *     parameters:
+ *       - in: path
+ *         name: departmentId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: Department ID
+ *     responses:
+ *       200:
+ *         description: Department inventory list retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: array
+ *                   items:
+ *                     type: object
+ *                     properties:
+ *                       id:
+ *                         type: string
+ *                       departmentId:
+ *                         type: string
+ *                       inventoryId:
+ *                         type: string
+ *                       quantity:
+ *                         type: number
+ *                       department:
+ *                         type: object
+ *                         properties:
+ *                           deptId:
+ *                             type: string
+ *                           deptName:
+ *                             type: string
+ *                       inventory:
+ *                         type: object
+ *                         properties:
+ *                           id:
+ *                             type: string
+ *                           itemName:
+ *                             type: string
+ *                           itemNo:
+ *                             type: string
+ *                           unitMeasure:
+ *                             type: string
+ *       400:
+ *         description: Bad request - missing required parameters
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/department-inventory/:departmentId', getDepartmentInventoryByDepartmentController);
 
 /**
  * @swagger

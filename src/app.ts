@@ -28,7 +28,6 @@ import consumerRoutes from './routes/consumer.route';
 import supplierRoutes from './routes/supplier.route';
 import consumerSupplierRoutes from './routes/consumerSupplier.route';
 import warrantyTypeRoutes from './routes/warrantyType.route';
-import entityIdRoutes from './routes/entityId.route';
 import inventoryRoutes from './routes/inventory.route';
 import assetStatusRoutes from './routes/assetStatus.route';
 dotenv.config();
@@ -173,8 +172,6 @@ app.use(`${apiPrefix}/supplier`, supplierRoutes);
 app.use(`${apiPrefix}/consumer-supplier`, consumerSupplierRoutes);
 // Warranty Type routes
 app.use(`${apiPrefix}/warranty-type`, warrantyTypeRoutes);
-// Entity ID routes
-app.use(`${apiPrefix}/entity-id`, entityIdRoutes);
 // Inventory routes (includes unit measures)
 app.use(`${apiPrefix}/inventory`, inventoryRoutes);
 // Asset Status routes
