@@ -12,7 +12,8 @@ import {
   updateServiceRequestItem,
   deleteServiceRequest,
   deleteServiceRequestItem,
-  getServiceRequestsByAssetId
+  getServiceRequestsByAssetId,
+  getServiceRequestCountsByStatus
 } from '../services/serviceRequest.service';
 
 // Service Request Controllers
@@ -189,5 +190,22 @@ export const deleteServiceRequestItemController = async (req: Request, res: Resp
     return res.json(deletedItem);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to delete service request item' });
+  }
+};
+
+//get service request counts by status
+export const getServiceRequestCountsByStatusController = async (_req: Request, res: Response) => {
+  try {
+    const counts = await getServiceRequestCountsByStatus();
+    return res.json({
+      success: true,
+      data: counts
+    });
+  } catch (error) {
+    console.error('Error in getServiceRequestCountsByStatusController:', error);
+    return res.status(500).json({ 
+      success: false,
+      error: 'Failed to fetch service request counts by status' 
+    });
   }
 };

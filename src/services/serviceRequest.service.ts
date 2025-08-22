@@ -446,3 +446,36 @@ export const deleteServiceRequest = async (id: string) => {
     where: { serviceRequestId: id },
   });
 };
+
+
+
+//get service request counts for all status codes
+export const getServiceRequestCountsByStatus = async () => {
+  try {
+    const statusCodes = ['CANCELLED', 'CLOSED', 'COMPLETED', 'OPEN', 'INPROGRESS', 'PENDING'];
+    
+    const counts = await Promise.all(
+      statusCodes.map(async (statusCode) => {
+        const count = await prisma.serviceRequest.count({
+          where: { srStatusCode: statusCode },
+        });
+        return { statusCode, count };
+      })
+    );
+
+    return {
+      cancelled: counts.find(item => item.statusCode === 'CANCELLED')?.count || 0,
+      closed: counts.find(item => item.statusCode === 'CLOSED')?.count || 0,
+      completed: counts.find(item => item.statusCode === 'COMPLETED')?.count || 0,
+      open: counts.find(item => item.statusCode === 'OPEN')?.count || 0,
+      inProgress: counts.find(item => item.statusCode === 'INPROGRESS')?.count || 0,
+      pending: counts.find(item => item.statusCode === 'PENDING')?.count || 0,
+    };
+  } catch (error) {
+    console.error('Error fetching service request counts by status:', error);
+    throw new Error('Failed to fetch service request counts by status');
+  }
+};
+
+
+

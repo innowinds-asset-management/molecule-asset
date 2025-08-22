@@ -389,29 +389,10 @@ export const getAssetCountByStatus = async () => {
       }
     });
 
-    // Count total assets with status
-    const totalWithStatus = await prisma.asset.count({
-      where: {
-        status: {
-          not: null
-        }
-      }
-    });
-
-    // Count assets without status
-    const totalWithoutStatus = await prisma.asset.count({
-      where: {
-        status: null
-      }
-    });
-
     return {
       active: activeCount,
       retired: retiredCount,
       preActive: preActiveCount,
-      totalWithStatus: totalWithStatus,
-      totalWithoutStatus: totalWithoutStatus,
-      grandTotal: totalWithStatus + totalWithoutStatus
     };
   } catch (error) {
     console.error('Error fetching asset counts by status:', error);

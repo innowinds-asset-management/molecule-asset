@@ -26,3 +26,12 @@ export const getConsumerBySupplierId = async (supplierId: string) => {
 };
 
 
+//count suppliers by consumer id
+export const countSuppliersByConsumerId = async (consumerId: string) => {
+  return prisma.consumerSupplier.count({
+    where: { consumerId },
+  });
+};
+
+
+

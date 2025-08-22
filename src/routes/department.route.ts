@@ -1,6 +1,6 @@
 //department routes
 import { Router } from 'express';
-import { getAllDepartmentsController, getDepartmentByIdController, createDepartmentController, getDepartmentsByConsumerIdController } from '../controllers/department.controller';
+import { getAllDepartmentsController, getDepartmentByIdController, createDepartmentController, getDepartmentsByConsumerIdController, getDepartmentCountByConsumerIdController } from '../controllers/department.controller';
 
 const router = Router();
 
@@ -113,5 +113,41 @@ router.get('/consumer/:consumerId', getDepartmentsByConsumerIdController);
  *         description: Internal server error
  */
 router.get('/:deptId', getDepartmentByIdController);
+
+/**
+ * @swagger
+ * /api/department/count/{consumerId}:
+ *   get:
+ *     summary: Get department count by consumer ID
+ *     description: Retrieve the count of departments associated with a specific consumer
+ *     tags: [Departments]
+ *     parameters:
+ *       - in: path
+ *         name: consumerId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the consumer
+ *     responses:
+ *       200:
+ *         description: Department count retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     departmentCount:
+ *                       type: number
+ *       400:
+ *         description: Bad request - consumer ID is required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/count/:consumerId', getDepartmentCountByConsumerIdController);
 
 export default router;

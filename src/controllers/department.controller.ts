@@ -1,5 +1,5 @@
 //fetch all departments
-import { createDepartment, getAllDepartments, getDepartmentById, getDepartmentsByConsumerId } from '../services/department.service';
+import { createDepartment, getAllDepartments, getDepartmentById, getDepartmentCountByConsumerId, getDepartmentsByConsumerId } from '../services/department.service';
 import { Request, Response } from 'express';
 
 export const getAllDepartmentsController = async (_req: Request, res: Response) => {
@@ -31,4 +31,20 @@ export const getDepartmentsByConsumerIdController = async (req: Request, res: Re
     }
     const departments = await getDepartmentsByConsumerId(consumerId);
     return res.json(departments);
+};
+
+//get department count by consumer id
+export const getDepartmentCountByConsumerIdController = async (req: Request, res: Response) => {
+    const { consumerId } = req.params;
+    if (!consumerId) {
+        return res.status(400).json({ error: 'Consumer ID is required' });
+    }
+    // Validate consumerId and fetch department count, respond in required format
+    const count = await getDepartmentCountByConsumerId(consumerId);
+    return res.json({
+        success: true,
+        data: {
+            departmentCount: count
+        }
+    });   
 };

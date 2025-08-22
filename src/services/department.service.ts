@@ -155,3 +155,11 @@ export const deleteDepartment = async (deptId: string) => {
         where: { deptId },
     });
 };
+
+
+//get department count by consumer id
+export const getDepartmentCountByConsumerId = async (consumerId: string) => {
+  return await prisma.department.count({
+    where: { consumerId },
+  });
+};

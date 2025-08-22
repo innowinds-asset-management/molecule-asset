@@ -1,7 +1,7 @@
 //consumer supplier route
 
 import { Router } from 'express';
-import { createConsumerSupplierController, getConsumerBySupplierIdController, getSupplierByConsumerIdController } from '../controllers/consumerSupplier.controller';
+import { countSuppliersByConsumerIdController, createConsumerSupplierController, getConsumerBySupplierIdController, getSupplierByConsumerIdController } from '../controllers/consumerSupplier.controller';
 
 const router = Router();
 
@@ -13,5 +13,8 @@ router.get('/supplier/:consumerId', getSupplierByConsumerIdController);
 
 //fetch consumer by supplier id
 router.get('/consumer/:supplierId', getConsumerBySupplierIdController);
+
+//count suppliers by consumer id
+router.get('/count/supplier/:consumerId', countSuppliersByConsumerIdController);
 
 export default router;

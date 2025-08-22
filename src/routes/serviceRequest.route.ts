@@ -12,7 +12,8 @@ import {
   updateServiceRequestItemController,
   deleteServiceRequestController,
   deleteServiceRequestItemController,
-  getServiceRequestsByAssetIdController
+  getServiceRequestsByAssetIdController,
+  getServiceRequestCountsByStatusController
 } from '../controllers/serviceRequest.controller';
 
 const router = Router();
@@ -53,6 +54,52 @@ const router = Router();
  *         description: Internal server error
  */
 router.get('/', getAllServiceRequestsController);
+
+/**
+ * @swagger
+ * /api/service-request/count/status:
+ *   get:
+ *     summary: Get service request counts by status
+ *     description: Retrieve counts of service requests grouped by status codes (CANCELLED, CLOSED, COMPLETED, OPEN, INPROGRESS, PENDING)
+ *     tags: [Service Requests]
+ *     responses:
+ *       200:
+ *         description: Service request counts retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     cancelled:
+ *                       type: number
+ *                       description: Count of cancelled service requests
+ *                     closed:
+ *                       type: number
+ *                       description: Count of closed service requests
+ *                     completed:
+ *                       type: number
+ *                       description: Count of completed service requests
+ *                     open:
+ *                       type: number
+ *                       description: Count of open service requests
+ *                     inProgress:
+ *                       type: number
+ *                       description: Count of in-progress service requests
+ *                     pending:
+ *                       type: number
+ *                       description: Count of pending service requests
+ *                     total:
+ *                       type: number
+ *                       description: Total count of all service requests
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/count/status', getServiceRequestCountsByStatusController);
 
 /**
  * @swagger
