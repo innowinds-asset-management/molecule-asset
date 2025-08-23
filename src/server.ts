@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 import app from './app';
 
 const prisma = new PrismaClient();
-const PORT = parseInt(process.env['PORT'] || '3003');
+const PORT = parseInt(process.env['PORT'] || '8080');
 const HOST = process.env['HOST'] || '0.0.0.0'; // Listen on all interfaces
 
 // Graceful shutdown
