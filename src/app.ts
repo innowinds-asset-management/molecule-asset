@@ -47,6 +47,9 @@ app.use(cors({
 // Compression middleware
 app.use(compression());
 
+// Trust Nginx proxy (important for HTTPS + real IPs)
+app.set('trust proxy', 1);
+
 // Rate limiting
 const limiter = rateLimit({
   windowMs: parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '100'), // 10 minutes

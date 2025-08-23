@@ -16,10 +16,16 @@ process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 
 // Start server
-app.listen(PORT, HOST, () => {
-  console.log(`Consumer service running on port ${PORT}`);
-  console.log(`Health check: http://localhost:${PORT}/health`);
-  console.log(`API Base URL: http://localhost:${PORT}${process.env['API_PREFIX'] || '/api/v1'}`);
-});
+try {
+  app.listen(PORT, HOST, () => {
+    console.log(`Consumer service running on port ${PORT}`);
+    console.log(`Health check: http://localhost:${PORT}/health`);
+    console.log(`API Base URL: http://localhost:${PORT}${process.env['API_PREFIX'] || '/api/v1'}`);
+  });
+} catch (error) {
+  console.error('Error starting server:', error);
+  process.exit(1);
+}
+
 
 export default app; 
