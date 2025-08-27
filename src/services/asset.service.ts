@@ -111,6 +111,7 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
       assetSubTypeId: data.asset.assetSubTypeId,
       assetName: data.asset.assetName,
       consumerId: data.asset.consumerId,
+      status: 'received',
       ...(data.asset.installationDate && { installationDate: new Date(data.asset.installationDate) }),
       ...(data.asset.brand && { brand: data.asset.brand }),
       ...(data.asset.model && { model: data.asset.model }),
@@ -285,6 +286,7 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
       const createdAssets = await tx.asset.findMany({
         where: {
           assetName: data.assetName,
+          status: 'received',
           partNo: data.partNo,
           consumerId: data.consumerId,
           supplierId: data.supplierId
@@ -399,3 +401,108 @@ export const getAssetCountByStatus = async () => {
     throw new Error('Failed to fetch asset counts by status');
   }
 };
+
+// Update asset and warranty based on assetId and consumerId
+export const updateAssetWarranty = async (assetId: string, consumerId: string, data: {
+  asset: {
+    assetId: string;
+    status?: string;
+    departmentId?: string;
+    consumerId: string;
+  };
+  warranty: {
+    warrantyTypeId: number;
+    startDate: string;
+    endDate: string;
+    warrantyPeriod: number;
+    coverageType: string;
+    consumerId: string;
+  };
+}) => {
+  return await prisma.$transaction(async (tx) => {
+    // Validate that the asset exists and belongs to the consumer
+    const existingAsset = await tx.asset.findFirst({
+      where: {
+        id: assetId,
+        consumerId: consumerId
+      }
+    });
+
+    if (!existingAsset) {
+      throw new Error(`Asset with ID ${assetId} not found for consumer ${consumerId}`);
+    }
+
+    // Update asset
+    const assetUpdateData: any = {
+      updatedAt: new Date()
+    };
+
+    // Only include fields that are provided
+    if (data.asset.status !== undefined) {
+      assetUpdateData.status = data.asset.status;
+    }
+    if (data.asset.departmentId !== undefined) {
+      assetUpdateData.departmentId = data.asset.departmentId;
+    }
+
+    const updatedAsset = await tx.asset.update({
+      where: { 
+        id: assetId 
+      },
+      data: assetUpdateData
+    });
+
+    // Check if warranty already exists for this asset
+    const existingWarranty = await tx.warranties.findFirst({
+      where: {
+        assetId: assetId
+      }
+    });
+
+    let updatedWarranty;
+
+    if (existingWarranty) {
+      // Update existing warranty
+      updatedWarranty = await tx.warranties.update({
+        where: {
+          warrantyId: existingWarranty.warrantyId
+        },
+        data: {
+          warrantyTypeId: data.warranty.warrantyTypeId,
+          startDate: new Date(data.warranty.startDate),
+          endDate: new Date(data.warranty.endDate),
+          warrantyPeriod: data.warranty.warrantyPeriod,
+          coverageType: data.warranty.coverageType,
+          consumerId: data.warranty.consumerId,
+          updatedAt: new Date()
+        }
+      });
+    } else {
+      // Create new warranty
+      updatedWarranty = await tx.warranties.create({
+        data: {
+          assetId: assetId,
+          warrantyTypeId: data.warranty.warrantyTypeId,
+          startDate: new Date(data.warranty.startDate),
+          endDate: new Date(data.warranty.endDate),
+          warrantyPeriod: data.warranty.warrantyPeriod,
+          coverageType: data.warranty.coverageType,
+          consumerId: data.warranty.consumerId,
+          warrantyNumber: `WR-${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          isActive: true,
+          autoRenewal: false,
+          createdAt: new Date(),
+          updatedAt: new Date()
+        }
+      });
+    }
+
+    return {
+      success: true,
+      message: 'Asset and warranty updated successfully',
+      asset: updatedAsset,
+      warranty: updatedWarranty
+    };
+  });
+};
+

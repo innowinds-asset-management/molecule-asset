@@ -1,7 +1,7 @@
 //fetch all assets
 
 import { Request, Response } from 'express';
-import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty, getAssetCountByStatus } from '../services/asset.service';
+import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty, getAssetCountByStatus, updateAssetWarranty } from '../services/asset.service';
 
 export const getAllAssetsController = async (req: Request, res: Response) => {
   const { consumerId, supplierId, departmentId, groupstatus } = req.query; 
@@ -79,6 +79,45 @@ export const getAssetCountByStatusController = async (_req: Request, res: Respon
     return res.status(500).json({
       success: false,
       error: 'Failed to fetch asset counts by status'
+    });
+  }
+};
+
+//update asset and warranty
+export const updateAssetWarrantyController = async (req: Request, res: Response) => {
+  try {
+    const { assetId } = req.params;
+    const { consumerId } = req.body;
+    const data = req.body;
+
+    if (!assetId) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Asset ID is required' 
+      });
+    }
+
+    if (!consumerId) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Consumer ID is required' 
+      });
+    }
+
+    if (!data.asset || !data.warranty) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Asset and warranty data are required' 
+      });
+    }
+
+    const result = await updateAssetWarranty(assetId, consumerId, data);
+    return res.json(result);
+  } catch (error) {
+    console.error('Error in updateAssetWarrantyController:', error);
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update asset and warranty'
     });
   }
 };

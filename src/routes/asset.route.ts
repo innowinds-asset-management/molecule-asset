@@ -1,7 +1,7 @@
 //asset routes
 
 import { Router } from 'express';
-import { getAllAssetsController, getAssetByIdController, updateAssetController, deleteAssetController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController, getAssetCountByStatusController } from '../controllers/asset.controller';
+import { getAllAssetsController, getAssetByIdController, updateAssetController, deleteAssetController, createAssetFromGrnAndPoLineItemController, createAssetWithWarrantyController, getAssetCountByStatusController, updateAssetWarrantyController } from '../controllers/asset.controller';
 
 const router = Router();
 
@@ -240,6 +240,105 @@ router.post('/grn-po-line-item', createAssetFromGrnAndPoLineItemController);
  */
 router.post('/warranty', createAssetWithWarrantyController);
 
-
+/**
+ * @swagger
+ * /api/asset/{assetId}/warranty:
+ *   put:
+ *     summary: Update asset and warranty
+ *     description: Update asset status, department and warranty information for a specific asset
+ *     tags: [Assets]
+ *     parameters:
+ *       - in: path
+ *         name: assetId
+ *         required: true
+ *         schema:
+ *           type: string
+ *         description: ID of the asset to update
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - consumerId
+ *               - asset
+ *               - warranty
+ *             properties:
+ *               consumerId:
+ *                 type: string
+ *                 description: Consumer ID for validation
+ *               asset:
+ *                 type: object
+ *                 required:
+ *                   - assetId
+ *                   - consumerId
+ *                 properties:
+ *                   assetId:
+ *                     type: string
+ *                     description: Asset ID
+ *                   status:
+ *                     type: string
+ *                     description: Asset status (e.g., active, retired)
+ *                   departmentId:
+ *                     type: string
+ *                     description: Department ID
+ *                   consumerId:
+ *                     type: string
+ *                     description: Consumer ID
+ *               warranty:
+ *                 type: object
+ *                 required:
+ *                   - warrantyTypeId
+ *                   - startDate
+ *                   - endDate
+ *                   - warrantyPeriod
+ *                   - coverageType
+ *                   - consumerId
+ *                 properties:
+ *                   warrantyTypeId:
+ *                     type: integer
+ *                     description: Warranty type ID
+ *                   startDate:
+ *                     type: string
+ *                     format: date
+ *                     description: Warranty start date (YYYY-MM-DD)
+ *                   endDate:
+ *                     type: string
+ *                     format: date
+ *                     description: Warranty end date (YYYY-MM-DD)
+ *                   warrantyPeriod:
+ *                     type: integer
+ *                     description: Warranty period in months
+ *                   coverageType:
+ *                     type: string
+ *                     description: Type of coverage (e.g., parts, labor, comprehensive)
+ *                   consumerId:
+ *                     type: string
+ *                     description: Consumer ID
+ *     responses:
+ *       200:
+ *         description: Asset and warranty updated successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 message:
+ *                   type: string
+ *                 asset:
+ *                   $ref: '#/components/schemas/Asset'
+ *                 warranty:
+ *                   $ref: '#/components/schemas/Warranty'
+ *       400:
+ *         description: Bad request - missing required fields
+ *       404:
+ *         description: Asset not found for the given consumer
+ *       500:
+ *         description: Internal server error
+ */
+router.put('/:assetId/warranty', updateAssetWarrantyController);
 
 export default router;
