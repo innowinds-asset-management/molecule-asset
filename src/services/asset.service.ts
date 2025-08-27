@@ -69,7 +69,11 @@ export const getAssetById = async (id: string) => {
       assetSubType: true,
       supplier: true,
       //consumer: true,
-      warranties: true,
+      warranties: {
+        include: {
+          warrantyType: true
+        }
+      },
       serviceRequests: {
         orderBy: {
           createdAt: 'desc'
