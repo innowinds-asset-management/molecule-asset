@@ -68,6 +68,7 @@ model Asset {
   ageDays            Int?              @default(50)
   draft              Boolean           @default(false)
   status             String?
+  assetAssignTo      String?
   assetCondition     AssetCondition?   @relation(fields: [assetConditionCode], references: [code])
   assetSubType       AssetSubType?     @relation(fields: [assetSubTypeId], references: [id])
   assetType          AssetType?        @relation(fields: [assetTypeId], references: [id])
@@ -99,17 +100,17 @@ model AssetStatus {
 }
 
 model Department {
-  deptId        String         @id @default(cuid())
-  deptName      String
-  consumerId    String
-  createdAt     DateTime       @default(now())
-  updatedAt     DateTime       @updatedAt
-  assets        Asset[]
-  consumer      Consumer       @relation(fields: [consumerId], references: [id])
-  installations Installation[]
-  locations     Location[]
-  departmentInventory DepartmentInventory[]
+  deptId                String                  @id @default(cuid())
+  deptName              String
+  consumerId            String
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  assets                Asset[]
+  consumer              Consumer                @relation(fields: [consumerId], references: [id])
+  departmentInventory   DepartmentInventory[]
+  installations         Installation[]
   inventoryTransactions InventoryTransactions[]
+  locations             Location[]
 
   @@index([consumerId])
   @@map("department")
@@ -174,22 +175,21 @@ model PO {
 }
 
 model POLineItem {
-  id           String    @id @default(cuid())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  grnId        String?
-  itemName     String    @default("Unknown")
-  partNo       String
-  poId         String
-  price        Decimal   @db.Decimal(10, 2)
-  quantity     Decimal   @db.Decimal(10, 3)
-  totalAmount  Decimal   @default(0.00) @db.Decimal(10, 2)
-  receivedQty  Decimal   @default(0.000) @db.Decimal(10, 3)
-  remainingQty Decimal   @default(0.000) @db.Decimal(10, 3)
-  grnItem      GRNItem[]
-  po           PO        @relation(fields: [poId], references: [id])
+  id                    String                  @id @default(cuid())
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  grnId                 String?
+  itemName              String                  @default("Unknown")
+  partNo                String
+  poId                  String
+  price                 Decimal                 @db.Decimal(10, 2)
+  quantity              Decimal                 @db.Decimal(10, 3)
+  totalAmount           Decimal                 @default(0.00) @db.Decimal(10, 2)
+  receivedQty           Decimal                 @default(0.000) @db.Decimal(10, 3)
+  remainingQty          Decimal                 @default(0.000) @db.Decimal(10, 3)
+  grnItem               GRNItem[]
   inventoryTransactions InventoryTransactions[]
-
+  po                    PO                      @relation(fields: [poId], references: [id])
 
   @@index([poId], map: "purchaseItem_poId_fkey")
   @@index([partNo])
@@ -217,21 +217,20 @@ model GRN {
 }
 
 model GRNItem {
-  id                String     @id @default(cuid())
-  grnId             String
-  poLineItemId      String
-  quantityOrdered   Decimal    @default(0.000) @db.Decimal(10, 3)
-  quantityReceived  Decimal    @default(0.000) @db.Decimal(10, 3)
-  quantityAccepted  Decimal    @default(0.000) @db.Decimal(10, 3)
-  quantityRejected  Decimal    @default(0.000) @db.Decimal(10, 3)
-  quantityRemaining Decimal    @default(0.000) @db.Decimal(10, 3)
-  remarks           String?
-  createdAt         DateTime   @default(now())
-  updatedAt         DateTime   @updatedAt
-  grn               GRN        @relation(fields: [grnId], references: [id])
-  poLineItem        POLineItem @relation(fields: [poLineItemId], references: [id])
+  id                    String                  @id @default(cuid())
+  grnId                 String
+  poLineItemId          String
+  quantityOrdered       Decimal                 @default(0.000) @db.Decimal(10, 3)
+  quantityReceived      Decimal                 @default(0.000) @db.Decimal(10, 3)
+  quantityAccepted      Decimal                 @default(0.000) @db.Decimal(10, 3)
+  quantityRejected      Decimal                 @default(0.000) @db.Decimal(10, 3)
+  quantityRemaining     Decimal                 @default(0.000) @db.Decimal(10, 3)
+  remarks               String?
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  grn                   GRN                     @relation(fields: [grnId], references: [id])
+  poLineItem            POLineItem              @relation(fields: [poLineItemId], references: [id])
   inventoryTransactions InventoryTransactions[]
-
 
   @@index([grnId], map: "grnItem_grnId_fkey")
   @@index([poLineItemId], map: "grnItem_poLineItemId_fkey")
@@ -458,35 +457,34 @@ model Consumer {
   assets            Asset[]
   consumerSuppliers ConsumerSupplier[]
   departments       Department[]
+  inventory         Inventory[]
   purchaseOrders    PO[]
   warranties        Warranties[]
-  inventory           Inventory[]
-
 
   @@map("consumer")
 }
 
 model Supplier {
-  id                  String             @id @default(cuid())
-  name                String
-  code                String             @unique
-  gstNumber           String?
-  email               String?
-  phone               String?
-  address             String?
-  isActive            Boolean            @default(true)
-  createdAt           DateTime           @default(now())
-  updatedAt           DateTime           @updatedAt
-  primaryContactEmail String?
-  primaryContactName  String?
-  primaryContactPhone String?
-  suppliedAssets      Asset[]            @relation("SupplierToAsset")
-  consumerSuppliers   ConsumerSupplier[]
-  purchaseOrders      PO[]
-  ServiceContract     ServiceContract[]
-  serviceRequests     ServiceRequest[]
-  warranties          Warranties[]
-  inventoryTransactions         InventoryTransactions[]
+  id                    String                  @id @default(cuid())
+  name                  String
+  code                  String                  @unique
+  gstNumber             String?
+  email                 String?
+  phone                 String?
+  address               String?
+  isActive              Boolean                 @default(true)
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  primaryContactEmail   String?
+  primaryContactName    String?
+  primaryContactPhone   String?
+  suppliedAssets        Asset[]                 @relation("SupplierToAsset")
+  consumerSuppliers     ConsumerSupplier[]
+  inventoryTransactions InventoryTransactions[]
+  purchaseOrders        PO[]
+  ServiceContract       ServiceContract[]
+  serviceRequests       ServiceRequest[]
+  warranties            Warranties[]
 
   @@map("supplier")
 }
@@ -508,70 +506,64 @@ model ConsumerSupplier {
 }
 
 model Inventory {
-  id       String     @id @default(cuid())
-  itemName     String
-  quantity Int
-  unitMeasure UnitMeasure?
-  itemNo String? @default(cuid())
-
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
-  minStock Int?
-  consumerId String
-
-
-
-  consumer     Consumer  @relation(fields: [consumerId], references: [id])
-
-  departmentInventory DepartmentInventory[]
+  id                    String                  @id @default(cuid())
+  quantity              Int
+  createdAt             DateTime                @default(now())
+  updatedAt             DateTime                @updatedAt
+  minStock              Int?
+  consumerId            String
+  itemName              String
+  unitMeasure           UnitMeasure?
+  itemNo                String?                 @default(cuid())
+  departmentInventory   DepartmentInventory[]
+  consumer              Consumer                @relation(fields: [consumerId], references: [id])
   inventoryTransactions InventoryTransactions[]
 
-
+  @@index([consumerId], map: "inventory_consumerId_fkey")
   @@map("inventory")
-
 }
 
 model DepartmentInventory {
-  id            String     @id @default(cuid())
-  departmentId  String
-  quantity      Int
-  inventoryId   String
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id           String     @id @default(cuid())
+  departmentId String
+  quantity     Int
+  inventoryId  String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  department   Department @relation(fields: [departmentId], references: [deptId])
+  inventory    Inventory  @relation(fields: [inventoryId], references: [id])
 
-
-
-  department        Department     @relation(fields: [departmentId], references: [deptId])
-  inventory        Inventory     @relation(fields: [inventoryId], references: [id])
-
-
+  @@index([departmentId], map: "departmentInventory_departmentId_fkey")
+  @@index([inventoryId], map: "departmentInventory_inventoryId_fkey")
   @@map("departmentInventory")
-
 }
 
 model InventoryTransactions {
-  id            String     @id @default(cuid())
-  inventoryId            String
-  departmentId String?      
-  quantity           Int
-  transactionTypeCode   String
-  createdAt   DateTime  @default(now())
-  grnItemId          String?
-  poLineItemId       String?
-  expiredAt DateTime?
-  supplierId String?
-  reason String? @db.Text()
+  id                  String                   @id @default(cuid())
+  inventoryId         String
+  quantity            Int
+  createdAt           DateTime                 @default(now())
+  departmentId        String?
+  grnItemId           String?
+  poLineItemId        String?
+  transactionTypeCode String
+  expiredAt           DateTime?
+  supplierId          String?
+  reason              String?                  @db.Text
+  department          Department?              @relation(fields: [departmentId], references: [deptId])
+  grnItem             GRNItem?                 @relation(fields: [grnItemId], references: [id])
+  inventory           Inventory                @relation(fields: [inventoryId], references: [id])
+  poLineItem          POLineItem?              @relation(fields: [poLineItemId], references: [id])
+  supplier            Supplier?                @relation(fields: [supplierId], references: [id])
+  transactionType     InventoryTransactionType @relation(fields: [transactionTypeCode], references: [code])
 
-  inventory          Inventory   @relation(fields: [inventoryId], references: [id])
-  department     Department?      @relation(fields: [departmentId], references: [deptId])
-  poLineItem    POLineItem? @relation(fields: [poLineItemId], references: [id])
-  grnItem       GRNItem?    @relation(fields: [grnItemId], references: [id])
-  supplier     Supplier?  @relation(fields: [supplierId], references: [id])
-  transactionType InventoryTransactionType @relation(fields:[transactionTypeCode], references: [code])
-
-
+  @@index([departmentId], map: "inventoryTransactions_departmentId_fkey")
+  @@index([grnItemId], map: "inventoryTransactions_grnItemId_fkey")
+  @@index([inventoryId], map: "inventoryTransactions_inventoryId_fkey")
+  @@index([poLineItemId], map: "inventoryTransactions_poLineItemId_fkey")
+  @@index([supplierId], map: "inventoryTransactions_supplierId_fkey")
+  @@index([transactionTypeCode], map: "inventoryTransactions_transactionTypeCode_fkey")
   @@map("inventoryTransactions")
-
 }
 
 model ServiceRequestStatus {
@@ -592,14 +584,12 @@ model AssetCondition {
 }
 
 model InventoryTransactionType {
-  code           String           @id
-  displayName    String
-
+  code                  String                  @id
+  displayName           String
   inventoryTransactions InventoryTransactions[]
 
   @@map("inventoryTransactionType")
 }
-
 
 enum POStatus {
   Draft
@@ -655,20 +645,16 @@ enum InstallationStatus {
   ReadyToUse
 }
 
-
 enum UnitMeasure {
-  PIECE      // individual item (default for most)
-  BOX        // multiple pieces in a box
-  PACK       // pack of items
-  LITER      // liquids
-  MILLILITER // smaller liquid units
-  GRAM       // weight
-  KILOGRAM   // larger weight units
-  TABLET     // medical tablets
-  STRIP      // strip of tablets
-  VIAL       // injectable liquid medicines
-  AMPULLE    // small sealed vial for injection
+  PIECE
+  BOX
+  PACK
+  LITER
+  MILLILITER
+  GRAM
+  KILOGRAM
+  TABLET
+  STRIP
+  VIAL
+  AMPULLE
 }
-
-
-

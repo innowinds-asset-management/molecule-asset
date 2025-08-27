@@ -409,6 +409,7 @@ export const updateAssetWarranty = async (assetId: string, consumerId: string, d
     status?: string;
     departmentId?: string;
     consumerId: string;
+    assetAssignTo?: string;
   };
   warranty: {
     warrantyTypeId: number;
@@ -443,6 +444,9 @@ export const updateAssetWarranty = async (assetId: string, consumerId: string, d
     }
     if (data.asset.departmentId !== undefined) {
       assetUpdateData.departmentId = data.asset.departmentId;
+    }
+    if (data.asset.assetAssignTo !== undefined) {
+      assetUpdateData.assetAssignTo = data.asset.assetAssignTo;
     }
 
     const updatedAsset = await tx.asset.update({
