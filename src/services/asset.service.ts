@@ -262,6 +262,7 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
     
     return {
       assetSubTypeId: data.assetSubType,
+      status: 'received',
       assetTypeId: data.assetType,
       consumerId: data.consumerId,
       grnId: data.grnId,
