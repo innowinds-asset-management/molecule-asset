@@ -61,8 +61,9 @@ export const deleteAssetController = async (req: Request, res: Response) => {
 
 
 //create asset from grn and po line item
-export const createAssetFromGrnAndPoLineItemController = async (req: Request, res: Response) => {
+export const createAssetFromGrnAndPoLineItemController = async (req: AssetRequest, res: Response) => {
   const data = req.body;
+  data.consumerId = req._u?.consumerId;
   const result = await createAssetFromGrnAndPoLineItemWithSerial(data);
   return res.json(result);
 };
