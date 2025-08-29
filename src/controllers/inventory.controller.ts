@@ -3,31 +3,33 @@
 import { Request, Response } from 'express';
 import { getAllInventory, getInventoryById, createOrUpdateInventory, searchInventoryItems, transferInventory } from '../services/inventory.service';
 import { INVENTORY_TRANSACTION_TYPE_CODES } from '../utils/constants';
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
-export const getAllInventoryController = async (req: Request, res: Response) => {
-  const { cid } = req.query;
+export const getAllInventoryController = async (req: AssetRequest, res: Response) => {
+  const consumerId = req._u?.consumerId;
 
-  if (!cid) {
+  if (!consumerId) {
     return res.status(400).json({ error: 'Consumer ID is required' });
   }
 
-  const inventory = await getAllInventory(cid as string);
+  const inventory = await getAllInventory(consumerId);
+  console.log('inventory====>',inventory)
   return res.json(inventory);
 };
 
 // Search inventory items
-export const searchInventoryController = async (req: Request, res: Response) => {
+export const searchInventoryController = async (req: AssetRequest, res: Response) => {
   try {
-    const { search, cid } = req.query;
+    const { search } = req.query;
+    const consumerId = req._u?.consumerId;
 
-    if (!search || !cid) {
+    if (!search || !consumerId) {
       return res.status(400).json({ 
         error: 'Search term and Consumer ID are required' 
       });
     }
 
     const searchTerm = search as string;
-    const consumerId = cid as string;
 
     const results = await searchInventoryItems(searchTerm, consumerId);
     return res.json(results);
@@ -50,19 +52,19 @@ export const getInventoryByIdController = async (req: Request, res: Response) =>
 };
 
 // Create or update inventory item
-export const createOrUpdateInventoryController = async (req: Request, res: Response) => {
+export const createOrUpdateInventoryController = async (req: AssetRequest, res: Response) => {
   try {
     const { 
       itemId, 
       itemName, 
       quantity, 
-      unitMeasure, 
-      consumerId,
+      unitMeasure,
       grnItemId,
       poLineItemId,
       expiredAt,
       supplierId
     } = req.body;
+    const consumerId = req._u?.consumerId;
 
     // Validate required fields
     if (!itemName || !quantity || !consumerId) {

@@ -2,16 +2,21 @@
 
 import { Request, Response } from 'express';
 import { countSuppliersByConsumerId, createConsumerSupplier, getConsumerBySupplierId, getSupplierByConsumerId } from '../services/consumerSupplier';
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
-export const createConsumerSupplierController = async (req: Request, res: Response) => {
-    const { consumerId, supplierId } = req.body;
+export const createConsumerSupplierController = async (req: AssetRequest, res: Response) => {
+    const { supplierId } = req.body;
+    const consumerId = req._u?.consumerId;
+    if (!consumerId || !supplierId) {
+        return res.status(400).json({ error: 'consumerId and supplierId are required' });
+    }
     const consumerSupplier = await createConsumerSupplier(consumerId, supplierId);
-    res.status(201).json(consumerSupplier);
+    return res.status(201).json(consumerSupplier);
 };
 
 //fetch supplier by consumer id
-export const getSupplierByConsumerIdController = async (req: Request, res: Response) => {
-    const { consumerId } = req.params;
+export const getSupplierByConsumerIdController = async (req: AssetRequest, res: Response) => {
+    const consumerId = req._u?.consumerId;
     if (!consumerId) {
         return res.status(400).json({ error: 'Consumer ID is required' });
     }
@@ -30,8 +35,8 @@ export const getConsumerBySupplierIdController = async (req: Request, res: Respo
 };
 
 //count suppliers by consumer id
-export const countSuppliersByConsumerIdController = async (req: Request, res: Response) => {
-    const { consumerId } = req.params;
+export const countSuppliersByConsumerIdController = async (req: AssetRequest, res: Response) => {
+    const consumerId = req._u?.consumerId;
     if (!consumerId) {
         return res.status(400).json({ 
             success: false, 

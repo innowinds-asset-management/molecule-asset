@@ -12,7 +12,7 @@ router.get('/', getAllWarrantyTypesController);
 router.get('/:id', getWarrantyTypeByIdController);
 
 //get warranty types by consumer id
-router.get('/consumer/:consumerId', getWarrantyTypesByConsumerIdController);
+router.get('/consumer', getWarrantyTypesByConsumerIdController);
 
 //get warranty types by supplier id
 router.get('/supplier/:supplierId', getWarrantyTypesBySupplierIdController);

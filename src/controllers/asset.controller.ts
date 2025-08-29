@@ -1,12 +1,21 @@
 //fetch all assets
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
 import { Request, Response } from 'express';
 import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty, getAssetCountByStatus, updateAssetWarranty } from '../services/asset.service';
 
-export const getAllAssetsController = async (req: Request, res: Response) => {
-  const { consumerId, supplierId, departmentId, groupstatus } = req.query; 
-  const assets = await getAllAssets({
-    consumerId: consumerId as string,
+export const getAllAssetsController = async (req: AssetRequest, res: Response) => {
+  const { supplierId, departmentId, groupstatus } = req.query; 
+  
+  const consumerId = req._u?.consumerId;
+
+      if (!consumerId) {
+        return res.status(400).json({ error: 'Consumer ID is required' });
+    }
+
+    console.log('department id________>', departmentId)
+
+  const assets = await getAllAssets(consumerId,{
     supplierId: supplierId as string,
     departmentId: departmentId as string,
     status: groupstatus as string

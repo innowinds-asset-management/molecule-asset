@@ -4,11 +4,10 @@ import { CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } fr
 
 const prisma = new PrismaClient();
 
-export const getAllAssets = async (params?: { consumerId?: string; supplierId?: string; departmentId?: string;status?: string }) => {
+export const getAllAssets = async (consumerId:string,params?: { consumerId?: string; supplierId?: string; departmentId?: string;status?: string }) => {
   const where: any = {};  
-  if (params && typeof params.consumerId !== 'undefined' && params.consumerId !== null) { 
-    where.consumerId = params.consumerId;
-  }
+    where.consumerId = consumerId;
+  
   
   if (params && typeof params.supplierId !== 'undefined' && params.supplierId !== null) { 
     where.supplierId = params.supplierId;

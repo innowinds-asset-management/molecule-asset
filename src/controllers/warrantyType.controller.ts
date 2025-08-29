@@ -2,6 +2,7 @@
 
 import { Request, Response } from 'express';
 import { getAllWarrantyTypes, getWarrantyTypeById, getWarrantyTypesByConsumerId, getWarrantyTypesBySupplierId } from '../services/warrantyType.services';
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
 //get all warranty types
 export const getAllWarrantyTypesController = async (_req: Request, res: Response) => {
@@ -17,8 +18,8 @@ export const getWarrantyTypeByIdController = async (req: Request, res: Response)
 };
 
 //get warranty types by consumer id
-export const getWarrantyTypesByConsumerIdController = async (req: Request, res: Response) => {
-  const { consumerId } = req.params;
+export const getWarrantyTypesByConsumerIdController = async (req: AssetRequest, res: Response) => {
+  const consumerId = req._u?.consumerId;
   if (!consumerId) {
     return res.status(400).json({ error: 'Consumer ID is required' });
   }

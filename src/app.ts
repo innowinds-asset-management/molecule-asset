@@ -9,6 +9,7 @@ import swaggerUi from 'swagger-ui-express';
 
 import { errorHandler } from './middleware/errorHandler';
 import { HealthController } from './controllers/healthController';
+import { extractUserContext } from './middleware/userContextMiddleware';
 import { specs } from './swagger';
 import assetTypeRoutes from './routes/assetType.route';
 import assetSubTypeRoutes from './routes/assetSubType.route';
@@ -140,6 +141,10 @@ app.get('/live', healthController.getLiveness);
 
 // API routes
 const apiPrefix = process.env['API_PREFIX'] || '/api/v1';
+
+// Apply user context middleware to ALL API routes
+app.use(`${apiPrefix}/*`, extractUserContext);
+
 // Asset Type routes
 app.use(`${apiPrefix}/asset-type`, assetTypeRoutes);
 // Asset Sub Type routes
