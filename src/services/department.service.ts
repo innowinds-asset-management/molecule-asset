@@ -1,6 +1,6 @@
 import { Department, PrismaClient } from '@prisma/client';
 import { generateEntityId } from '../helper/helper';
-import { ENTITY_NAMES } from '../utils/constants';
+import { ENTITY_NAMES, SERVICE_REQUEST_STATUS } from '../utils/constants';
 
 
 const prisma = new PrismaClient();
@@ -85,7 +85,7 @@ export const getDepartmentById = async (deptId: string) => {
         consumerId: department.consumerId
       },
       serviceRequestStatus: {
-        code: 'OP' // Open status
+        code: SERVICE_REQUEST_STATUS.OPEN // Open status
       }
     },
   });
@@ -120,6 +120,9 @@ export const updateDepartment = async (deptId: string, department: Department) =
 export const getDepartmentsByConsumerId = async (consumerId: string) => {
   const departments = await prisma.department.findMany({
     where: { consumerId },
+    orderBy:{
+      createdAt: 'desc'
+    }
   });
 
   // Get asset count and open service request count for each department
@@ -133,6 +136,8 @@ export const getDepartmentsByConsumerId = async (consumerId: string) => {
         },
       });
 
+      console.log('departmId===>',department.deptId);
+      console.log('consumerId====>',consumerId);
       // Count open service requests for assets in this department
       const openServiceRequestCount = await prisma.serviceRequest.count({
         where: {
@@ -141,7 +146,7 @@ export const getDepartmentsByConsumerId = async (consumerId: string) => {
             consumerId: consumerId
           },
           serviceRequestStatus: {
-            code: 'OP' // Open status
+            code: SERVICE_REQUEST_STATUS.OPEN // Open status
           }
         },
       });

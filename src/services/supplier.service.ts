@@ -1,6 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { generateEntityId } from '../helper/helper';
-import { ENTITY_NAMES } from '../utils/constants';
+import { ENTITY_NAMES, SERVICE_REQUEST_STATUS } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -143,7 +143,7 @@ export const listSuppliersOfConsumerWithStats = async (consumerId: string) => {
               },
               serviceRequests: {
                 where: {
-                  srStatusCode: 'OP' // Open status
+                  srStatusCode: SERVICE_REQUEST_STATUS.OPEN // Open status
                 }
               }
             }

@@ -1,7 +1,7 @@
 //fetch all service requests
 import { PrismaClient } from '@prisma/client';
 import { generateEntityId } from '../helper/helper';
-import { ENTITY_NAMES } from '../utils/constants';
+import { ENTITY_NAMES, SERVICE_REQUEST_STATUS } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -233,7 +233,7 @@ export const createServiceRequest = async (serviceRequest: any) => {
         warrantyId,
         // srStatus: 'OPEN'
         assetConditionCode,
-        srStatusCode: 'OPEN'
+        srStatusCode: SERVICE_REQUEST_STATUS.OPEN
 
       },
       include: {
@@ -454,7 +454,7 @@ export const deleteServiceRequest = async (id: string) => {
 //get service request counts for all status codes
 export const getServiceRequestCountsByStatus = async () => {
   try {
-    const statusCodes = ['CANCELLED', 'CLOSED', 'COMPLETED', 'OPEN', 'INPROGRESS', 'PENDING'];
+    const statusCodes = [SERVICE_REQUEST_STATUS.CANCELLED, SERVICE_REQUEST_STATUS.CLOSED, SERVICE_REQUEST_STATUS.COMPLETED, SERVICE_REQUEST_STATUS.OPEN, SERVICE_REQUEST_STATUS.INPROGRESS, SERVICE_REQUEST_STATUS.PENDING];
     
     const counts = await Promise.all(
       statusCodes.map(async (statusCode) => {
@@ -466,12 +466,12 @@ export const getServiceRequestCountsByStatus = async () => {
     );
 
     return {
-      cancelled: counts.find(item => item.statusCode === 'CANCELLED')?.count || 0,
-      closed: counts.find(item => item.statusCode === 'CLOSED')?.count || 0,
-      completed: counts.find(item => item.statusCode === 'COMPLETED')?.count || 0,
-      open: counts.find(item => item.statusCode === 'OPEN')?.count || 0,
-      inProgress: counts.find(item => item.statusCode === 'INPROGRESS')?.count || 0,
-      pending: counts.find(item => item.statusCode === 'PENDING')?.count || 0,
+      cancelled: counts.find(item => item.statusCode === SERVICE_REQUEST_STATUS.CANCELLED)?.count || 0,
+      closed: counts.find(item => item.statusCode === SERVICE_REQUEST_STATUS.CLOSED)?.count || 0,
+      completed: counts.find(item => item.statusCode === SERVICE_REQUEST_STATUS.COMPLETED)?.count || 0,
+      open: counts.find(item => item.statusCode === SERVICE_REQUEST_STATUS.OPEN)?.count || 0,
+      inProgress: counts.find(item => item.statusCode === SERVICE_REQUEST_STATUS.INPROGRESS)?.count || 0,
+      pending: counts.find(item => item.statusCode === SERVICE_REQUEST_STATUS.PENDING)?.count || 0,
     };
   } catch (error) {
     console.error('Error fetching service request counts by status:', error);
