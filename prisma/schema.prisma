@@ -354,6 +354,7 @@ model ServiceContract {
   serviceSupplierId             String
   assetId                       String
   contractName                  String                 @db.VarChar(255)
+  amount                        Float?
   startDate                     DateTime               @db.Date
   endDate                       DateTime               @db.Date
   paymentTerms                  PaymentTerms           @default(YEARLY)
