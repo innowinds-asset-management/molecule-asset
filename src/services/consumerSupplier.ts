@@ -14,6 +14,9 @@ export const createConsumerSupplier = async (consumerId: string, supplierId: str
 export const getSupplierByConsumerId = async (consumerId: string) => {
   return prisma.consumerSupplier.findMany({
     where: { consumerId },
+    include: {
+      supplier: true,
+    },
   });
 };
 
