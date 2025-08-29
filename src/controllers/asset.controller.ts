@@ -93,12 +93,12 @@ export const getAssetCountByStatusController = async (_req: Request, res: Respon
 };
 
 //update asset and warranty
-export const updateAssetWarrantyController = async (req: Request, res: Response) => {
+export const updateAssetWarrantyController = async (req: AssetRequest, res: Response) => {
   try {
     const { assetId } = req.params;
-    const { consumerId } = req.body;
+   // const { consumerId } = req.body;
+    const consumerId = req._u?.consumerId;    
     const data = req.body;
-
     if (!assetId) {
       return res.status(400).json({ 
         success: false,
