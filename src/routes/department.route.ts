@@ -54,18 +54,11 @@ router.post('/', createDepartmentController);
 
 /**
  * @swagger
- * /api/department/consumer/{consumerId}:
+ * /api/department/consumer:
  *   get:
  *     summary: Get departments by consumer ID
- *     description: Retrieve all departments associated with a specific consumer
+ *     description: Retrieve all departments associated with the authenticated consumer
  *     tags: [Departments]
- *     parameters:
- *       - in: path
- *         name: consumerId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the consumer
  *     responses:
  *       200:
  *         description: List of departments for the consumer retrieved successfully
@@ -82,7 +75,36 @@ router.post('/', createDepartmentController);
  *       500:
  *         description: Internal server error
  */
-router.get('/consumer/:consumerId', getDepartmentsByConsumerIdController);
+router.get('/consumer', getDepartmentsByConsumerIdController);
+
+/**
+ * @swagger
+ * /api/department/count:
+ *   get:
+ *     summary: Get department count by consumer ID
+ *     description: Retrieve the count of departments associated with the authenticated consumer
+ *     tags: [Departments]
+ *     responses:
+ *       200:
+ *         description: Department count retrieved successfully
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 success:
+ *                   type: boolean
+ *                 data:
+ *                   type: object
+ *                   properties:
+ *                     departmentCount:
+ *                       type: number
+ *       400:
+ *         description: Bad request - consumer ID is required
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/count', getDepartmentCountByConsumerIdController);
 
 /**
  * @swagger
@@ -113,41 +135,5 @@ router.get('/consumer/:consumerId', getDepartmentsByConsumerIdController);
  *         description: Internal server error
  */
 router.get('/:deptId', getDepartmentByIdController);
-
-/**
- * @swagger
- * /api/department/count/{consumerId}:
- *   get:
- *     summary: Get department count by consumer ID
- *     description: Retrieve the count of departments associated with a specific consumer
- *     tags: [Departments]
- *     parameters:
- *       - in: path
- *         name: consumerId
- *         required: true
- *         schema:
- *           type: string
- *         description: ID of the consumer
- *     responses:
- *       200:
- *         description: Department count retrieved successfully
- *         content:
- *           application/json:
- *             schema:
- *               type: object
- *               properties:
- *                 success:
- *                   type: boolean
- *                 data:
- *                   type: object
- *                   properties:
- *                     departmentCount:
- *                       type: number
- *       400:
- *         description: Bad request - consumer ID is required
- *       500:
- *         description: Internal server error
- */
-router.get('/count/:consumerId', getDepartmentCountByConsumerIdController);
 
 export default router;

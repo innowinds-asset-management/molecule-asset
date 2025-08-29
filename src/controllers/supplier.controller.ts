@@ -12,6 +12,7 @@ import {
   getSupplierDetailsById,
   searchSuppliersByConsumer,
 } from '../services/supplier.service';
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
 export const listSuppliersController = async (_req: Request, res: Response) => {
   const rows = await getAllSuppliers();
@@ -52,34 +53,35 @@ export const listConsumersForSupplierController = async (req: Request, res: Resp
   return res.json(rows);
 };
 
-export const linkConsumerToSupplierController = async (req: Request, res: Response) => {
+export const linkConsumerToSupplierController = async (req: AssetRequest, res: Response) => {
   const { id } = req.params;
-  const { consumerId } = req.body as { consumerId?: string };
+  const consumerId = req._u?.consumerId;
   if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
   const row = await linkConsumerToSupplier(id, consumerId);
   return res.status(201).json(row);
 };
 
-export const unlinkConsumerFromSupplierController = async (req: Request, res: Response) => {
-  const { id, consumerId } = req.params as { id?: string; consumerId?: string };
+export const unlinkConsumerFromSupplierController = async (req: AssetRequest, res: Response) => {
+  const { id } = req.params;
+  const consumerId = req._u?.consumerId;
   if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
   const row = await unlinkConsumerFromSupplier(id, consumerId);
   return res.json(row);
 };
 
 // Search suppliers by consumer
-export const searchSuppliersController = async (req: Request, res: Response) => {
+export const searchSuppliersController = async (req: AssetRequest, res: Response) => {
   try {
-    const { name, cid } = req.query;
+    const { name } = req.query;
+    const consumerId = req._u?.consumerId;
 
-    if (!name || !cid) {
+    if (!name || !consumerId) {
       return res.status(400).json({ 
         error: 'Search term and Consumer ID are required' 
       });
     }
     
     const searchTerm = name as string;
-    const consumerId = cid as string;
     
     if (searchTerm.length < 1) {
       return res.status(400).json({ 
@@ -98,15 +100,15 @@ export const searchSuppliersController = async (req: Request, res: Response) => 
 };
 
 // Get suppliers of a consumer with asset counts and open service request counts
-export const listSuppliersOfConsumerWithStatsController = async (req: Request, res: Response) => {
+export const listSuppliersOfConsumerWithStatsController = async (req: AssetRequest, res: Response) => {
   try {
-    const { cid } = req.query;
+    const consumerId = req._u?.consumerId;
     
-    if (!cid || typeof cid !== 'string') {
-      return res.status(400).json({ error: 'consumerId is required as a query parameter' });
+    if (!consumerId) {
+      return res.status(400).json({ error: 'consumerId is required' });
     }
     
-    const suppliers = await listSuppliersOfConsumerWithStats(cid);
+    const suppliers = await listSuppliersOfConsumerWithStats(consumerId);
     return res.json(suppliers);
   } catch (error) {
     console.error('Error fetching suppliers with stats:', error);

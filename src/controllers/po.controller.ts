@@ -4,6 +4,7 @@ import { Request, Response } from 'express';
 import { getAllPurchaseOrders, getPurchaseOrderById, createPurchaseOrder, updatePurchaseOrder, deletePurchaseOrder } from '../services/po.service';
 
 export const getAllPurchaseOrdersController = async (_req: Request, res: Response) => {
+  console.log('inside=====>');
   const purchaseOrders = await getAllPurchaseOrders();
   return res.json(purchaseOrders);
 };

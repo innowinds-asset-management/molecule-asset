@@ -32,12 +32,6 @@ router.get('/all', listSuppliersController);
  *         schema:
  *           type: string
  *         description: Search term (minimum 1 character)
- *       - in: query
- *         name: cid
- *         required: true
- *         schema:
- *           type: string
- *         description: Consumer ID
  *     responses:
  *       200:
  *         description: Search results retrieved successfully
@@ -74,7 +68,7 @@ router.post('/', createSupplierController);
 router.get('/:id/details', getSupplierDetailsByIdController);
 router.get('/:id/consumers', listConsumersForSupplierController);
 router.post('/:id/consumers', linkConsumerToSupplierController);
-router.delete('/:id/consumers/:consumerId', unlinkConsumerFromSupplierController);
+router.delete('/:id/consumers', unlinkConsumerFromSupplierController);
 
 // Generic ID routes last
 router.get('/:id', getSupplierByIdController);

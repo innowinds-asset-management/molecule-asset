@@ -16,16 +16,17 @@ import {
   getWarrantyStats
 } from '../services/warranty.service';
 import { validateQueryParams } from '../helper/helper';
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
 // Warranty Controllers
-export const getAllWarrantiesController = async (_req: Request, res: Response) => {
+export const getAllWarrantiesController = async (req: AssetRequest, res: Response) => {
   try {
-    validateQueryParams(_req.query, ['sid', 'cid']);
+    validateQueryParams(req.query, ['sid']);
     
-    const supplierId = _req.query['sid'] as string | undefined;
-    const consumerId = _req.query['cid'] as string | undefined;
+    const supplierId = req.query['sid'] as string | undefined;
+    const consumerId = req._u?.consumerId;
 
-    const warranties = await getAllWarranties(supplierId,consumerId);
+    const warranties = await getAllWarranties(supplierId, consumerId);
     return res.json(warranties);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch warranties' });
@@ -99,12 +100,12 @@ export const deleteWarrantyController = async (req: Request, res: Response) => {
 };
 
 // Warranty Type Controllers
-export const getAllWarrantyTypesController = async (_req: Request, res: Response) => {
+export const getAllWarrantyTypesController = async (req: AssetRequest, res: Response) => {
   try {
-    validateQueryParams(_req.query, ['sid', 'cid']);
+    validateQueryParams(req.query, ['sid']);
 
-    const supplierId = _req.query['sid'] as string | undefined;
-    const consumerId = _req.query['cid'] as string | undefined;
+    const supplierId = req.query['sid'] as string | undefined;
+    const consumerId = req._u?.consumerId;
 
     const warrantyTypes = await getAllWarrantyTypes(supplierId, consumerId);
     return res.json(warrantyTypes);

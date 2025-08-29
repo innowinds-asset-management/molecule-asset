@@ -13,14 +13,8 @@ const router = Router();
  * /api/inventory:
  *   get:
  *     summary: Get all inventory items
- *     description: Retrieve a list of all inventory items with optional filtering by consumerId
+ *     description: Retrieve a list of all inventory items for the authenticated consumer
  *     tags: [Inventory]
- *     parameters:
- *       - in: query
- *         name: consumerId
- *         schema:
- *           type: string
- *         description: Filter inventory items by consumer ID
  *     responses:
  *       200:
  *         description: List of inventory items retrieved successfully
@@ -49,12 +43,7 @@ router.get('/', getAllInventoryController);
  *         schema:
  *           type: string
  *         description: Search term (minimum 2 characters)
- *       - in: query
- *         name: cid
- *         required: true
- *         schema:
- *           type: string
- *         description: Consumer ID
+
  *     responses:
  *       200:
  *         description: Search results retrieved successfully
