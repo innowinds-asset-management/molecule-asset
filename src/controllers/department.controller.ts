@@ -1,6 +1,7 @@
 //fetch all departments
 import { createDepartment, getAllDepartments, getDepartmentById, getDepartmentCountByConsumerId, getDepartmentsByConsumerId } from '../services/department.service';
 import { Request, Response } from 'express';
+import { AssetRequest } from '../middleware/userContextMiddleware';
 
 export const getAllDepartmentsController = async (_req: Request, res: Response) => {
     const departments = await getAllDepartments();
@@ -18,14 +19,15 @@ export const getDepartmentByIdController = async (req: Request, res: Response) =
 };
 
 //create department
-export const createDepartmentController = async (req: Request, res: Response) => {
-    const department = await createDepartment(req.body);
+export const createDepartmentController = async (req: AssetRequest, res: Response) => {
+    const consumerId = req._u?.consumerId;
+    const department = await createDepartment(req.body,consumerId!);
     res.json(department);
 };
 
 //fetch all departments by  consumer id
-export const getDepartmentsByConsumerIdController = async (req: Request, res: Response) => {
-    const { consumerId } = req.params;
+export const getDepartmentsByConsumerIdController = async (req: AssetRequest, res: Response) => {
+    const consumerId = req._u?.consumerId;
     if (!consumerId) {
         return res.status(400).json({ error: 'Consumer ID is required' });
     }
@@ -34,13 +36,17 @@ export const getDepartmentsByConsumerIdController = async (req: Request, res: Re
 };
 
 //get department count by consumer id
-export const getDepartmentCountByConsumerIdController = async (req: Request, res: Response) => {
-    const { consumerId } = req.params;
+export const getDepartmentCountByConsumerIdController = async (req: AssetRequest, res: Response) => {
+console.log('inside======>')
+
+    const consumerId = req._u?.consumerId;
+    console.log('consumerId======>',consumerId)
     if (!consumerId) {
         return res.status(400).json({ error: 'Consumer ID is required' });
     }
     // Validate consumerId and fetch department count, respond in required format
     const count = await getDepartmentCountByConsumerId(consumerId);
+    console.log('count',count)
     return res.json({
         success: true,
         data: {

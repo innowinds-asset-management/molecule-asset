@@ -2,6 +2,7 @@ import { Department, PrismaClient } from '@prisma/client';
 import { generateEntityId } from '../helper/helper';
 import { ENTITY_NAMES } from '../utils/constants';
 
+
 const prisma = new PrismaClient();
 
 export const getAllDepartments = async () => {
@@ -98,11 +99,12 @@ export const getDepartmentById = async (deptId: string) => {
   };
 };
 
-export const createDepartment = async (department: Department) => {
+export const createDepartment = async (department: Department,consumerId:string) => {
   return await prisma.department.create({
     data: {
       ...department,
-      deptId: generateEntityId(ENTITY_NAMES.DEPARTMENT)
+      deptId: generateEntityId(ENTITY_NAMES.DEPARTMENT),
+      consumerId
     },
   });
 };

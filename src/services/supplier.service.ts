@@ -171,11 +171,7 @@ export const getSupplierDetailsById = async (id: string) => {
       _count: {
         select: {
           suppliedAssets: true,
-          serviceRequests: {
-            where: {
-              srStatusCode: 'OP' // Open status
-            }
-          }
+          serviceRequests: true
         }
       }
     }

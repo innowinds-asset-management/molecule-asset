@@ -9,12 +9,12 @@ const router = Router();
 router.post('/', createConsumerSupplierController);
 
 //fetch supplier by consumer id     
-router.get('/supplier/:consumerId', getSupplierByConsumerIdController);
+router.get('/supplier', getSupplierByConsumerIdController);
 
 //fetch consumer by supplier id
 router.get('/consumer/:supplierId', getConsumerBySupplierIdController);
 
 //count suppliers by consumer id
-router.get('/count/supplier/:consumerId', countSuppliersByConsumerIdController);
+router.get('/count/supplier', countSuppliersByConsumerIdController);
 
 export default router;

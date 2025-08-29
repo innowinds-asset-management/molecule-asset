@@ -10,14 +10,9 @@ const router = Router();
  * /api/asset:
  *   get:
  *     summary: Get all assets
- *     description: Retrieve a list of all assets with optional filtering by consumerId and supplierId
+ *     description: Retrieve a list of all assets with optional filtering by supplierId and departmentId
  *     tags: [Assets]
  *     parameters:
- *       - in: query
- *         name: consumerId
- *         schema:
- *           type: string
- *         description: Filter assets by consumer ID
  *       - in: query
  *         name: supplierId
  *         schema:
