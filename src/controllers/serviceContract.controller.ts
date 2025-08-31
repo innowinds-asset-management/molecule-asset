@@ -1,6 +1,12 @@
 //get service contract by asset id
 import { Request, Response } from 'express';
-import { getServiceContractByAssetId, createServiceContract, updateServiceContract,getAllServiceContractsByServiceSupplierId } from "../services/serviceContract.service";
+import { getServiceContractByAssetId, createServiceContract, updateServiceContract, getAllServiceContractsByServiceSupplierId, getAllServiceContracts } from "../services/serviceContract.service";
+
+// get all service contracts
+export const getAllServiceContractsController = async (_req: Request, res: Response) => {
+    const serviceContracts = await getAllServiceContracts();
+    return res.json(serviceContracts);
+};
 
 export const getServiceContractByAssetIdController = async (req: Request, res: Response) => {
     const assetId = req.params['assetId'];

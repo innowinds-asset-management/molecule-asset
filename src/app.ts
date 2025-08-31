@@ -33,6 +33,7 @@ import inventoryRoutes from './routes/inventory.route';
 import assetStatusRoutes from './routes/assetStatus.route';
 import serviceContractRoutes from './routes/serviceContract.route';
 import contractTypeRoutes from './routes/contractType.route';
+import serviceContractStatusRoutes from './routes/serviceContractStatus.route';
 dotenv.config();
 
 const app = express();
@@ -193,6 +194,8 @@ app.use(`${apiPrefix}/service-contract`, serviceContractRoutes);
 // Contract Type routes
 app.use(`${apiPrefix}/contract-type`, contractTypeRoutes);
 
+// Service Contract Status routes
+app.use(`${apiPrefix}/service-contract-status`, serviceContractStatusRoutes);
 
 
 // Swagger documentation

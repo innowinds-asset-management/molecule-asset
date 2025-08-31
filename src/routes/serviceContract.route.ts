@@ -1,14 +1,16 @@
 //service contract routes
 import { Router } from 'express';
-import { getServiceContractByAssetIdController, createServiceContractController, updateServiceContractController, getAllServiceContractsByServiceSupplierIdController } from '../controllers/serviceContract.controller';
+import { getAllServiceContractsController, getServiceContractByAssetIdController, createServiceContractController, updateServiceContractController, getAllServiceContractsByServiceSupplierIdController } from '../controllers/serviceContract.controller';
 
 const router = Router();
-//get service contract by asset id  /api/service-contract/asset/:assetId
-router.get('/service-contract/asset/:assetId', getServiceContractByAssetIdController);
+//get all service contracts
+router.get('/', getAllServiceContractsController);
+//get service contract by asset id  /api/v1/service-contract/asset/:assetId
+router.get('/asset/:assetId', getServiceContractByAssetIdController);
 //create service contract
-router.post('/service-contract', createServiceContractController);
-//update service contract /api/service-contract/:contractId
-router.put('/service-contract/:contractId', updateServiceContractController);
+router.post('/', createServiceContractController);
+//update service contract /api/v1/service-contract/:contractId
+router.put('/:contractId', updateServiceContractController);
 //get all service contracts by service supplier id /api/v1/service-contract/service-supplier/:serviceSupplierId
 router.get('/service-supplier/:serviceSupplierId', getAllServiceContractsByServiceSupplierIdController);
 
