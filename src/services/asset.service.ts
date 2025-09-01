@@ -46,6 +46,7 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
       department: true,
       assetType: true,
       assetSubType: true,
+      assetCondition: true,
       warranties: {
         select: {
           assetId: true,
