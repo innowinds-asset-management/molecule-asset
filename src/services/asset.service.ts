@@ -400,6 +400,10 @@ export const getAssetCountByStatus = async (consumerId:string) => {
             status: {
               not: null
             }
+          },
+          {
+            consumerId
+
           }
         ]
       }
@@ -418,6 +422,10 @@ export const getAssetCountByStatus = async (consumerId:string) => {
             status: {
               not: null
             }
+          },
+          {
+            consumerId
+
           }
         ]
       }
