@@ -29,5 +29,35 @@ export const createAssetSubType = async (assetSubType: AssetSubType) => {
   });
 };
 
+//search asset sub types by asset type id and search word
+export const searchAssetSubTypesByAssetTypeId = async (assetTypeId: string, searchWord: string) => {
+  return await prisma.assetSubType.findMany({
+    where: {
+      assetTypeId: assetTypeId,
+      OR: [
+        {
+          name: {
+            contains: searchWord,
+          }
+        },
+        {
+          code: {
+            contains: searchWord,
+          }
+        },
+        {
+          description: {
+            contains: searchWord,
+          }
+        }
+      ]
+    },
+    orderBy: {
+      name: 'asc'
+    },
+    take: 5
+  });
+};
+
 
 
