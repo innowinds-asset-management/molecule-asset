@@ -357,11 +357,11 @@ model ServiceContract {
   amount                        Float?
   startDate                     DateTime               @db.Date
   endDate                       DateTime               @db.Date
-  paymentTerms                  PaymentTerms           @default(YEARLY)
+  paymentTerms                  String?
   coverageType                  CoverageType           @default(COMPREHENSIVE)
   includes                      String?
   excludes                      String?
-  serviceFrequency              ServiceFrequency       @default(QUARTERLY)
+  serviceFrequency              String?
   preventiveMaintenanceIncluded Boolean                @default(true)
   breakdownMaintenanceIncluded  Boolean                @default(true)
   autoRenewal                   Boolean                @default(false)
@@ -374,6 +374,8 @@ model ServiceContract {
   contractType                  ContractType           @relation(fields: [contractTypeId], references: [contractTypeId])
   serviceSupplier               Supplier               @relation(fields: [serviceSupplierId], references: [id])
   status                        ServiceContractStatus? @relation(fields: [statusId], references: [statusId])
+  serviceFrequencyRef           ServiceFrequency?      @relation(fields: [serviceFrequency], references: [code])
+  paymentTermsRef                PaymentTerms?          @relation(fields: [paymentTerms], references: [paymentCode])
   serviceRequests               ServiceRequest[]
 
   @@index([contractNumber], map: "idxContractName")
@@ -383,8 +385,28 @@ model ServiceContract {
   @@index([assetId], map: "idxServiceContractAssetId")
   @@index([contractTypeId], map: "serviceContracts_contractTypeId_fkey")
   @@index([statusId], map: "serviceContracts_statusId_fkey")
+  @@index([serviceFrequency], map: "idxServiceFrequency")
+  @@index([paymentTerms], map: "idxPaymentTerms")
   @@map("serviceContracts")
 }
+
+model PaymentTerms {
+  paymentCode  String           @id
+  displayName  String
+  contracts    ServiceContract[]
+
+  @@map("paymentTerms")
+}
+
+
+model ServiceFrequency {
+  code         String           @id
+  displayName  String
+  contracts    ServiceContract[]
+
+  @@map("serviceFrequency")
+}
+
 
 model ServiceRequest {
   serviceRequestId     String                @id @default(cuid())
@@ -617,14 +639,6 @@ enum ContractTypeName {
   BREAKDOWN_MAINTENANCE
 }
 
-enum PaymentTerms {
-  MONTHLY
-  QUARTERLY
-  HALF_YEARLY
-  YEARLY
-  ONE_TIME
-}
-
 enum CoverageType {
   COMPREHENSIVE
   PARTS_ONLY
@@ -632,13 +646,7 @@ enum CoverageType {
   PREVENTIVE_ONLY
 }
 
-enum ServiceFrequency {
-  MONTHLY
-  QUARTERLY
-  HALF_YEARLY
-  YEARLY
-  AS_REQUIRED
-}
+
 
 enum InstallationStatus {
   Installable

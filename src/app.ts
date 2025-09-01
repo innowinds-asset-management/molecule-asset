@@ -34,6 +34,8 @@ import assetStatusRoutes from './routes/assetStatus.route';
 import serviceContractRoutes from './routes/serviceContract.route';
 import contractTypeRoutes from './routes/contractType.route';
 import serviceContractStatusRoutes from './routes/serviceContractStatus.route';
+import serviceFrequencyRoutes from './routes/serviceFrequency.route';
+import paymentTermRoutes from './routes/paymentTerm.route';
 dotenv.config();
 
 const app = express();
@@ -196,6 +198,13 @@ app.use(`${apiPrefix}/contract-type`, contractTypeRoutes);
 
 // Service Contract Status routes
 app.use(`${apiPrefix}/service-contract-status`, serviceContractStatusRoutes);
+
+// Service Frequency routes
+app.use(`${apiPrefix}/service-frequency`, serviceFrequencyRoutes);
+
+// Payment Term routes
+app.use(`${apiPrefix}/payment-term`, paymentTermRoutes);
+
 
 
 // Swagger documentation
