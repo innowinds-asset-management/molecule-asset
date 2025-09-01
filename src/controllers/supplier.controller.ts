@@ -1,6 +1,6 @@
 import { Request, Response } from 'express';
 import {
-  createSupplier,
+  createSupplierAndLinkToConsumer,
   deleteSupplier,
   getAllSuppliers,
   getSupplierById,
@@ -27,9 +27,15 @@ export const getSupplierByIdController = async (req: Request, res: Response) => 
   return res.json(row);
 };
 
-export const createSupplierController = async (req: Request, res: Response) => {
-  const row = await createSupplier(req.body);
-  return res.status(201).json(row);
+export const createSupplierController = async (req: AssetRequest, res: Response) => {
+  console.log('inside=========>')
+  const consumerId = req._u?.consumerId;
+  if (!consumerId) {
+    return res.status(400).json({ error: 'Consumer ID is required' });
+  }
+  
+  const result = await createSupplierAndLinkToConsumer(req.body, consumerId);
+  return res.status(201).json(result.supplier);
 };
 
 export const updateSupplierController = async (req: Request, res: Response) => {

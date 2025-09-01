@@ -63,7 +63,7 @@ export const getSupplierById = async (id: string) => {
 
 export const createSupplier = async (data: {
   name: string;
-  code: string;
+  code?: string | null;
   gstNumber?: string | null;
   email?: string | null;
   phone?: string | null;
@@ -75,6 +75,39 @@ export const createSupplier = async (data: {
       ...data,
       id: generateEntityId(ENTITY_NAMES.SUPPLIER)
     },
+  });
+};
+
+export const createSupplierAndLinkToConsumer = async (
+  supplierData: {
+    name: string;
+    code?: string | null;
+    gstNumber?: string | null;
+    email?: string | null;
+    phone?: string | null;
+    address?: string | null;
+    isActive?: boolean;
+  },
+  consumerId: string
+) => {
+  return prisma.$transaction(async (tx) => {
+    // Create the supplier
+    const supplier = await tx.supplier.create({
+      data: {
+        ...supplierData,
+        id: generateEntityId(ENTITY_NAMES.SUPPLIER)
+      },
+    });
+
+    // Create the consumer-supplier relationship
+    const consumerSupplier = await tx.consumerSupplier.create({
+      data: {
+        consumerId,
+        supplierId: supplier.id,
+      },
+    });
+
+    return { supplier, consumerSupplier };
   });
 };
 
