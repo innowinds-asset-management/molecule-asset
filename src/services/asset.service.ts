@@ -168,13 +168,13 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
 
     // 2. Create location if location data is provided
     let createdLocation = null;
-    if (data.asset.departmentId || data.asset.building || data.asset.floorNumber || data.asset.roomNumber) {
+    if (data.asset.departmentId || (data.asset.building && data.asset.building.trim() !== '') || (data.asset.floorNumber && data.asset.floorNumber.trim() !== '') || (data.asset.roomNumber && data.asset.roomNumber.trim() !== '')) {
       const locationData = {
         assetId: createdAsset.id,
         departmentId: data.asset.departmentId || '',
-        building: data.asset.building || '',
-        floorNumber: data.asset.floorNumber || '',
-        roomNumber: data.asset.roomNumber || '',
+        building: data.asset.building && data.asset.building.trim() !== '' ? data.asset.building : '',
+        floorNumber: data.asset.floorNumber && data.asset.floorNumber.trim() !== '' ? data.asset.floorNumber : '',
+        roomNumber: data.asset.roomNumber && data.asset.roomNumber.trim() !== '' ? data.asset.roomNumber : '',
         isCurrentLocation: data.asset.isCurrentLocation || false
       };
 
@@ -190,8 +190,8 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
         assetId: createdAsset.id,
         locationId: createdLocation.id,
         departmentId: data.asset.departmentId || '',
-        installationStatus: (data.asset.installStatus) as InstallationStatus,
-        installationDate: data.asset.installationDate ? new Date(data.asset.installationDate) : new Date()
+        installationStatus: (data.asset.installStatus && data.asset.installStatus.trim() !== '') ? (data.asset.installStatus as InstallationStatus) : 'Installed',
+        installationDate: data.asset.installationDate && data.asset.installationDate.trim() !== '' ? new Date(data.asset.installationDate) : new Date()
       };
 
       createdInstallation = await tx.installation.create({
@@ -199,27 +199,22 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
       });
     }
 
-    // 4. Create warranty if warranty data is provided
+    // 4. Create warranty if warranty data is provided and has required fields
     let createdWarranty = null;
-    if (data.warranty) {
-      // Ensure required fields are provided
-      if (!data.warranty.startDate || !data.warranty.endDate) {
-        throw new Error('Warranty startDate and endDate are required');
-      }
-
+    if (data.warranty && data.warranty.startDate && data.warranty.endDate) {
       const warrantyData = {
         assetId: createdAsset.id,
-        warrantyTypeId: 1, // Default warranty type - you might want to make this configurable
+        warrantyTypeId: data.warranty.warrantyTypeId || 1, // Use provided warranty type or default to 1
         startDate: new Date(data.warranty.startDate),
         endDate: new Date(data.warranty.endDate),
-        warrantyNumber: "WR-"+ Date.now() || '',
+        warrantyNumber: "WR-"+ Date.now(),
         cost: 0,
-                  ...(data.warranty.warrantyPeriod && { warrantyPeriod: typeof data.warranty.warrantyPeriod === 'string' ? parseInt(data.warranty.warrantyPeriod) : data.warranty.warrantyPeriod }),
-        ...(data.warranty.coverageType && { coverageType: data.warranty.coverageType }),
-        ...(data.warranty.coverageDescription && { coverageDescription: data.warranty.coverageDescription }),
-        ...(data.warranty.termsConditions && { termsConditions: data.warranty.termsConditions }),
-        ...(data.warranty.included && { included: data.warranty.included.toString() }),
-        ...(data.warranty.excluded && { excluded: data.warranty.excluded.toString() }),
+        ...(data.warranty.warrantyPeriod && { warrantyPeriod: typeof data.warranty.warrantyPeriod === 'string' ? parseInt(data.warranty.warrantyPeriod) : data.warranty.warrantyPeriod }),
+        ...(data.warranty.coverageType && data.warranty.coverageType.trim() !== '' && { coverageType: data.warranty.coverageType }),
+        ...(data.warranty.coverageDescription && data.warranty.coverageDescription.trim() !== '' && { coverageDescription: data.warranty.coverageDescription }),
+        ...(data.warranty.termsConditions && data.warranty.termsConditions.trim() !== '' && { termsConditions: data.warranty.termsConditions }),
+        ...(data.warranty.included && data.warranty.included.toString().trim() !== '' && { included: data.warranty.included.toString() }),
+        ...(data.warranty.excluded && data.warranty.excluded.toString().trim() !== '' && { excluded: data.warranty.excluded.toString() }),
         ...(data.warranty.isActive !== undefined && { isActive: data.warranty.isActive }),
         ...(data.warranty.autoRenewal !== undefined && { autoRenewal: data.warranty.autoRenewal }),
         ...(data.warranty.consumerId && { consumerId: typeof data.warranty.consumerId === 'string' ? data.warranty.consumerId : data.warranty.consumerId.toString() }),
@@ -373,7 +368,7 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
 };
   
 //fecth asset count based on status active , retired and pre-active - contains['installation_pending', 'received', 'installed']
-export const getAssetCountByStatus = async () => {
+export const getAssetCountByStatus = async (consumerId:string) => {
   try {
     // Count active assets
     const activeCount = await prisma.asset.count({
@@ -386,6 +381,9 @@ export const getAssetCountByStatus = async () => {
             status: {
               not: null
             }
+          },
+          {
+            consumerId
           }
         ]
       }
