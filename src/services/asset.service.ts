@@ -36,6 +36,19 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
       where.status = params.status;
     } else if (params.status === 'retired') {
       where.status = params.status;
+    }else if (params.status === 'active-or-pre-active') {
+      where.AND = [
+        {
+          status: {
+            in: ['installation_pending', 'received', 'installed', 'active']
+          }
+        },
+        {
+          status: {
+            not: null
+          }
+        }
+      ];   
     }
   }
   
@@ -47,6 +60,15 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
       assetType: true,
       assetSubType: true,
       assetCondition: true,
+      serviceContracts: {
+        select: {
+          contractId: true,
+          contractNumber: true,
+          contractName: true,
+          startDate: true,
+          endDate: true,
+        }
+      },
       warranties: {
         select: {
           assetId: true,
