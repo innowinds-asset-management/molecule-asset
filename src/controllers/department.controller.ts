@@ -21,6 +21,7 @@ export const getDepartmentByIdController = async (req: Request, res: Response) =
 //create department
 export const createDepartmentController = async (req: AssetRequest, res: Response) => {
     const consumerId = req._u?.consumerId;
+    console.log('consumer Id======>',consumerId)
     const department = await createDepartment(req.body,consumerId!);
     res.json(department);
 };

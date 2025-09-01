@@ -78,9 +78,10 @@ export const createAssetWithWarrantyController = async (req: AssetRequest, res: 
 };
 
 //get asset count by status
-export const getAssetCountByStatusController = async (_req: Request, res: Response) => {
+export const getAssetCountByStatusController = async (req: AssetRequest, res: Response) => {
   try {
-    const counts = await getAssetCountByStatus();
+      const consumerId = req._u?.consumerId;
+    const counts = await getAssetCountByStatus(consumerId!);
     return res.json({
       success: true,
       data: counts
