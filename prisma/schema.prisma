@@ -469,7 +469,7 @@ model ServiceRequestItem {
 model Consumer {
   id                String             @id @default(cuid())
   name              String
-  code              String             @unique
+  code              String?
   contactName       String?
   email             String?
   phone             String?
@@ -490,7 +490,7 @@ model Consumer {
 model Supplier {
   id                    String                  @id @default(cuid())
   name                  String
-  code                  String                  @unique
+  code                  String?                 
   gstNumber             String?
   email                 String?
   phone                 String?
