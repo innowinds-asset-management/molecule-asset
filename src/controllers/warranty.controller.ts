@@ -23,10 +23,9 @@ export const getAllWarrantiesController = async (req: AssetRequest, res: Respons
   try {
     validateQueryParams(req.query, ['sid']);
     
-    const supplierId = req.query['sid'] as string | undefined;
     const consumerId = req._u?.consumerId;
 
-    const warranties = await getAllWarranties(supplierId, consumerId);
+    const warranties = await getAllWarranties(consumerId);
     return res.json(warranties);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch warranties' });

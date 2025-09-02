@@ -4,10 +4,9 @@ import { Warranties, PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-export const getAllWarranties = async (supplierId?: string, consumerId?: string) => {
+export const getAllWarranties = async (consumerId?: string) => {
   return await prisma.warranties.findMany({
     where: {
-      ...(supplierId && { supplierId }),
       ...(consumerId && { consumerId }),
     }, include: {
       warrantyType: true,
