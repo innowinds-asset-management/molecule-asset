@@ -18,6 +18,7 @@ export const getAssetSubTypeById = async (id: string) => {
 export const getAssetSubTypeByAssetTypeId = async (assetTypeId: string) => {
   return await prisma.assetSubType.findMany({
     where: { assetTypeId },
+    take:5
   });
 };
 
