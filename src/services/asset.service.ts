@@ -201,25 +201,69 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
 
     // 4. Create warranty if warranty data is provided and has required fields
     let createdWarranty = null;
-    if (data.warranty && data.warranty.startDate && data.warranty.endDate) {
-      const warrantyData = {
+    if (data.warranty) {
+      const warrantyData: any = {
         assetId: createdAsset.id,
         warrantyTypeId: data.warranty.warrantyTypeId || 1, // Use provided warranty type or default to 1
-        startDate: new Date(data.warranty.startDate),
-        endDate: new Date(data.warranty.endDate),
         warrantyNumber: "WR-"+ Date.now(),
         cost: 0,
-        ...(data.warranty.warrantyPeriod && { warrantyPeriod: typeof data.warranty.warrantyPeriod === 'string' ? parseInt(data.warranty.warrantyPeriod) : data.warranty.warrantyPeriod }),
-        ...(data.warranty.coverageType && data.warranty.coverageType.trim() !== '' && { coverageType: data.warranty.coverageType }),
-        ...(data.warranty.coverageDescription && data.warranty.coverageDescription.trim() !== '' && { coverageDescription: data.warranty.coverageDescription }),
-        ...(data.warranty.termsConditions && data.warranty.termsConditions.trim() !== '' && { termsConditions: data.warranty.termsConditions }),
-        ...(data.warranty.included && data.warranty.included.toString().trim() !== '' && { included: data.warranty.included.toString() }),
-        ...(data.warranty.excluded && data.warranty.excluded.toString().trim() !== '' && { excluded: data.warranty.excluded.toString() }),
-        ...(data.warranty.isActive !== undefined && { isActive: data.warranty.isActive }),
-        ...(data.warranty.autoRenewal !== undefined && { autoRenewal: data.warranty.autoRenewal }),
-        ...(data.warranty.consumerId && { consumerId: typeof data.warranty.consumerId === 'string' ? data.warranty.consumerId : data.warranty.consumerId.toString() }),
-        ...(data.warranty.supplierId && { supplierId: typeof data.warranty.supplierId === 'string' ? data.warranty.supplierId : data.warranty.supplierId.toString() })
       };
+
+      // Only add dates if they're valid and not empty
+      if (data.warranty.startDate && data.warranty.startDate.toString().trim() !== '') {
+        const startDate = new Date(data.warranty.startDate);
+        if (!isNaN(startDate.getTime())) {
+          warrantyData.startDate = startDate;
+        }
+      }
+      
+      if (data.warranty.endDate && data.warranty.endDate.toString().trim() !== '') {
+        const endDate = new Date(data.warranty.endDate);
+        if (!isNaN(endDate.getTime())) {
+          warrantyData.endDate = endDate;
+        }
+      }
+
+      // Add other optional warranty fields
+      if (data.warranty.warrantyPeriod) {
+        warrantyData.warrantyPeriod = typeof data.warranty.warrantyPeriod === 'string' ? parseInt(data.warranty.warrantyPeriod) : data.warranty.warrantyPeriod;
+      }
+      
+      if (data.warranty.coverageType && data.warranty.coverageType.trim() !== '') {
+        warrantyData.coverageType = data.warranty.coverageType;
+      }
+      
+      if (data.warranty.coverageDescription && data.warranty.coverageDescription.trim() !== '') {
+        warrantyData.coverageDescription = data.warranty.coverageDescription;
+      }
+      
+      if (data.warranty.termsConditions && data.warranty.termsConditions.trim() !== '') {
+        warrantyData.termsConditions = data.warranty.termsConditions;
+      }
+      
+      if (data.warranty.included && data.warranty.included.toString().trim() !== '') {
+        warrantyData.included = data.warranty.included.toString();
+      }
+      
+      if (data.warranty.excluded && data.warranty.excluded.toString().trim() !== '') {
+        warrantyData.excluded = data.warranty.excluded.toString();
+      }
+      
+      if (data.warranty.isActive !== undefined) {
+        warrantyData.isActive = data.warranty.isActive;
+      }
+      
+      if (data.warranty.autoRenewal !== undefined) {
+        warrantyData.autoRenewal = data.warranty.autoRenewal;
+      }
+      
+      if (data.warranty.consumerId) {
+        warrantyData.consumerId = typeof data.warranty.consumerId === 'string' ? data.warranty.consumerId : data.warranty.consumerId.toString();
+      }
+      
+      if (data.warranty.supplierId) {
+        warrantyData.supplierId = typeof data.warranty.supplierId === 'string' ? data.warranty.supplierId : data.warranty.supplierId.toString();
+      }
 
       createdWarranty = await tx.warranties.create({
         data: warrantyData

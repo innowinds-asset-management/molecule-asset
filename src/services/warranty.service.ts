@@ -43,12 +43,19 @@ export const getWarrantiesByAssetId = async (assetId: string) => {
 
 //create warranty
 export const createWarranty = async (warranty: Omit<Warranties, 'warrantyId' | 'createdAt' | 'updatedAt'>) => {
+  const warrantyData: any = { ...warranty };
+  
+  // Only add dates if they exist and are valid
+  if (warranty.startDate) {
+    warrantyData.startDate = new Date(warranty.startDate);
+  }
+  
+  if (warranty.endDate) {
+    warrantyData.endDate = new Date(warranty.endDate);
+  }
+  
   return await prisma.warranties.create({
-    data: {
-      ...warranty,
-      startDate: new Date(warranty.startDate),
-      endDate: new Date(warranty.endDate),
-    },
+    data: warrantyData,
     include: {
       warrantyType: true,
       asset: true,

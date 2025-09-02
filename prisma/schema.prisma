@@ -255,8 +255,8 @@ model Warranties {
   warrantyTypeId      Int
   warrantySupplierId  String?                @db.VarChar(255)
   warrantyNumber      String?                @db.VarChar(100)
-  startDate           DateTime
-  endDate             DateTime
+  startDate           DateTime?
+  endDate             DateTime?
   warrantyPeriod      Int?
   coverageType        String?                @db.Text
   coverageDescription String?                @db.Text

@@ -73,6 +73,7 @@ export const createAssetFromGrnAndPoLineItemController = async (req: AssetReques
 export const createAssetWithWarrantyController = async (req: AssetRequest, res: Response) => {
   const data = req.body;
   data.asset.consumerId = req._u?.consumerId;
+  console.log("Asset-Warranty data________>", data);
   const result = await createAssetWithWarranty(data);
   return res.json(result);
 };
