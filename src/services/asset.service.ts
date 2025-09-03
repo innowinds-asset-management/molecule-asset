@@ -1,6 +1,7 @@
 //fetch all assets
-import { Asset, PrismaClient, InstallationStatus } from '@prisma/client';
+import { PrismaClient, InstallationStatus } from '@prisma/client';
 import { CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } from '../types';
+import { ASSET_STATUS_GROUPS, ASSET_STATUS_ARRAYS, ASSET_STATUSES } from '../utils/constants';
 
 const prisma = new PrismaClient();
 
@@ -18,12 +19,12 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
   }
 
   if (params && typeof params.status !== 'undefined' && params.status !== null) { 
-    if (params.status === 'pre-active') {
+    if (params.status === ASSET_STATUS_GROUPS.PRE_ACTIVE) {
       // Received group contains: installation_pending, retired, installed     
       where.AND = [
         {
           status: {
-            in: ['installation_pending', 'received', 'installed']
+            in: ASSET_STATUS_ARRAYS.PRE_ACTIVE_STATUSES
           }
         },
         {
@@ -32,15 +33,15 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
           }
         }
       ];      
-    } else if (params.status === 'active') {
+    } else if (params.status === ASSET_STATUS_GROUPS.ACTIVE) {
       where.status = params.status;
-    } else if (params.status === 'retired') {
+    } else if (params.status === ASSET_STATUS_GROUPS.RETIRED) {
       where.status = params.status;
-    }else if (params.status === 'active-or-pre-active') {
+    }else if (params.status === ASSET_STATUS_GROUPS.ACTIVE_OR_PRE_ACTIVE) {
       where.AND = [
         {
           status: {
-            in: ['installation_pending', 'received', 'installed', 'active']
+            in: ASSET_STATUS_ARRAYS.ACTIVE_OR_PRE_ACTIVE_STATUSES
           }
         },
         {
@@ -78,6 +79,8 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
       },
       locations: true,
       installations: true,
+      assetStatus:true
+      
     },
     orderBy: {
       createdAt: 'desc'
@@ -88,7 +91,7 @@ export const getAllAssets = async (consumerId:string,params?: { consumerId?: str
 
 //fetch asset by id 
 export const getAssetById = async (id: string) => {
-  return await prisma.asset.findUnique({
+  const asset = await prisma.asset.findUnique({
     where: { id },
     include: {
       locations: true,   
@@ -113,14 +116,83 @@ export const getAssetById = async (id: string) => {
       assetCondition: true,      
     },
   });
+
+  if (asset) {
+    // Get the current location (most recent or marked as current)
+    const currentLocation = asset.locations?.find(loc => loc.isCurrentLocation) || 
+                           asset.locations?.[0]; // Fallback to first location if no current
+
+    // Flatten location fields to the asset object for easier frontend consumption
+    if (currentLocation) {
+      (asset as any).building = currentLocation.building;
+      (asset as any).floorNumber = currentLocation.floorNumber;
+      (asset as any).roomNumber = currentLocation.roomNumber;
+    }
+  }
+
+  return asset;
 };
 
 
 //update asset
-export const updateAsset = async (id: string, asset: Asset) => {
-  return await prisma.asset.update({
-    where: { id },      
-    data: asset,
+export const updateAsset = async (id: string, assetData: any) => {
+  // Extract location-related fields
+  const { building, floorNumber, roomNumber, ...assetFields } = assetData;
+
+  console.log('department',assetFields.departmentId)
+
+  if(assetFields.installationDate)
+    assetFields.installationDate = new Date(assetFields.installationDate);
+  
+  // Start a transaction to update both asset and location
+  return await prisma.$transaction(async (tx) => {
+    // 1. Update the asset
+    const updatedAsset = await tx.asset.update({
+      where: { id },      
+      data: assetFields,
+    });
+
+    // 2. Handle location updates if location fields are provided
+    if (building || floorNumber || roomNumber  || assetFields.departmentId) {
+      // Check if location already exists for this asset
+      const existingLocation = await tx.location.findFirst({
+        where: { 
+          assetId: id,
+          isCurrentLocation: true 
+        }
+      });
+
+      if (existingLocation) {
+        // Update existing location
+        await tx.location.update({
+          where: { id: existingLocation.id },
+          data: {
+            ...(building   && { building }),
+            ...(floorNumber   && { floorNumber }),
+            ...(roomNumber  && { roomNumber }),
+            ...(assetFields.departmentId && { departmentId:assetFields.departmentId }),
+
+            updatedAt: new Date()
+          }
+        });
+      } else {
+        // Create new location if it doesn't exist
+        await tx.location.create({
+          data: {
+            assetId: id,
+            departmentId: assetFields.departmentId || '',
+            building: building || '',
+            floorNumber: floorNumber || '',
+            roomNumber: roomNumber || '',
+            isCurrentLocation: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        });
+      }
+    }
+
+    return updatedAsset;
   });
 };
 
@@ -144,7 +216,7 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
       assetSubTypeId: data.asset.assetSubTypeId,
       assetName: data.asset.assetName,
       consumerId: data.asset.consumerId,
-      status: 'received',
+      status: ASSET_STATUSES.RECEIVED,
       ...(data.asset.installationDate && { installationDate: new Date(data.asset.installationDate) }),
       ...(data.asset.brand && { brand: data.asset.brand }),
       ...(data.asset.model && { model: data.asset.model }),
@@ -330,7 +402,7 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
     
     return {
       assetSubTypeId: data.assetSubType,
-      status: 'received',
+      status: ASSET_STATUSES.RECEIVED,
       assetTypeId: data.assetType,
       consumerId: data.consumerId,
       grnId: data.grnId,
@@ -359,7 +431,7 @@ export const createAssetFromGrnAndPoLineItemWithSerial = async (data: CreateAsse
       const createdAssets = await tx.asset.findMany({
         where: {
           assetName: data.assetName,
-          status: 'received',
+          status: ASSET_STATUSES.RECEIVED,
           partNo: data.partNo,
           consumerId: data.consumerId,
           supplierId: data.supplierId
@@ -419,7 +491,7 @@ export const getAssetCountByStatus = async (consumerId:string) => {
       where: {
         AND: [
           {
-            status: 'active'
+            status: ASSET_STATUSES.ACTIVE
           },
           {
             status: {
@@ -438,7 +510,7 @@ export const getAssetCountByStatus = async (consumerId:string) => {
       where: {
         AND: [
           {
-            status: 'retired'
+            status: ASSET_STATUSES.RETIRED
           },
           {
             status: {
@@ -459,7 +531,7 @@ export const getAssetCountByStatus = async (consumerId:string) => {
         AND: [
           {
             status: {
-              in: ['installation_pending', 'received', 'installed']
+              in: ASSET_STATUS_ARRAYS.PRE_ACTIVE_STATUSES
             }
           },
           {

@@ -58,3 +58,41 @@ export const ENTITY_NAMES = {
 
 // Type for entity names
 export type EntityName = typeof ENTITY_NAMES[keyof typeof ENTITY_NAMES];
+
+// Asset Status Groups
+export const ASSET_STATUS_GROUPS = {
+  PRE_ACTIVE: 'pre-active',
+  ACTIVE: 'active',
+  RETIRED: 'retired',
+  ACTIVE_OR_PRE_ACTIVE: 'active-or-pre-active'
+} as const;
+
+// Type for asset status groups
+export type AssetStatusGroup = typeof ASSET_STATUS_GROUPS[keyof typeof ASSET_STATUS_GROUPS];
+
+// Individual Asset Statuses
+export const ASSET_STATUSES = {
+  INSTALLATION_PENDING: 'installation_pending',
+  RECEIVED: 'received',
+  INSTALLED: 'installed',
+  ACTIVE: 'active',
+  RETIRED: 'retired'
+} as const;
+
+// Type for individual asset statuses
+export type AssetStatus = typeof ASSET_STATUSES[keyof typeof ASSET_STATUSES];
+
+// Asset Status Arrays for Grouping
+export const ASSET_STATUS_ARRAYS = {
+  PRE_ACTIVE_STATUSES: [
+    ASSET_STATUSES.INSTALLATION_PENDING,
+    ASSET_STATUSES.RECEIVED,
+    ASSET_STATUSES.INSTALLED
+  ],
+  ACTIVE_OR_PRE_ACTIVE_STATUSES: [
+    ASSET_STATUSES.INSTALLATION_PENDING,
+    ASSET_STATUSES.RECEIVED,
+    ASSET_STATUSES.INSTALLED,
+    ASSET_STATUSES.ACTIVE
+  ]
+};

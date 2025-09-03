@@ -13,7 +13,7 @@ export const getAllAssetsController = async (req: AssetRequest, res: Response) =
         return res.status(400).json({ error: 'Consumer ID is required' });
     }
 
-    console.log('department id________>', departmentId)
+    // console.log('department id________>', departmentId)
 
   const assets = await getAllAssets(consumerId,{
     supplierId: supplierId as string,
@@ -36,17 +36,43 @@ export const getAssetByIdController = async (req: Request, res: Response) => {
 
 //update asset
 export const updateAssetController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    return res.status(400).json({ error: 'ID is required' });
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ 
+        success: false,
+        error: 'Asset ID is required' 
+      });
+    }
+    
+    const assetData = req.body;
+    
+    // Validate installation date format if provided
+    if (assetData.installationDate) {
+      const date = new Date(assetData.installationDate);
+      if (isNaN(date.getTime())) {
+        return res.status(400).json({ 
+          success: false,
+          error: 'Invalid installation date format' 
+        });
+      }
+    }
+
+    const updatedAsset = await updateAsset(id, assetData);
+    
+    return res.json({
+      success: true,
+      message: 'Asset updated successfully',
+      assetId: id,
+      asset: updatedAsset
+    });
+  } catch (error) {
+    console.error('Error updating asset:', error);
+    return res.status(500).json({
+      success: false,
+      error: error instanceof Error ? error.message : 'Failed to update asset'
+    });
   }
-  const asset = req.body;
-  await updateAsset(id, asset);
-  return res.json({
-    success: true,
-    message: 'Asset updated successfully',
-    assetId: id
-  });
 };
 
 //delete asset
