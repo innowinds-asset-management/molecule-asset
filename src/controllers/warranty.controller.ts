@@ -169,9 +169,15 @@ export const deleteWarrantyTypeController = async (req: Request, res: Response) 
 };
 
 //get warranty stats
-export const getWarrantyStatsController = async (_req: Request, res: Response) => {
+export const getWarrantyStatsController = async (req: AssetRequest, res: Response) => {
   try {
-    const warrantyStats = await getWarrantyStats();
+    const consumerId = req._u?.consumerId;
+    
+    if (!consumerId) {
+      return res.status(400).json({ error: 'Consumer ID is required' });
+    }
+    
+    const warrantyStats = await getWarrantyStats(consumerId);
     return res.json(warrantyStats);
   } catch (error) {
     return res.status(500).json({ error: 'Failed to fetch warranty stats' });

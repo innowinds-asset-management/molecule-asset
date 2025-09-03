@@ -130,7 +130,7 @@ export const deleteWarrantyType = async (id: number) => {
 };
 
 //get warranty stats based on expiring soon and recently expired warranties
-export const getWarrantyStats = async () => {
+export const getWarrantyStats = async (consumerId: string) => {
   const currentDate = new Date();
   
   // Calculate dates for expiring soon (future dates)
@@ -146,6 +146,7 @@ export const getWarrantyStats = async () => {
   // Get counts for expiring soon warranties
   const expiringIn5DaysCount = await prisma.warranties.count({
     where: {
+      consumerId,
       endDate: {
         gte: currentDate,
         lte: expiringIn5Days
@@ -156,6 +157,7 @@ export const getWarrantyStats = async () => {
 
   const expiringIn10DaysCount = await prisma.warranties.count({
     where: {
+      consumerId,
       endDate: {
         gte: currentDate,
         lte: expiringIn10Days
@@ -166,6 +168,7 @@ export const getWarrantyStats = async () => {
 
   const expiringIn30DaysCount = await prisma.warranties.count({
     where: {
+      consumerId,
       endDate: {
         gte: currentDate,
         lte: expiringIn30Days
@@ -177,6 +180,7 @@ export const getWarrantyStats = async () => {
   // Get counts for recently expired warranties
   const expired5DaysAgoCount = await prisma.warranties.count({
     where: {
+      consumerId,
       endDate: {
         gte: expired5DaysAgo,
         lte: currentDate
@@ -187,6 +191,7 @@ export const getWarrantyStats = async () => {
 
   const expired10DaysAgoCount = await prisma.warranties.count({
     where: {
+      consumerId,
       endDate: {
         gte: expired10DaysAgo,
         lte: currentDate
@@ -197,6 +202,7 @@ export const getWarrantyStats = async () => {
 
   const expired30DaysAgoCount = await prisma.warranties.count({
     where: {
+      consumerId,
       endDate: {
         gte: expired30DaysAgo,
         lte: currentDate
