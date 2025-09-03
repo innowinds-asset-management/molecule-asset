@@ -276,9 +276,13 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
     if (data.warranty) {
       const warrantyData: any = {
         assetId: createdAsset.id,
-        warrantyTypeId: data.warranty.warrantyTypeId || 1, // Use provided warranty type or default to 1
-        warrantyNumber: "WR-"+ Date.now(),
-        cost: 0,
+        ...(data.warranty.warrantyTypeId
+          ? {
+              warrantyTypeId: data.warranty.warrantyTypeId,
+              warrantyNumber: "WR-" + Date.now(),
+              cost: 0
+            }
+          : {}),
       };
 
       // Only add dates if they're valid and not empty

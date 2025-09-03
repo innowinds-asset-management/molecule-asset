@@ -255,7 +255,7 @@ model WarrantyType {
 model Warranties {
   warrantyId          Int                    @id @default(autoincrement())
   assetId             String                 @db.VarChar(255)
-  warrantyTypeId      Int
+  warrantyTypeId      Int?
   warrantySupplierId  String?                @db.VarChar(255)
   warrantyNumber      String?                @db.VarChar(100)
   startDate           DateTime?
@@ -277,7 +277,7 @@ model Warranties {
   asset               Asset                  @relation(fields: [assetId], references: [id])
   consumer            Consumer?              @relation(fields: [consumerId], references: [id])
   supplier            Supplier?              @relation(fields: [supplierId], references: [id])
-  warrantyType        WarrantyType           @relation(fields: [warrantyTypeId], references: [warrantyTypeId])
+  warrantyType        WarrantyType?          @relation(fields: [warrantyTypeId], references: [warrantyTypeId])
   notifications       WarrantyNotification[]
 
   @@index([endDate], map: "idxEndDate")
