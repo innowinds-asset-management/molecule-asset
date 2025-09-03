@@ -604,7 +604,38 @@ export const updateAssetWarranty = async (assetId: string, consumerId: string, d
     }
     if (data.asset.departmentId !== undefined) {
       assetUpdateData.departmentId = data.asset.departmentId;
+      // Check if location already exists for this asset
+      const existingLocation = await tx.location.findFirst({
+        where: { 
+          assetId,
+          isCurrentLocation: true 
+        }
+      });
+
+      if (existingLocation) {
+        // Update existing location
+        await tx.location.update({
+          where: { id: existingLocation.id },
+          data: {
+            departmentId:data.asset.departmentId,
+            updatedAt: new Date()
+          }
+        });
+      } else {
+        // Create new location if it doesn't exist
+        await tx.location.create({
+          data: {
+            assetId,
+            departmentId: data.asset.departmentId,
+            isCurrentLocation: true,
+            createdAt: new Date(),
+            updatedAt: new Date()
+          }
+        });
+      }
     }
+
+    
     if (data.asset.assetAssignTo !== undefined) {
       assetUpdateData.assetAssignTo = data.asset.assetAssignTo;
     }
