@@ -38,10 +38,10 @@ export const getDepartmentsByConsumerIdController = async (req: AssetRequest, re
 
 //get department count by consumer id
 export const getDepartmentCountByConsumerIdController = async (req: AssetRequest, res: Response) => {
-console.log('inside======>')
+// console.log('inside======>')
 
     const consumerId = req._u?.consumerId;
-    console.log('consumerId======>',consumerId)
+    // console.log('consumerId======>',consumerId)
     if (!consumerId) {
         return res.status(400).json({ error: 'Consumer ID is required' });
     }

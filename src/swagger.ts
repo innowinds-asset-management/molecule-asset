@@ -905,6 +905,30 @@ const options = {
             supplierSerialNo: {
               type: 'string',
               description: 'Supplier serial number'
+            },
+            building: {
+              type: 'string',
+              description: 'Building name or identifier'
+            },
+            floorNumber: {
+              type: 'string',
+              description: 'Floor number or identifier'
+            },
+            roomNumber: {
+              type: 'string',
+              description: 'Room number or identifier'
+            },
+            departmentId: {
+              type: 'string',
+              description: 'Department ID where the asset is located'
+            },
+            status: {
+              type: 'string',
+              description: 'Current status of the asset'
+            },
+            assetAssignTo: {
+              type: 'string',
+              description: 'Person or department the asset is assigned to'
             }
           }
         },

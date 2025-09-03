@@ -75,6 +75,7 @@ model Asset {
   consumer           Consumer?         @relation(fields: [consumerId], references: [id])
   department         Department?       @relation(fields: [departmentId], references: [deptId])
   supplier           Supplier?         @relation("SupplierToAsset", fields: [supplierId], references: [id])
+  assetStatus              AssetStatus?         @relation(fields: [status], references: [statusCode])
   installations      Installation[]
   locations          Location[]
   serviceContracts   ServiceContract[]
@@ -95,6 +96,8 @@ model AssetStatus {
   statusCode  String @id
   displayName String
   group       String @map("group_name")
+
+  asset Asset[]
 
   @@map("assetStatus")
 }

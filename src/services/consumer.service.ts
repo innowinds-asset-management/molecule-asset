@@ -15,8 +15,9 @@ export const getConsumerById = async (id: string) => {
 };
 
 export const createConsumer = async (data: {
+  id:string,
   name: string;
-  code: string;
+  code?: string;
   contactName?: string | null;
   email?: string | null;
   phone?: string | null;
