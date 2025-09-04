@@ -11,6 +11,7 @@ import {
   getSupplierDetailsByIdController,
   listSuppliersController,
   searchSuppliersController,
+  createDefaultSupplierSignUpController
 } from '../controllers/supplier.controller';
 
 const router = Router();
@@ -63,6 +64,9 @@ router.get('/all', listSuppliersController);
 router.get('/search', searchSuppliersController);
 
 router.post('/', createSupplierController);
+
+router.post('/signUpCreate', createDefaultSupplierSignUpController);
+
 
 // More specific routes first
 router.get('/:id/details', getSupplierDetailsByIdController);

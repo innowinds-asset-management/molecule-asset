@@ -11,6 +11,7 @@ import {
   listSuppliersOfConsumerWithStats,
   getSupplierDetailsById,
   searchSuppliersByConsumer,
+  createDefaultSupplierSignUp
 } from '../services/supplier.service';
 import { AssetRequest } from '../middleware/userContextMiddleware';
 
@@ -138,5 +139,11 @@ export const getSupplierDetailsByIdController = async (req: Request, res: Respon
   }
 };
 
-//fetch all suppliers
+// Create default supplier at the time of sign up
+export const createDefaultSupplierSignUpController = async (req: Request, res: Response) => {
+  
+  const result = await createDefaultSupplierSignUp(req.body.id);
+  return res.status(201).json(result.supplier);
+};
+
 

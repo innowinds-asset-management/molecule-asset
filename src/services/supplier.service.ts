@@ -221,6 +221,29 @@ export const getSupplierDetailsById = async (id: string) => {
   };
 };
 
+export const createDefaultSupplierSignUp = async (consumerId:string) => {
+  return prisma.$transaction(async (tx) => {
+    // Create the supplier
+    const supplier = await tx.supplier.create({
+      data: {
+        name:'Internal',
+        id: generateEntityId(ENTITY_NAMES.SUPPLIER)
+      },
+    });
+
+    // Create the consumer-supplier relationship
+    const consumerSupplier = await tx.consumerSupplier.create({
+      data: {
+        consumerId,
+        supplierId: supplier.id,
+      },
+    });
+
+    return { supplier, consumerSupplier };
+  });
+};
+
+
 
 
 
