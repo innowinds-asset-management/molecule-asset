@@ -1,5 +1,5 @@
 //fetch all departments
-import { createDepartment, getAllDepartments, getDepartmentById, getDepartmentCountByConsumerId, getDepartmentsByConsumerId } from '../services/department.service';
+import { createDepartment, getAllDepartments, getDepartmentById, getDepartmentCountByConsumerId, getDepartmentsByConsumerId, createDefaultDepartmentSignUp } from '../services/department.service';
 import { Request, Response } from 'express';
 import { AssetRequest } from '../middleware/userContextMiddleware';
 
@@ -53,5 +53,13 @@ export const getDepartmentCountByConsumerIdController = async (req: AssetRequest
         data: {
             departmentCount: count
         }
-    });   
+    });  
+    
 };
+
+    //create default department at the time of signup
+export const createDefaultDepartmentSignUpController = async (req: Request, res: Response) => {
+    const department = await createDefaultDepartmentSignUp(req.body.id);
+    res.json(department);
+};
+

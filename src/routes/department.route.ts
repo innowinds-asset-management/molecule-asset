@@ -1,6 +1,6 @@
 //department routes
 import { Router } from 'express';
-import { getAllDepartmentsController, getDepartmentByIdController, createDepartmentController, getDepartmentsByConsumerIdController, getDepartmentCountByConsumerIdController } from '../controllers/department.controller';
+import { getAllDepartmentsController, getDepartmentByIdController, createDepartmentController, getDepartmentsByConsumerIdController, getDepartmentCountByConsumerIdController, createDefaultDepartmentSignUpController } from '../controllers/department.controller';
 
 const router = Router();
 
@@ -103,9 +103,10 @@ router.get('/consumer', getDepartmentsByConsumerIdController);
  *         description: Bad request - consumer ID is required
  *       500:
  *         description: Internal server error
- */
+*/
 router.get('/count', getDepartmentCountByConsumerIdController);
 
+router.post('/signUpCreate', createDefaultDepartmentSignUpController)
 /**
  * @swagger
  * /api/department/{deptId}:
@@ -135,5 +136,6 @@ router.get('/count', getDepartmentCountByConsumerIdController);
  *         description: Internal server error
  */
 router.get('/:deptId', getDepartmentByIdController);
+
 
 export default router;

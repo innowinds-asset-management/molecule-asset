@@ -175,3 +175,16 @@ export const getDepartmentCountByConsumerId = async (consumerId: string) => {
     where: { consumerId },
   });
 };
+
+
+export const createDefaultDepartmentSignUp = async (consumerId: string) => {
+  return await prisma.department.create({
+    data: {
+      deptName: 'Admin',
+      deptId: generateEntityId(ENTITY_NAMES.DEPARTMENT),
+      consumerId
+      
+    },
+  });
+};
+
