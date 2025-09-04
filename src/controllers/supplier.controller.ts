@@ -16,64 +16,120 @@ import {
 import { AssetRequest } from '../middleware/userContextMiddleware';
 
 export const listSuppliersController = async (_req: Request, res: Response) => {
-  const rows = await getAllSuppliers();
-  return res.json(rows);
+  try {
+    const rows = await getAllSuppliers();
+    return res.json(rows);
+  } catch (error) {
+    console.error('Error in listSuppliersController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to fetch suppliers'
+    });
+  }
 };
 
 export const getSupplierByIdController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) return res.status(400).json({ error: 'id is required' });
-  const row = await getSupplierById(id);
-  if (!row) return res.status(404).json({ error: 'Supplier not found' });
-  return res.json(row);
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    const row = await getSupplierById(id);
+    if (!row) return res.status(404).json({ error: 'Supplier not found' });
+    return res.json(row);
+  } catch (error) {
+    console.error('Error in getSupplierByIdController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to fetch supplier'
+    });
+  }
 };
 
 export const createSupplierController = async (req: AssetRequest, res: Response) => {
-  console.log('inside=========>')
-  const consumerId = req._u?.consumerId;
-  if (!consumerId) {
-    return res.status(400).json({ error: 'Consumer ID is required' });
+  try {
+    console.log('inside=========>')
+    const consumerId = req._u?.consumerId;
+    if (!consumerId) {
+      return res.status(400).json({ error: 'Consumer ID is required' });
+    }
+    
+    const result = await createSupplierAndLinkToConsumer(req.body, consumerId);
+    return res.status(201).json(result.supplier);
+  } catch (error) {
+    console.error('Error in createSupplierController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to create supplier'
+    });
   }
-  
-  const result = await createSupplierAndLinkToConsumer(req.body, consumerId);
-  return res.status(201).json(result.supplier);
 };
 
 export const updateSupplierController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) return res.status(400).json({ error: 'id is required' });
-  const row = await updateSupplier(id, req.body);
-  return res.json(row);
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    const row = await updateSupplier(id, req.body);
+    return res.json(row);
+  } catch (error) {
+    console.error('Error in updateSupplierController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to update supplier'
+    });
+  }
 };
 
 export const deleteSupplierController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) return res.status(400).json({ error: 'id is required' });
-  const row = await deleteSupplier(id);
-  return res.json(row);
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    const row = await deleteSupplier(id);
+    return res.json(row);
+  } catch (error) {
+    console.error('Error in deleteSupplierController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to delete supplier'
+    });
+  }
 };
 
 export const listConsumersForSupplierController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) return res.status(400).json({ error: 'id is required' });
-  const rows = await getConsumersForSupplier(id);
-  return res.json(rows);
+  try {
+    const { id } = req.params;
+    if (!id) return res.status(400).json({ error: 'id is required' });
+    const rows = await getConsumersForSupplier(id);
+    return res.json(rows);
+  } catch (error) {
+    console.error('Error in listConsumersForSupplierController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to fetch consumers for supplier'
+    });
+  }
 };
 
 export const linkConsumerToSupplierController = async (req: AssetRequest, res: Response) => {
-  const { id } = req.params;
-  const consumerId = req._u?.consumerId;
-  if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
-  const row = await linkConsumerToSupplier(id, consumerId);
-  return res.status(201).json(row);
+  try {
+    const { id } = req.params;
+    const consumerId = req._u?.consumerId;
+    if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
+    const row = await linkConsumerToSupplier(id, consumerId);
+    return res.status(201).json(row);
+  } catch (error) {
+    console.error('Error in linkConsumerToSupplierController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to link consumer to supplier'
+    });
+  }
 };
 
 export const unlinkConsumerFromSupplierController = async (req: AssetRequest, res: Response) => {
-  const { id } = req.params;
-  const consumerId = req._u?.consumerId;
-  if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
-  const row = await unlinkConsumerFromSupplier(id, consumerId);
-  return res.json(row);
+  try {
+    const { id } = req.params;
+    const consumerId = req._u?.consumerId;
+    if (!id || !consumerId) return res.status(400).json({ error: 'id and consumerId are required' });
+    const row = await unlinkConsumerFromSupplier(id, consumerId);
+    return res.json(row);
+  } catch (error) {
+    console.error('Error in unlinkConsumerFromSupplierController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to unlink consumer from supplier'
+    });
+  }
 };
 
 // Search suppliers by consumer
@@ -141,9 +197,15 @@ export const getSupplierDetailsByIdController = async (req: Request, res: Respon
 
 // Create default supplier at the time of sign up
 export const createDefaultSupplierSignUpController = async (req: Request, res: Response) => {
-  
-  const result = await createDefaultSupplierSignUp(req.body.id);
-  return res.status(201).json(result.supplier);
+  try {
+    const result = await createDefaultSupplierSignUp(req.body.id);
+    return res.status(201).json(result.supplier);
+  } catch (error) {
+    console.error('Error in createDefaultSupplierSignUpController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to create default supplier'
+    });
+  }
 };
 
 

@@ -5,32 +5,48 @@ import { Request, Response } from 'express';
 import { getAllAssets, getAssetById, updateAsset, deleteAsset, createAssetFromGrnAndPoLineItemWithSerial, createAssetWithWarranty, getAssetCountByStatus, updateAssetWarranty } from '../services/asset.service';
 
 export const getAllAssetsController = async (req: AssetRequest, res: Response) => {
-  const { supplierId, departmentId, groupstatus } = req.query; 
-  
-  const consumerId = req._u?.consumerId;
+  try {
+    const { supplierId, departmentId, groupstatus } = req.query; 
+    
+    const consumerId = req._u?.consumerId;
 
-      if (!consumerId) {
-        return res.status(400).json({ error: 'Consumer ID is required' });
+    if (!consumerId) {
+      return res.status(400).json({ error: 'Consumer ID is required' });
     }
 
     // console.log('department id________>', departmentId)
 
-  const assets = await getAllAssets(consumerId,{
-    supplierId: supplierId as string,
-    departmentId: departmentId as string,
-    status: groupstatus as string
-  });
-  return res.json(assets);
+    const assets = await getAllAssets(consumerId,{
+      supplierId: supplierId as string,
+      departmentId: departmentId as string,
+      status: groupstatus as string
+    });
+    
+    return res.json(assets);
+  } catch (error) {
+    console.error('Error in getAllAssetsController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to fetch assets'
+    });
+  }
 };
 
 //fetch asset by id 
 export const getAssetByIdController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {
-    return res.status(400).json({ error: 'ID is required' });
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ error: 'ID is required' });
+    }
+    
+    const asset = await getAssetById(id);
+    return res.json(asset);
+  } catch (error) {
+    console.error('Error in getAssetByIdController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to fetch asset'
+    });
   }
-  const asset = await getAssetById(id);
-  return res.json(asset);
 };
 
 
@@ -77,31 +93,53 @@ export const updateAssetController = async (req: Request, res: Response) => {
 
 //delete asset
 export const deleteAssetController = async (req: Request, res: Response) => {
-  const { id } = req.params;
-  if (!id) {    
-    return res.status(400).json({ error: 'ID is required' });
+  try {
+    const { id } = req.params;
+    if (!id) {    
+      return res.status(400).json({ error: 'ID is required' });
+    }
+    
+    const deletedAsset = await deleteAsset(id);
+    return res.json(deletedAsset);
+  } catch (error) {
+    console.error('Error in deleteAssetController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to delete asset'
+    });
   }
-  const deletedAsset = await deleteAsset(id);
-  return res.json(deletedAsset);
 };
 
 
 //create asset from grn and po line item
 export const createAssetFromGrnAndPoLineItemController = async (req: AssetRequest, res: Response) => {
-  const data = req.body;
-  data.consumerId = req._u?.consumerId;
-  const result = await createAssetFromGrnAndPoLineItemWithSerial(data);
-  return res.json(result);
+  try {
+    const data = req.body;
+    data.consumerId = req._u?.consumerId;
+    const result = await createAssetFromGrnAndPoLineItemWithSerial(data);
+    return res.json(result);
+  } catch (error) {
+    console.error('Error in createAssetFromGrnAndPoLineItemController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to create asset from GRN and PO line item'
+    });
+  }
 };
 
 
 //create asset with warranty
 export const createAssetWithWarrantyController = async (req: AssetRequest, res: Response) => {
-  const data = req.body;
-  data.asset.consumerId = req._u?.consumerId;
-  console.log("Asset-Warranty data________>", data);
-  const result = await createAssetWithWarranty(data);
-  return res.json(result);
+  try {
+    const data = req.body;
+    data.asset.consumerId = req._u?.consumerId;
+    console.log("Asset-Warranty data________>", data);
+    const result = await createAssetWithWarranty(data);
+    return res.json(result);
+  } catch (error) {
+    console.error('Error in createAssetWithWarrantyController:', error);
+    return res.status(500).json({
+      error: error instanceof Error ? error.message : 'Failed to create asset with warranty'
+    });
+  }
 };
 
 //get asset count by status
