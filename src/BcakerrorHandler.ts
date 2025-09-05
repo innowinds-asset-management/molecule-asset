@@ -78,10 +78,10 @@ export const errorHandler = (
   }
 
   // Rate limit errors
-//   if ((err as any).status === 429) {
-//     const message = 'Too many requests, please try again later';
-//     error = { message, statusCode: 429 } as CustomError;
-//   }
+  if ((err as any).status === 429) {
+    const message = 'Too many requests, please try again later';
+    error = { message, statusCode: 429 } as CustomError;
+  }
 
   // Default error
   const statusCode = error.statusCode || (err as any).statusCode || 500;

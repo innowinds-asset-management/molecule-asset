@@ -1,6 +1,7 @@
 //warranty controllers
 
 import { Request, Response } from 'express';
+ 
 import { 
   getAllWarranties, 
   getWarrantyById, 
@@ -17,18 +18,27 @@ import {
 } from '../services/warranty.service';
 import { validateQueryParams } from '../helper/helper';
 import { AssetRequest } from '../middleware/userContextMiddleware';
+//import ResponseHandler from '../helper/responseHandler';
 
 // Warranty Controllers
 export const getAllWarrantiesController = async (req: AssetRequest, res: Response) => {
   try {
     validateQueryParams(req.query, ['sid']);
+      
     
-    const consumerId = req._u?.consumerId;
-
+    const consumerId =  req._u?.consumerId;
+    
+    // if (1==1) {
+    //   throw new Error("Invalid consumer ID");
+    // }    
     const warranties = await getAllWarranties(consumerId);
     return res.json(warranties);
+    //return ResponseHandler.success(res, 'Warranties fetched successfully', warranties);
   } catch (error) {
+    console.log('error warranty controller=======>',error)
     return res.status(500).json({ error: 'Failed to fetch warranties' });
+    //return ResponseHandler.error(res,'Failed to fetch warranties',error as string);
+    //return next(error);
   }
 };
 
