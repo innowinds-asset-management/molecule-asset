@@ -1,7 +1,7 @@
 //fetch all asset sub types
 
 import { Request, Response } from 'express';
-import { getAllAssetSubTypes, createAssetSubType, getAssetSubTypeByAssetTypeId, getAssetSubTypeById, searchAssetSubTypesByAssetTypeId } from '../services/assetSubType';
+import { getAllAssetSubTypes, createAssetSubType, getAssetSubTypeByAssetTypeId, getAssetSubTypeById, searchAssetSubTypesByAssetTypeId,searchAllAssetSubTypes } from '../services/assetSubType';
 
 export const getAllAssetSubTypesController = async (_req: Request, res: Response) => {
   const assetSubTypes = await getAllAssetSubTypes();
@@ -51,4 +51,17 @@ export const searchAssetSubTypesByAssetTypeIdController = async (req: Request, r
   const assetSubTypes = await searchAssetSubTypesByAssetTypeId(assetTypeId, search);
   return res.json(assetSubTypes);
 };
+
+//search all asset sub types by search word
+export const searchAllAssetSubTypesController = async (req: Request, res: Response) => {
+  const { search } = req.query;
+    
+  if (!search || typeof search !== 'string') {
+    return res.status(400).json({ error: 'Search query parameter is required' });
+  }
+  
+  const assetSubTypes = await searchAllAssetSubTypes(search);
+  return res.json(assetSubTypes);
+};
+
 
