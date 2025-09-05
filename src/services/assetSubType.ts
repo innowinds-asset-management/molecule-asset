@@ -18,7 +18,6 @@ export const getAssetSubTypeById = async (id: string) => {
 export const getAssetSubTypeByAssetTypeId = async (assetTypeId: string) => {
   return await prisma.assetSubType.findMany({
     where: { assetTypeId },
-    take:5
   });
 };
 
@@ -56,9 +55,41 @@ export const searchAssetSubTypesByAssetTypeId = async (assetTypeId: string, sear
     orderBy: {
       name: 'asc'
     },
-    take: 5
   });
 };
+
+//search all asset sub types by search word
+export const searchAllAssetSubTypes = async (searchWord: string) => {
+  return await prisma.assetSubType.findMany({
+    where: {
+      OR: [
+        {
+          name: {
+            contains: searchWord,
+          }
+        },
+        {
+          code: {
+            contains: searchWord,
+          }
+        },
+        {
+          description: {
+            contains: searchWord,
+          }
+        }
+      ]
+    },
+    orderBy: {
+      name: 'asc'
+    },
+    include:{
+      assetType:true
+    }
+  });
+};
+
+
 
 
 
