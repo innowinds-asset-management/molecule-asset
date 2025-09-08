@@ -1,6 +1,6 @@
 //get service contract by asset id
 import { Request, Response } from 'express';
-import { getServiceContractByAssetId, createServiceContract, updateServiceContract, getAllServiceContractsByServiceSupplierId, getAllServiceContracts } from "../services/serviceContract.service";
+import { getServiceContractByAssetId, createServiceContract, updateServiceContract, getAllServiceContractsByServiceSupplierId, getAllServiceContracts, getAllServiceContractsByAssetId } from "../services/serviceContract.service";
 
 // get all service contracts
 export const getAllServiceContractsController = async (_req: Request, res: Response) => {
@@ -44,3 +44,18 @@ export const getAllServiceContractsByServiceSupplierIdController = async (req: R
     const serviceContracts = await getAllServiceContractsByServiceSupplierId(serviceSupplierId);
     return res.json(serviceContracts);
 };
+
+// get all service contracts by asset id
+export const getAllServiceContractsByAssetIdController = async (req: Request, res: Response) => {
+   try{
+    const assetId = req.params['assetId'];
+    if (!assetId) {
+        return res.status(400).json({ error: 'Asset ID is required' });
+    }
+    const serviceContracts = await getAllServiceContractsByAssetId(assetId);
+    return res.json(serviceContracts);
+   }catch(error){
+    return res.status(500).json({ error: 'Failed to fetch service contracts by asset id' });
+   }
+}
+    

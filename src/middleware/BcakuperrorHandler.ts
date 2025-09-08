@@ -1,5 +1,4 @@
 // import { Request, Response, NextFunction } from 'express';
-// import ResponseHandler from '../helper/responseHandler';
 
 // export interface CustomError extends Error {
 //   statusCode?: number;
@@ -79,22 +78,18 @@
 //   }
 
 //   // Rate limit errors
-//   if ((err as any).status === 429) {
-//     const message = 'Too many requests, please try again later';
-//     error = { message, statusCode: 429 } as CustomError;
-//   }
+// //   if ((err as any).status === 429) {
+// //     const message = 'Too many requests, please try again later';
+// //     error = { message, statusCode: 429 } as CustomError;
+// //   }
 
 //   // Default error
 //   const statusCode = error.statusCode || (err as any).statusCode || 500;
 //   const message = error.message || err.message || 'Server Error';
 
-//   // res.status(statusCode).json({
-//   //   success: false,
-//   //   error: message,
-//   //   ...(process.env['NODE_ENV'] === 'development' && { stack: err.stack })
-//   // });
-
-//   ResponseHandler.error(res, message, err.code || "SERVER_ERROR", statusCode, {
-//     stack: process.env["NODE_ENV"] === "development" ? err.stack : undefined,
+//   res.status(statusCode).json({
+//     success: false,
+//     error: message,
+//     ...(process.env['NODE_ENV'] === 'development' && { stack: err.stack })
 //   });
 // }; 

@@ -104,3 +104,28 @@ export const getAllServiceContractsByServiceSupplierId = async (serviceSupplierI
   });
   return serviceContracts;
 };    
+
+
+// fetch all service contracts by asset id
+export const getAllServiceContractsByAssetId = async (assetId: string) => {
+  const serviceContracts = await prisma.serviceContract.findMany({
+    where: { assetId },
+    include: { 
+      asset: {
+        select: {
+          id: true,
+          assetName: true,
+      }},
+      serviceSupplier: {
+        select: {
+            id: true,
+            name: true,
+          }
+      },
+      status: true,
+      contractType: true,      
+    },
+    //orderBy: { createdAt: 'desc' },
+  });
+  return serviceContracts;
+};  
