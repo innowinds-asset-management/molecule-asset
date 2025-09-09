@@ -24,19 +24,18 @@ import ResponseHandler from '../helper/responseHandler';
 export const getAllWarrantiesController = async (req: AssetRequest, res: Response,next: NextFunction) => {
   try {
     validateQueryParams(req.query, ['sid']);    
-    
+    let msg = 'Warranties fetched successfully';
     const consumerId =  req._u?.consumerId;    
     if (!consumerId) {
       throw new Error("Invalid consumer ID");
     }    
     const warranties = await getAllWarranties(consumerId);
-    //return res.json(warranties);
-    return ResponseHandler.success(res, 'Warranties fetched successfully', warranties);
-    //return ResponseHandler.success(res, 'Warranties fetched successfully', warranties);
+    if(warranties.length === 0){
+      msg = 'No warranties found';
+    }
+    return ResponseHandler.success(res, msg, warranties);
   } catch (error) {
     console.log('error warranty controller=======>',error)
-    //return res.status(500).json({ error: 'Failed to fetch warranties' });
-    //return ResponseHandler.error(res,'Failed to fetch warranties',error as string);
     return next(error);
   }
 };

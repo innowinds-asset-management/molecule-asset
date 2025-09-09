@@ -3,7 +3,7 @@ import cors from 'cors';
 import helmet from 'helmet';
 import compression from 'compression';
 import morgan from 'morgan';
-import rateLimit from 'express-rate-limit';
+//import rateLimit from 'express-rate-limit';
 import dotenv from 'dotenv';
 import swaggerUi from 'swagger-ui-express';
 
@@ -55,17 +55,6 @@ app.use(compression());
 
 // Trust Nginx proxy (important for HTTPS + real IPs)
 app.set('trust proxy', 1);
-
-// Rate limiting
-const limiter = rateLimit({
-  windowMs: parseInt(process.env['RATE_LIMIT_WINDOW_MS'] || '100'), // 10 minutes
-  max: parseInt(process.env['RATE_LIMIT_MAX_REQUESTS'] || '100000'), // limit each IP to 100 requests per windowMs
-  message: {
-    success: false,
-    error: 'Too many requests from this IP, please try again later.'
-  }
-});
-app.use(limiter);
 
 // Logging middleware
 app.use(morgan('combined'));

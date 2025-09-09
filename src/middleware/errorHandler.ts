@@ -78,23 +78,17 @@ export const errorHandler = (
     error = { message, statusCode: 401 } as CustomError;
   }
 
-  // Rate limit errors
-  if ((err as any).status === 429) {
-    const message = 'Too many requests, please try again later';
-    error = { message, statusCode: 429 } as CustomError;
-  }
+ 
 
   // Default error
   const statusCode = error.statusCode || (err as any).statusCode || 500;
   const message = error.message || err.message || 'Server Error';
 
-  // res.status(statusCode).json({
-  //   success: false,
-  //   error: message,
-  //   ...(process.env['NODE_ENV'] === 'development' && { stack: err.stack })
-  // });
-
+  
   ResponseHandler.error(res, message, err.code || "SERVER_ERROR", statusCode, {
     stack: process.env["NODE_ENV"] === "development" ? err.stack : undefined,
   });
+
+ // ResponseHandler.error(res, message, err.code || "SERVER_ERROR", statusCode, []);
+
 }; 
