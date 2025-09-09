@@ -1,11 +1,27 @@
 //get service contract by asset id
-import { Request, Response } from 'express';
+import { Request, Response, NextFunction } from 'express';
 import { getServiceContractByAssetId, createServiceContract, updateServiceContract, getAllServiceContractsByServiceSupplierId, getAllServiceContracts, getAllServiceContractsByAssetId } from "../services/serviceContract.service";
+import ResponseHandler from '../helper/responseHandler';
+import { AssetRequest } from '../middleware/userContextMiddleware'; 
 
 // get all service contracts
-export const getAllServiceContractsController = async (_req: Request, res: Response) => {
-    const serviceContracts = await getAllServiceContracts();
-    return res.json(serviceContracts);
+export const getAllServiceContractsController =     async (req: AssetRequest, res: Response,next: NextFunction) => {    
+   try{
+    const { groupstatus } = req.query;
+    const consumerId = req._u?.consumerId;
+    if(!consumerId){
+        return next(new Error('Consumer ID is required'));
+    }
+    let msg = 'Service contracts fetched successfully';
+    const serviceContracts = await getAllServiceContracts(groupstatus as string, consumerId);
+    if(serviceContracts.length === 0){
+        let msg = 'No service contracts found';
+        return ResponseHandler.success(res, msg, serviceContracts);
+    }    
+    return ResponseHandler.success(res, msg, serviceContracts);
+   }catch(error){
+    return next(error);
+   }
 };
 
 export const getServiceContractByAssetIdController = async (req: Request, res: Response) => {

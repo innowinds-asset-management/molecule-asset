@@ -1,16 +1,29 @@
 import { PrismaClient, ServiceContract } from '@prisma/client';
+import { ASSET_STATUS_ARRAYS, ASSET_STATUS_GROUPS } from '../utils/constants';
 
 
 const prisma = new PrismaClient();
 
 // get all service contracts
-export const getAllServiceContracts = async () => {
+export const getAllServiceContracts = async (groupstatus?: string, consumerId?: string) => {  
+  const where: any = {};
+  if (groupstatus === ASSET_STATUS_GROUPS.ACTIVE_OR_PRE_ACTIVE) {
+    where.asset = {
+      consumerId: consumerId,
+      status: {
+        in: ASSET_STATUS_ARRAYS.ACTIVE_OR_PRE_ACTIVE_STATUSES
+      }
+    };
+  }
+  
   const serviceContracts = await prisma.serviceContract.findMany({
+    where: Object.keys(where).length > 0 ? where : undefined,
     include: { 
       asset: {
         select: {
           id: true,
           assetName: true,
+          status: true,
       }},
       serviceSupplier: {
         select: {
