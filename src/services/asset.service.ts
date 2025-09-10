@@ -2,6 +2,7 @@
 import { PrismaClient, InstallationStatus } from '@prisma/client';
 import { CreateAssetFromGrnAndPoLineItemInput, CreateAssetWithWarrantyInput } from '../types';
 import { ASSET_STATUS_GROUPS, ASSET_STATUS_ARRAYS, ASSET_STATUSES } from '../utils/constants';
+import { generateEntityId } from '../helper/helper';
 
 const prisma = new PrismaClient();
 
@@ -208,6 +209,7 @@ export const deleteAsset = async (id: string) => {
  * Handles the new request structure with separate asset and warranty objects.
  */
 export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput) => {
+  console.log('data======>',data)
   // Start database transaction
   const result = await prisma.$transaction(async (tx) => {
     // 1. Create asset
@@ -224,7 +226,7 @@ export const createAssetWithWarranty = async (data: CreateAssetWithWarrantyInput
       ...(data.asset.isActive !== undefined && { isActive: data.asset.isActive }),
       ...(data.asset.partNo && { partNo: data.asset.partNo }),
       ...(data.asset.supplierCode && { supplierCode: data.asset.supplierCode }),
-      ...(data.asset.consumerSerialNo && { consumerSerialNo: data.asset.consumerSerialNo }),
+      ...(data.asset.consumerSerialNo ? { consumerSerialNo: data.asset.consumerSerialNo } : { consumerSerialNo: generateEntityId(data.asset.assetName) }),
       ...(data.asset.grnId && { grnId: data.asset.grnId }),
       ...(data.asset.grnItemId && { grnItemId: data.asset.grnItemId }),
       ...(data.asset.poLineItemId && { poLineItemId: data.asset.poLineItemId }),
