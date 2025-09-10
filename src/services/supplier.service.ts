@@ -81,7 +81,7 @@ export const createSupplier = async (data: {
 export const createSupplierAndLinkToConsumer = async (
   supplierData: {
     name: string;
-    code?: string | null;
+    code: string | null;
     gstNumber?: string | null;
     email?: string | null;
     phone?: string | null;
@@ -90,6 +90,7 @@ export const createSupplierAndLinkToConsumer = async (
   },
   consumerId: string
 ) => {
+  console.log('supplier Data====>',supplierData)
   return prisma.$transaction(async (tx) => {
     // Create the supplier
     const supplier = await tx.supplier.create({
@@ -104,6 +105,7 @@ export const createSupplierAndLinkToConsumer = async (
       data: {
         consumerId,
         supplierId: supplier.id,
+        supplierCode: supplierData.code
       },
     });
 
