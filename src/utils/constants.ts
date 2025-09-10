@@ -96,3 +96,18 @@ export const ASSET_STATUS_ARRAYS = {
     ASSET_STATUSES.ACTIVE
   ]
 };
+
+export const WARRANTY_STATS_TEXT = {  //for display in front end
+  expiringSoon: {
+    title: "Expiring Soon",
+    in5Days: "Expiring in 5 days",
+    in10Days: "Expiring in 10 days",
+    in30Days: "Expiring in 30 days"
+  },
+  recentlyExpired: {
+    title: "Expired",
+    inLast5Days: "Expired in last 5 days",
+    inLast10Days: "Expired in last 10 days",
+    inLast30Days: "Expired in last 30 days"
+  }
+}

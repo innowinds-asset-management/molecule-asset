@@ -14,7 +14,8 @@ import {
   createWarrantyType,
   updateWarrantyType,
   deleteWarrantyType,
-  getWarrantyStats
+  getWarrantyStats,
+  getWarrantiesWithoutAmcCMc 
 } from '../services/warranty.service';
 import { validateQueryParams } from '../helper/helper';
 import { AssetRequest } from '../middleware/userContextMiddleware';
@@ -177,17 +178,29 @@ export const deleteWarrantyTypeController = async (req: Request, res: Response) 
 };
 
 //get warranty stats
-export const getWarrantyStatsController = async (req: AssetRequest, res: Response) => {
+export const getWarrantyStatsController = async (req: AssetRequest, res: Response, next: NextFunction) => {
   try {
-    const consumerId = req._u?.consumerId;
-    
+    const consumerId = req._u?.consumerId;    
     if (!consumerId) {
-      return res.status(400).json({ error: 'Consumer ID is required' });
-    }
-    
+      return next(new Error('Consumer ID is required'));
+    }    
     const warrantyStats = await getWarrantyStats(consumerId);
-    return res.json(warrantyStats);
+    return ResponseHandler.success(res, 'Warranty stats fetched successfully', warrantyStats);
   } catch (error) {
-    return res.status(500).json({ error: 'Failed to fetch warranty stats' });
+    return next(error);
+  }
+};
+
+//get all warranties without AMC/CMC
+export const getAllWarrantiesWithoutAmcCmcController = async (req: AssetRequest, res: Response, next: NextFunction) => {
+  try {
+    const consumerId = req._u?.consumerId;    
+    if (!consumerId) {
+      return next(new Error('Consumer ID is required'));
+    }
+    const warranties = await getWarrantiesWithoutAmcCMc(consumerId);
+    return ResponseHandler.success(res, 'Warranties fetched successfully', warranties);
+  } catch (error) {
+    return next(error);
   }
 };

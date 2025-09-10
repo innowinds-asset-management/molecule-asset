@@ -13,7 +13,8 @@ import {
   createWarrantyTypeController,
   updateWarrantyTypeController,
   deleteWarrantyTypeController,
-  getWarrantyStatsController
+  getWarrantyStatsController,
+  getAllWarrantiesWithoutAmcCmcController
 } from '../controllers/warranty.controller';
 
 const router = Router();
@@ -426,6 +427,9 @@ router.delete('/type/:id', deleteWarrantyTypeController);
 
 //get warranty stats
 router.get('/stats', getWarrantyStatsController);
+
+//get all warranties without AMC/CMC
+router.get('/without-amc-cmc', getAllWarrantiesWithoutAmcCmcController);
 
 /**
  * @swagger
