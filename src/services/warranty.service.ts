@@ -43,8 +43,19 @@ export const getAllWarranties = async (consumerId?: string, filter?: { type: typ
       isActive: true
     }, include: {
       warrantyType: true,
-      asset: true,
-      notifications: true,
+      asset: {
+        select: {
+          id: true,
+          assetName: true,
+          supplier: {
+            select: {
+              id: true,
+              name: true
+            }
+          }
+        }
+      },
+      notifications: true,      
     },
   });
 };
