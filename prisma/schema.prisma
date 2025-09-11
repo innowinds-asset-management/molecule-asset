@@ -145,10 +145,10 @@ model Installation {
   assetId            String
   locationId         String
   departmentId       String
-  installationDate   DateTime
+  installationDate   DateTime?
   createdAt          DateTime            @default(now())
   updatedAt          DateTime            @updatedAt
-  installationStatus InstallationStatus? @default(Installable)
+  installationStatus InstallationStatus? 
   asset              Asset               @relation(fields: [assetId], references: [id])
   department         Department          @relation(fields: [departmentId], references: [deptId])
   location           Location            @relation(fields: [locationId], references: [id])
@@ -654,9 +654,9 @@ enum CoverageType {
 
 
 enum InstallationStatus {
-  Installable
+  InstallationNotRequired
   Installed
-  ReadyToUse
+  NotInstalled
 }
 
 enum UnitMeasure {
