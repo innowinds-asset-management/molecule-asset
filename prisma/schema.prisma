@@ -57,7 +57,7 @@ model Asset {
   partNo             String?
   supplierCode       String?
   isAmc              Boolean?          @default(true)
-  consumerSerialNo   String?
+  consumerSerialNo   BigInt?
   departmentId       String?
   grnId              String?
   grnItemId          String?
