@@ -221,6 +221,11 @@ export const getWarrantiesWithoutAmcCMc = async (consumerId?: string) => {
       // Warranties with assetId that doesn't exist in service contracts
       assetId: {
         notIn: assetIdsWithServiceContracts
+      },
+      // Add conditions for warrantyNotApplicable and amcCmcNotApplicable to be 0
+      asset: {
+        warrantyNotApplicable: false,
+        amcCmcNotApplicable: false
       }
     },
     include: {
