@@ -1,14 +1,46 @@
 //fetch all warranties
 import { Warranties, PrismaClient } from '@prisma/client';
 import { WARRANTY_STATS_TEXT } from '../utils/constants';
+import { FILTER_TYPES } from '../utils/constants';
 
 
 const prisma = new PrismaClient();
 
-export const getAllWarranties = async (consumerId?: string) => {
+export const getAllWarranties = async (consumerId?: string, filter?: { type: typeof FILTER_TYPES.expiring | typeof FILTER_TYPES.expired; days: number }) => {
+  // Calculate date filters if provided
+  let dateFilter: any = {};
+  if (filter) {
+    const today = new Date();
+    const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    if (filter.type === FILTER_TYPES.expiring) {
+      // For expiring warranties, check if they expire within the specified days
+      const futureDate = new Date(currentDate.getTime() + filter.days * 24 * 60 * 60 * 1000);
+      dateFilter = {
+        endDate: {
+          gte: currentDate,
+          lte: futureDate
+        }
+      };
+    } else if (filter.type === FILTER_TYPES.expired) {
+      // For expired warranties, check if they expired within the specified days
+      const pastDate = new Date(currentDate.getTime() - filter.days * 24 * 60 * 60 * 1000);
+      dateFilter = {
+        endDate: {
+          gte: pastDate,
+          lt: currentDate
+        }
+      };
+    }
+  }
+  
   return await prisma.warranties.findMany({
     where: {
       ...(consumerId && { consumerId }),
+      // Add date filter if provided
+      ...dateFilter,
+      // Only include active warranties
+      isActive: true
     }, include: {
       warrantyType: true,
       asset: true,
@@ -201,7 +233,7 @@ export const getWarrantyStats = async (consumerId: string) => {
 
 
 //fetch all warranty data which have no assetId in contractService
-export const getWarrantiesWithoutAmcCMc = async (consumerId?: string) => {
+export const getWarrantiesWithoutAmcCMc = async (consumerId?: string, filter?: { type: typeof FILTER_TYPES.expiring | typeof FILTER_TYPES.expired; days: number }) => {
   // First, get all assetIds that have service contracts
   const assetsWithServiceContracts = await prisma.serviceContract.findMany({
     select: {
@@ -214,6 +246,33 @@ export const getWarrantiesWithoutAmcCMc = async (consumerId?: string) => {
     .map(contract => contract.assetId)
     .filter(assetId => assetId !== null) as string[];
   
+  // Calculate date filters if provided
+  let dateFilter: any = {};
+  if (filter) {
+    const today = new Date();
+    const currentDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+    
+    if (filter.type === FILTER_TYPES.expiring) {
+      // For expiring warranties, check if they expire within the specified days
+      const futureDate = new Date(currentDate.getTime() + filter.days * 24 * 60 * 60 * 1000);
+      dateFilter = {
+        endDate: {
+          gte: currentDate,
+          lte: futureDate
+        }
+      };
+    } else if (filter.type === FILTER_TYPES.expired) {
+      // For expired warranties, check if they expired within the specified days
+      const pastDate = new Date(currentDate.getTime() - filter.days * 24 * 60 * 60 * 1000);
+      dateFilter = {
+        endDate: {
+          gte: pastDate,
+          lt: currentDate
+        }
+      };
+    }
+  }
+
   // Then, get all warranties that don't have assetId in service contracts
   const warranties = await prisma.warranties.findMany({
     where: {
@@ -226,7 +285,11 @@ export const getWarrantiesWithoutAmcCMc = async (consumerId?: string) => {
       asset: {
         warrantyNotApplicable: false,
         amcCmcNotApplicable: false
-      }
+      },
+      // Add date filter if provided
+      ...dateFilter,
+      // Only include active warranties
+      isActive: true
     },
     include: {
       warrantyType: true,
@@ -249,7 +312,7 @@ export const getWarrantiesWithoutAmcCMc = async (consumerId?: string) => {
   return warranties;
 };
 
-// Debug function to verify warranty statistics with raw queries
+// Debug function to verify warranty statistics with raw queries Testing purpose only
 export const debugWarrantyStats = async (consumerId: string) => {
   // Normalize current date to start of day (remove time component)
   const today = new Date();

@@ -111,3 +111,9 @@ export const WARRANTY_STATS_TEXT = {  //for display in front end
     inLast30Days: "Expired in last 30 days"
   }
 }
+
+//filter types
+export const FILTER_TYPES = {
+  expiring: 'expiring',
+  expired: 'expired',
+} as const

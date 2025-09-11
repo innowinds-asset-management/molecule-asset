@@ -1,9 +1,10 @@
 //warranty controllers
-
+import { FILTER_TYPES } from '../utils/constants';
 import { NextFunction, Request, Response } from 'express';
+
  
 import { 
-  getAllWarranties, 
+  getAllWarranties,
   getWarrantyById, 
   createWarranty, 
   updateWarranty, 
@@ -24,13 +25,33 @@ import ResponseHandler from '../helper/responseHandler';
 // Warranty Controllers
 export const getAllWarrantiesController = async (req: AssetRequest, res: Response,next: NextFunction) => {
   try {
-    validateQueryParams(req.query, ['sid']);    
+    validateQueryParams(req.query, ['sid', 'filterType', 'filterDays']);    
     let msg = 'Warranties fetched successfully';
     const consumerId =  req._u?.consumerId;    
     if (!consumerId) {
       throw new Error("Invalid consumer ID");
-    }    
-    const warranties = await getAllWarranties(consumerId);
+    }
+    
+    // Extract filter parameters from query
+    const { filterType, filterDays } = req.query;
+    
+    // Validate filter parameters
+    if (filterType && ![FILTER_TYPES.expiring, FILTER_TYPES.expired].includes(filterType as typeof FILTER_TYPES.expiring | typeof FILTER_TYPES.expired)) {
+      return next(new Error('Invalid filterType. Must be "expiring" or "expired"'));
+    }
+    
+    if (filterDays && (isNaN(Number(filterDays)) || Number(filterDays) < 1 || Number(filterDays) > 365)) {
+      return next(new Error('Invalid filterDays. Must be a number between 1 and 365'));
+    }
+    
+    // Convert filter parameters to the format expected by the service
+    const filter = filterType && filterDays ? {
+      type: filterType as typeof FILTER_TYPES.expiring | typeof FILTER_TYPES.expired,
+      days: Number(filterDays)
+    } : undefined;
+    
+    // Use getAllWarranties with filtering
+    const warranties = await getAllWarranties(consumerId, filter);
     if(warranties.length === 0){
       msg = 'No warranties found';
     }
