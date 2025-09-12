@@ -226,7 +226,7 @@ export const getWarrantyStats = async (consumerId: string) => {
 
   // Get total count of warranties without AMC/CMC
   const totalWarrantiesWithoutAmcCmc = warrantiesWithoutAmcCmc.length;
-  debugWarrantyStats(consumerId);
+  //debugWarrantyStats(consumerId);
   return {
     totalWarrantiesWithoutAmcCmc,
     expiringSoon: {

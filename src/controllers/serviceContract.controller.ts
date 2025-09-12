@@ -1,6 +1,6 @@
 //get service contract by asset id
 import { Request, Response, NextFunction } from 'express';
-import { getServiceContractByAssetId, createServiceContract, updateServiceContract, getAllServiceContractsByServiceSupplierId, getAllServiceContracts, getAllServiceContractsByAssetId } from "../services/serviceContract.service";
+import { getServiceContractByAssetId, createServiceContract, updateServiceContract, getAllServiceContractsByServiceSupplierId, getAllServiceContracts, getAllServiceContractsByAssetId, getServiceContractStats } from "../services/serviceContract.service";
 import ResponseHandler from '../helper/responseHandler';
 import { AssetRequest } from '../middleware/userContextMiddleware'; 
 
@@ -73,5 +73,21 @@ export const getAllServiceContractsByAssetIdController = async (req: Request, re
    }catch(error){
     return res.status(500).json({ error: 'Failed to fetch service contracts by asset id' });
    }
+}
+
+// get service contract stats
+export const getServiceContractStatsController = async (req: AssetRequest, res: Response, next: NextFunction) => {
+    try{
+        let msg = 'Service contract stats fetched successfully';
+        const consumerId = req._u?.consumerId;
+        const groupstatus = req.query['groupstatus'];
+        if (!consumerId) {
+            return next(new Error('Consumer ID is required'));
+        }
+        const serviceContractStats = await getServiceContractStats(consumerId, groupstatus as string);
+        return ResponseHandler.success(res, msg, serviceContractStats);
+    }catch(error){
+        return next(error);
+    }
 }
     
