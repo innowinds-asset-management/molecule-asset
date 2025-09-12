@@ -7,13 +7,18 @@ import { AssetRequest } from '../middleware/userContextMiddleware';
 // get all service contracts
 export const getAllServiceContractsController =     async (req: AssetRequest, res: Response,next: NextFunction) => {    
    try{
-    const { groupstatus } = req.query;
+    const { groupstatus, filterType, filterDays } = req.query;
     const consumerId = req._u?.consumerId;
     if(!consumerId){
         return next(new Error('Consumer ID is required'));
     }
     let msg = 'Service contracts fetched successfully';
-    const serviceContracts = await getAllServiceContracts(groupstatus as string, consumerId);
+    const serviceContracts = await getAllServiceContracts(
+      groupstatus as string, 
+      consumerId, 
+      filterType as string, 
+      filterDays ? parseInt(filterDays as string) : undefined
+    );
     if(serviceContracts.length === 0){
         let msg = 'No service contracts found';
         return ResponseHandler.success(res, msg, serviceContracts);

@@ -1,11 +1,13 @@
 import { PrismaClient, ServiceContract } from '@prisma/client';
-import { ASSET_STATUS_ARRAYS, ASSET_STATUS_GROUPS, SERVICE_CONTRACT_STATS_TEXT } from '../utils/constants';
+import { ASSET_STATUS_ARRAYS, ASSET_STATUS_GROUPS, FILTER_TYPES, SERVICE_CONTRACT_STATS_TEXT } from '../utils/constants';
 
 
 const prisma = new PrismaClient();
 
 // get all service contracts
-export const getAllServiceContracts = async (groupstatus?: string, consumerId?: string) => {  
+export const getAllServiceContracts = async (groupstatus?: string, consumerId?: string, filterType?: string, filterDays?: number) => {  
+  console.log("[ServiceContract] getAllServiceContracts called with:", { groupstatus, consumerId, filterType, filterDays });
+  
   const where: any = {};
   if (groupstatus === ASSET_STATUS_GROUPS.ACTIVE_OR_PRE_ACTIVE) {
     where.asset = {
@@ -15,6 +17,38 @@ export const getAllServiceContracts = async (groupstatus?: string, consumerId?: 
       }
     };
   }
+
+  // Add date filtering based on filterType and filterDays
+  if (filterType && filterDays) {
+    const now = new Date();
+    const targetDate = new Date(now.getTime() + (filterDays * 24 * 60 * 60 * 1000));
+    
+    console.log("[ServiceContract] Date filtering:", { 
+      filterType, 
+      filterDays, 
+      now: now.toISOString(), 
+      targetDate: targetDate.toISOString() 
+    });
+    
+    if (filterType === FILTER_TYPES.expiring) {
+      // Contracts expiring within the specified days
+      where.endDate = {
+        gte: now,
+        lte: targetDate
+      };
+      console.log("[ServiceContract] Expiring filter applied:", where.endDate);
+    } else if (filterType === FILTER_TYPES.expired) {
+      // Contracts expired within the specified days
+      const pastDate = new Date(now.getTime() - (filterDays * 24 * 60 * 60 * 1000));
+      where.endDate = {
+        gte: pastDate,
+        lt: now
+      };
+      console.log("[ServiceContract] Expired filter applied:", where.endDate);
+    }
+  }
+  
+  console.log("[ServiceContract] Final where clause:", where);
   
   const serviceContracts = await prisma.serviceContract.findMany({
     where: Object.keys(where).length > 0 ? where : undefined,
@@ -36,6 +70,16 @@ export const getAllServiceContracts = async (groupstatus?: string, consumerId?: 
     },
     orderBy: { createdAt: 'desc' },
   });
+  
+  console.log("[ServiceContract] Found contracts:", serviceContracts.length);
+  if (serviceContracts.length > 0) {
+    console.log("[ServiceContract] Sample contract dates:", serviceContracts.slice(0, 3).map(sc => ({
+      id: sc.contractId,
+      endDate: sc.endDate,
+      assetName: sc.asset?.assetName
+    })));
+  }
+  
   return serviceContracts;
 };
 
