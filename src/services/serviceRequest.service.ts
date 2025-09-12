@@ -42,7 +42,8 @@ export const getAllServiceRequests = async (status?: string, supplierId?: string
           id: true,
           department: {
             select: {
-              deptName: true
+              deptName: true,
+              deptId:true
             }
           }
         }
